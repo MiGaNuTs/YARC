@@ -15,7 +15,7 @@ ROOT        = os.path.dirname(os.path.abspath(__file__))
 SQL_FILE    = os.path.join(ROOT, 'yarc_seed.sql')
 DB_FILE     = os.path.join(ROOT, 'yarc.db')
 HTML_TPL    = os.path.join(ROOT, 'yarc.html')
-HTML_OUT    = os.path.join(ROOT, 'yarc_standalone.html')
+HTML_OUT    = os.path.join(ROOT, 'html', 'index.html')
 
 DB_PLACEHOLDER = '/* __YARC_DB_B64__ */'
 
@@ -30,6 +30,8 @@ def build_db():
     if not os.path.exists(SQL_FILE):
         print(f'ERROR: {SQL_FILE} not found.')
         sys.exit(1)
+
+    os.makedirs(os.path.dirname(HTML_OUT), exist_ok=True)
 
     if os.path.exists(DB_FILE):
         os.remove(DB_FILE)
@@ -84,7 +86,7 @@ def build_html(b64):
         f.write(html)
 
     size = os.path.getsize(HTML_OUT)
-    log(f'yarc_standalone.html : {size // 1024} kb')
+    log(f'html/index.html : {size // 1024} kb')
 
 
 def main():
@@ -96,8 +98,7 @@ def main():
     b64     = encode_db(db_file)
     build_html(b64)
 
-    print('
-' + '━' * 40)
+    print('\n' + '━' * 40)
     print('  ✓ Build complete')
     print('━' * 40)
 
