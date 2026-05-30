@@ -903,12 +903,21 @@
         this.lang = l;
       },
 
-      // Patch courant du jeu
-      CURRENT_PATCH: 300,
+      // Plage de patch selon les filtres de version actifs
+      get patchRange() {
+        const v = this.selectedVersions;
+        if (v.length === 0) return [0, 320];          // tout
+        let min = 999, max = 0;
+        if (v.includes('lod'))  { min = Math.min(min, 0);   max = Math.max(max, 111); }
+        if (v.includes('d2r'))  { min = Math.min(min, 200); max = Math.max(max, 260); }
+        if (v.includes('rotw')) { min = Math.min(min, 300); max = Math.max(max, 320); }
+        return [min, max];
+      },
 
-      // Traduire un nom (runeword, item type...)
+      // Traduire un nom selon la plage de patch active
       t(name_key, fallback) {
         if (this.lang === 'en') return fallback;
+        const [pmin, pmax] = this.patchRange;
         const rows = this._query(
           `SELECT value FROM translations
            WHERE name_key=? AND lang=?
@@ -916,7 +925,7 @@
            AND (patch_max IS NULL OR patch_max >= ?)
            ORDER BY patch_min DESC
            LIMIT 1`,
-          [name_key, this.lang, this.CURRENT_PATCH, this.CURRENT_PATCH]
+          [name_key, this.lang, pmax, pmin]
         );
         return rows.length > 0 ? rows[0].value : fallback;
       },
