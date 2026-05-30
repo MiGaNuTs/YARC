@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YARC — Yet Another Runeword Calculator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    /* ── Variables ── */
+    :root {
+      --bg:        #0a0804;
+      --bg2:       #110e08;
+      --bg3:       #1a1510;
+      --border:    #3a2e1e;
+      --border2:   #5a4a2e;
+      --gold:      #c8922a;
+      --gold2:     #e8b84b;
+      --gold-dim:  #7a5a1a;
+      --red:       #8b1a1a;
+      --red2:      #c0392b;
+      --text:      #d4c5a0;
+      --text-dim:  #8a7a5a;
+      --text-bright: #f0e4c0;
+      --rune-bg:   #1e1608;
+      --rune-border: #6b4f1e;
+      --shadow:    0 4px 24px rgba(0,0,0,0.8);
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Text', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.5;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(139,90,20,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(100,20,20,0.06) 0%, transparent 60%);
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: linear-gradient(180deg, rgba(30,20,8,0.9) 0%, transparent 100%);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 1.6rem;
+      color: var(--gold2);
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 20px rgba(200,146,42,0.4);
+      white-space: nowrap;
+    }
+
+    .logo span {
+      color: var(--text-dim);
+      font-weight: 400;
+      font-size: 0.75rem;
+      display: block;
+      letter-spacing: 0.2em;
+      margin-top: -4px;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    .header-info {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* ── Layout ── */
+    .app {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: var(--bg2);
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+    }
+
+    .filter-section {
+      margin-bottom: 1.8rem;
+    }
+
+    .filter-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Rune Grid ── */
+    .rune-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .rune-btn {
+      background: var(--rune-bg);
+      border: 1px solid var(--rune-border);
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 5px 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+    }
+
+    .rune-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold2);
+      background: rgba(200,146,42,0.08);
+    }
+
+    .rune-btn.active {
+      background: rgba(200,146,42,0.15);
+      border-color: var(--gold2);
+      color: var(--gold2);
+      box-shadow: 0 0 8px rgba(200,146,42,0.2);
+    }
+
+    .rune-num {
+      display: block;
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      opacity: 0.6;
+      margin-top: 1px;
+    }
+
+    /* ── Checkboxes ── */
+    .check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      transition: color 0.15s;
+    }
+
+    .check-row:hover { color: var(--text); }
+
+    .check-row input[type="checkbox"] {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .check-row input[type="checkbox"]:checked {
+      background: var(--gold);
+      border-color: var(--gold2);
+    }
+
+    .check-row input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 1px;
+      font-size: 11px;
+      color: var(--bg);
+      font-weight: 900;
+    }
+
+    /* ── Socket buttons ── */
+    .socket-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .socket-btn {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      padding: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-radius: 2px;
+    }
+
+    .socket-btn:hover {
+      border-color: var(--gold-dim);
+      color: var(--text);
+    }
+
+    .socket-btn.active {
+      background: rgba(200,146,42,0.12);
+      border-color: var(--gold);
+      color: var(--gold2);
+    }
+
+    /* ── Reset button ── */
+    .btn-reset {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--red2);
+      color: var(--red2);
+    }
+
+    /* ── Main content ── */
+    .main {
+      padding: 1.5rem 2rem;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .results-count {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .results-hint {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* ── Runeword cards ── */
+    .rw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .rw-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rw-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .rw-card:hover {
+      border-color: var(--border2);
+      background: var(--bg3);
+    }
+
+    .rw-card:hover::before { opacity: 1; }
+
+    .rw-card.complete {
+      border-color: rgba(200,146,42,0.3);
+    }
+
+    .rw-card.complete::before {
+      opacity: 1;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .rw-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold2);
+      margin-bottom: 4px;
+    }
+
+    .rw-card.complete .rw-name {
+      color: var(--gold2);
+      text-shadow: 0 0 12px rgba(200,146,42,0.3);
+    }
+
+    .rw-runes {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .rw-rune-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      margin: 2px 2px 2px 0;
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      border-radius: 2px;
+      background: var(--rune-bg);
+      color: var(--text-dim);
+      transition: all 0.15s;
+    }
+
+    .rw-rune-tag.owned {
+      border-color: var(--gold-dim);
+      color: var(--gold2);
+      background: rgba(200,146,42,0.08);
+    }
+
+    .rw-rune-tag.missing {
+      border-color: var(--red);
+      color: #c0392b;
+      background: rgba(139,26,26,0.08);
+    }
+
+    .rw-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .rw-tag {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 2px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.05em;
+    }
+
+    .rw-tag.clvl {
+      background: rgba(100,80,30,0.3);
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+    }
+
+    .rw-tag.sockets {
+      background: rgba(30,60,100,0.3);
+      border: 1px solid #2a4a6a;
+      color: #6a9ac0;
+    }
+
+    .rw-tag.ladder {
+      background: rgba(100,30,30,0.3);
+      border: 1px solid var(--red);
+      color: #c06060;
+    }
+
+    .rw-tag.d2r {
+      background: rgba(30,80,50,0.3);
+      border: 1px solid #2a6a4a;
+      color: #6ac090;
+    }
+
+    .rw-tag.item-type {
+      background: rgba(50,40,20,0.3);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    /* ── Detail panel ── */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      padding: 2rem;
+    }
+
+    .detail-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow), 0 0 60px rgba(200,146,42,0.1);
+      position: relative;
+    }
+
+    .detail-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(200,146,42,0.05) 0%, transparent 100%);
+    }
+
+    .detail-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold2);
+      text-shadow: 0 0 20px rgba(200,146,42,0.3);
+      margin-bottom: 4px;
+    }
+
+    .detail-runes {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .detail-body {
+      padding: 1.2rem 1.5rem;
+    }
+
+    .detail-effects {
+      list-style: none;
+    }
+
+    .detail-effects li {
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(58,46,30,0.4);
+      font-size: 0.95rem;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .detail-effects li::before {
+      content: '◆';
+      color: var(--gold-dim);
+      font-size: 0.5rem;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .detail-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-close:hover {
+      border-color: var(--red2);
+      color: var(--red2);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state .glyph {
+      font-family: 'Cinzel', serif;
+      font-size: 3rem;
+      color: var(--border2);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text-dim);
+      font-style: italic;
+      font-size: 0.9rem;
+      gap: 0.5rem;
+    }
+
+    .loading::before {
+      content: '⟳';
+      animation: spin 1.5s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+    /* ── Card header ── */
+    .rw-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .expand-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      border-radius: 2px;
+      margin-top: 2px;
+    }
+
+    .expand-btn:hover {
+      border-color: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    .expand-btn.open {
+      border-color: var(--gold);
+      color: var(--gold2);
+      transform: rotate(180deg);
+    }
+
+    /* ── Inline effects ── */
+    .rw-effects {
+      list-style: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .rw-effects li {
+      padding: 3px 0;
+      font-size: 0.88rem;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+
+    .rw-effects li::before {
+      content: '◆';
+      color: var(--gold-dim);
+      font-size: 0.45rem;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    /* ── Animations ── */
+    .rw-card {
+      animation: fadeIn 0.2s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body x-data="yarc()" x-init="init()">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      YARC
+      <span>Yet Another Runeword Calculator</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-info">
+      Diablo II: Resurrected &mdash; v3.2 Reign of the Warlock
+    </div>
+  </header>
+
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Runes -->
+      <div class="filter-section">
+        <div class="filter-title">Runes owned</div>
+        <div class="rune-grid">
+          <template x-for="rune in runes" :key="rune.id">
+            <button
+              class="rune-btn"
+              :class="{ active: selectedRunes.has(rune.id) }"
+              @click="toggleRune(rune.id)"
+              :title="rune.name_en + ' (clvl ' + rune.clvl + ')'"
+            >
+              <span x-text="rune.name_en"></span>
+              <span class="rune-num" x-text="'r' + String(rune.id).padStart(2,'0')"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Item types -->
+      <div class="filter-section">
+        <div class="filter-title">Item type</div>
+        <div class="check-group">
+          <template x-for="it in itemTypes" :key="it.id">
+            <label class="check-row">
+              <input type="checkbox" :value="it.id" x-model="selectedItemTypes">
+              <span x-text="it.name_en"></span>
+            </label>
+          </template>
+        </div>
+      </div>
+
+      <!-- Sockets -->
+      <div class="filter-section">
+        <div class="filter-title">Sockets</div>
+        <div class="socket-group">
+          <template x-for="n in [2,3,4,5,6]" :key="n">
+            <button
+              class="socket-btn"
+              :class="{ active: selectedSockets.has(n) }"
+              @click="toggleSocket(n)"
+              x-text="n"
+            ></button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Version -->
+      <div class="filter-section">
+        <div class="filter-title">Version</div>
+        <div class="check-group">
+          <label class="check-row">
+            <input type="checkbox" value="lod" x-model="selectedVersions">
+            <span>Lord of Destruction</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" value="d2r" x-model="selectedVersions">
+            <span>D2R (2.4 – 2.6)</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" value="rotw" x-model="selectedVersions">
+            <span>Reign of the Warlock</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Ladder -->
+      <div class="filter-section">
+        <div class="filter-title">Mode</div>
+        <div class="check-group">
+          <label class="check-row">
+            <input type="checkbox" value="nonladder" x-model="selectedModes">
+            <span>Non-Ladder</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" value="ladder" x-model="selectedModes">
+            <span>Ladder</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-reset" @click="resetFilters()">↺ RESET FILTERS</button>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <div x-show="!dbReady" class="loading">Loading database…</div>
+
+      <template x-if="dbReady">
+        <div>
+          <div class="results-header">
+            <span class="results-count" x-text="filteredRW.length + ' runewords'"></span>
+            <span class="results-hint" x-show="selectedRunes.size > 0">
+              — <span x-text="filteredRW.filter(r=>r.complete).length"></span> craftable with your runes
+            </span>
+          </div>
+
+          <div x-show="filteredRW.length === 0" class="empty-state">
+            <span class="glyph">ᚱ</span>
+            No runewords match your filters.
+          </div>
+
+          <div class="rw-grid">
+            <template x-for="rw in filteredRW" :key="rw.id">
+              <div
+                class="rw-card"
+                :class="{ complete: rw.complete }"
+              >
+                <div class="rw-name" x-text="rw.name_en"></div>
+                <div class="rw-runes">
+                  <template x-for="r in rw.runeList" :key="r.id">
+                    <span
+                      class="rw-rune-tag"
+                      :class="{ owned: selectedRunes.has(r.id), missing: selectedRunes.size > 0 && !selectedRunes.has(r.id) }"
+                      x-text="r.name_en"
+                    ></span>
+                  </template>
+                </div>
+                <div class="rw-meta">
+                  <span class="rw-tag clvl" x-text="'clvl ' + rw.clvl"></span>
+                  <span class="rw-tag sockets" x-text="rw.sockets + ' sockets'"></span>
+                  <template x-if="rw.season_min">
+                    <span class="rw-tag ladder">Ladder</span>
+                  </template>
+                  <template x-if="rw.patch_min >= 300">
+                    <span class="rw-tag d2r">RoTW</span>
+                  </template>
+                  <template x-if="rw.patch_min >= 200 && rw.patch_min < 300">
+                    <span class="rw-tag d2r">D2R</span>
+                  </template>
+                  <template x-for="it in rw.itemTypes" :key="it">
+                    <span class="rw-tag item-type" x-text="it"></span>
+                  </template>
+                </div>
+                <ul class="rw-effects">
+                  <template x-for="fx in rw.effects" :key="fx">
+                    <li x-text="fx"></li>
+                  </template>
+                  <template x-if="rw.effects.length === 0">
+                    <li style="color:var(--text-dim);font-style:italic">Effects not yet available.</li>
+                  </template>
+                </ul>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+    </main>
+  </div>
+
+
+
+  <script>
+  function yarc() {
+    return {
+      // State
+      db: null,
+      dbReady: false,
+      runes: [],
+      itemTypes: [],
+      allRW: [],
+
+      // Filters
+      selectedRunes: new Set(),
+      selectedItemTypes: [],
+      selectedSockets: new Set(),
+      selectedVersions: [],
+      selectedModes: [],
+
+      async init() {
+        const SQL = await initSqlJs({
+          locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}`
+        });
+        const b64 = "/* __YARC_DB_B64__ */";
+        const bin = atob(b64);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        this.db = new SQL.Database(buf);
+
+        this.runes     = this._query('SELECT id, name_en, clvl FROM runes ORDER BY id');
+        this.itemTypes = this._query('SELECT id, code, name_en FROM item_types ORDER BY name_en');
+        this._loadRW();
+        this.dbReady = true;
+      },
+
+      _query(sql, params = []) {
+        const stmt = this.db.prepare(sql);
+        stmt.bind(params);
+        const cols = stmt.getColumnNames();
+        const rows = [];
+        while (stmt.step()) {
+          const vals = stmt.get();
+          const obj = {};
+          cols.forEach((c, i) => obj[c] = vals[i]);
+          rows.push(obj);
+        }
+        stmt.free();
+        return rows;
+      },
+
+      _loadRW() {
+        // Charger tous les runewords avec leurs runes et types d'items
+        const rws = this._query(`
+          SELECT rw.*
+          FROM runewords rw
+          ORDER BY rw.clvl, rw.name_en
+        `);
+
+        const runeMap = {};
+        this.runes.forEach(r => runeMap[r.id] = r);
+
+        const itemTypeMap = {};
+        this.itemTypes.forEach(it => itemTypeMap[it.id] = it);
+
+        // Item types par runeword
+        const rwItemTypes = this._query(`
+          SELECT rwit.runeword_id, it.name_en
+          FROM runeword_item_types rwit
+          JOIN item_types it ON it.id = rwit.item_type_id
+        `);
+        const itByRW = {};
+        rwItemTypes.forEach(r => {
+          if (!itByRW[r.runeword_id]) itByRW[r.runeword_id] = [];
+          itByRW[r.runeword_id].push(r.name_en);
+        });
+
+        // Effets par runeword
+        const allEffects = this._query(`
+          SELECT re.name_key, re.effect_en
+          FROM runeword_effects re
+          ORDER BY re.id
+        `);
+        const effectsByKey = {};
+        allEffects.forEach(r => {
+          if (!effectsByKey[r.name_key]) effectsByKey[r.name_key] = [];
+          effectsByKey[r.name_key].push(r.effect_en);
+        });
+
+        this.allRW = rws.map(rw => {
+          const runeIds = [rw.rune1_id, rw.rune2_id, rw.rune3_id, rw.rune4_id, rw.rune5_id, rw.rune6_id].filter(Boolean);
+          return {
+            ...rw,
+            runeList: runeIds.map(id => runeMap[id]).filter(Boolean),
+            itemTypes: itByRW[rw.id] || [],
+            effects: effectsByKey[rw.name_key] || [],
+            complete: false,
+            expanded: false,
+          };
+        });
+      },
+
+      get filteredRW() {
+        return this.allRW
+          .map(rw => {
+            // Calcul "complete" (toutes les runes cochées)
+            const complete = this.selectedRunes.size > 0 &&
+              rw.runeList.every(r => this.selectedRunes.has(r.id));
+            return { ...rw, complete };
+          })
+          .filter(rw => {
+            // Filtre runes : si des runes sont sélectionnées, au moins une doit matcher
+            if (this.selectedRunes.size > 0) {
+              const hasAny = rw.runeList.some(r => this.selectedRunes.has(r.id));
+              if (!hasAny) return false;
+            }
+
+            // Filtre sockets
+            if (this.selectedSockets.size > 0 && !this.selectedSockets.has(rw.sockets))
+              return false;
+
+            // Filtre item types
+            if (this.selectedItemTypes.length > 0) {
+              const rwItIds = this._query(
+                'SELECT item_type_id FROM runeword_item_types WHERE runeword_id = ?',
+                [rw.id]
+              ).map(r => r.item_type_id);
+              const match = this.selectedItemTypes.some(id => rwItIds.includes(parseInt(id)));
+              if (!match) return false;
+            }
+
+            // Filtre version
+            if (this.selectedVersions.length > 0) {
+              let vMatch = false;
+              if (this.selectedVersions.includes('lod')  && rw.patch_min < 200) vMatch = true;
+              if (this.selectedVersions.includes('d2r')  && rw.patch_min >= 200 && rw.patch_min < 300) vMatch = true;
+              if (this.selectedVersions.includes('rotw') && rw.patch_min >= 300) vMatch = true;
+              if (!vMatch) return false;
+            }
+
+            // Filtre mode ladder
+            if (this.selectedModes.length > 0) {
+              let mMatch = false;
+              if (this.selectedModes.includes('ladder')    && rw.season_min) mMatch = true;
+              if (this.selectedModes.includes('nonladder') && !rw.season_min) mMatch = true;
+              if (!mMatch) return false;
+            }
+
+            return true;
+          })
+          .sort((a, b) => b.complete - a.complete || a.clvl - b.clvl);
+      },
+
+      toggleRune(id) {
+        const s = new Set(this.selectedRunes);
+        s.has(id) ? s.delete(id) : s.add(id);
+        this.selectedRunes = s;
+      },
+
+      toggleSocket(n) {
+        const s = new Set(this.selectedSockets);
+        s.has(n) ? s.delete(n) : s.add(n);
+        this.selectedSockets = s;
+      },
+
+      toggleExpand(rw, e) {
+        e.stopPropagation();
+        rw.expanded = !rw.expanded;
+      },
+
+      resetFilters() {
+        this.selectedRunes     = new Set();
+        this.selectedItemTypes = [];
+        this.selectedSockets   = new Set();
+        this.selectedVersions  = [];
+        this.selectedModes     = [];
+      },
+    };
+  }
+  </script>
+</body>
+</html>
