@@ -556,6 +556,23 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .header-gh {
+      margin-left: auto;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      transition: all 0.2s;
+    }
+
+    .header-gh:hover {
+      color: var(--gold2);
+      border-color: var(--gold-dim);
+    }
+
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -646,6 +663,9 @@
     <div class="header-info">
       Diablo II: Resurrected &mdash; v3.2 Reign of the Warlock
     </div>
+    <a class="header-gh" href="https://github.com/MiGaNuTs/YARC" target="_blank" rel="noopener">
+      ⎇ GitHub
+    </a>
   </header>
 
   <div class="app">
