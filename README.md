@@ -55,7 +55,8 @@ YARC/
 ├── yarc.html             ← HTML template (no database)
 ├── build.py              ← Build script
 ├── yarc.db               ← Compiled database (generated)
-├── yarc_standalone.html  ← Final output, DB embedded (generated)
+├── html/
+│   └── index.html        ← Final output, DB embedded (generated)
 └── README.md
 ```
 
