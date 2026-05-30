@@ -9,7 +9,7 @@
 Yet Another Runeword Calculator
 ```
 
-[![Live](https://img.shields.io/badge/▶%20Play%20online-GitHub%20Pages-c8922a?style=flat-square)](https://YOUR_USERNAME.github.io/YARC)
+[![Live](https://img.shields.io/badge/▶%20Play%20online-GitHub%20Pages-c8922a?style=flat-square)](https://MiGaNuTs.github.io/YARC)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey?style=flat-square)](LICENSE)
 
 A runeword calculator for **Diablo II: Resurrected** — up to date with patch 3.2 / Reign of the Warlock.
@@ -23,7 +23,7 @@ No install. No account. No ads. One HTML file.
 
 ## Authors
 
-- **[YOUR_USERNAME]**
+- **[MiGaNuTs]**
 - **Claude** (Anthropic) — co-author and pair-programmer
 
 ---
@@ -43,7 +43,7 @@ No install. No account. No ads. One HTML file.
 
 Just open `yarc_standalone.html` in any browser. No server needed.
 
-Or use the [live version on GitHub Pages](https://YOUR_USERNAME.github.io/YARC).
+Or use the [live version on GitHub Pages](https://MiGaNuTs.github.io/YARC).
 
 ---
 
@@ -136,7 +136,7 @@ This project is not affiliated with or endorsed by Blizzard Entertainment.*
 
 ## License
 
-Code and structure © [YOUR_USERNAME] & Claude (Anthropic) —
+Code and structure © [MiGaNuTs] & Claude (Anthropic) —
 licensed under [CC BY-NC 4.0](LICENSE).
 
 You are free to use, share and adapt this project for **non-commercial purposes**,
