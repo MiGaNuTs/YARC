@@ -123,6 +123,16 @@ Found a wrong effect? A missing runeword? A season flag that's off?
 > Some runeword effects are not yet fully corrected — particularly
 > per-level scaling effects and RoTW additions. Contributions welcome.
 
+### French translations
+
+French runeword names were revised between LoD and D2R — many names changed with patch 2.4.
+We've corrected the ones we know about (Grief → Grand Chagrin, Duress → Domination, Oath → Serment, Hustle → Mania...) but there are likely more.
+
+If you remember an old FR name that changed, open an issue or submit a PR against `yarc_seed.sql` with:
+- the `name_key` (e.g. `runeword.grief`)
+- the old name and its patch range (`patch_max`)
+- the new name and its patch range (`patch_min`)
+
 ---
 
 ## Data sources
