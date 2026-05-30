@@ -556,8 +556,39 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .header-gh {
+    .lang-toggle {
+      display: flex;
+      gap: 0;
       margin-left: auto;
+    }
+
+    .lang-toggle button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-toggle button:first-child { border-right: none; }
+
+    .lang-toggle button:hover {
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    .lang-toggle button.active {
+      background: rgba(200,146,42,0.12);
+      border-color: var(--gold-dim);
+      color: var(--gold2);
+    }
+
+    .header-gh {
+      margin-left: 0.5rem;
       font-family: 'Cinzel', serif;
       font-size: 0.7rem;
       letter-spacing: 0.15em;
@@ -662,6 +693,10 @@
     <div class="header-divider"></div>
     <div class="header-info">
       Diablo II: Resurrected &mdash; v3.2 Reign of the Warlock
+    </div>
+    <div class="lang-toggle">
+      <button :class="{ active: lang === 'fr' }" @click="setLang('fr')">FR</button>
+      <button :class="{ active: lang === 'en' }" @click="setLang('en')">EN</button>
     </div>
     <a class="header-gh" href="https://github.com/MiGaNuTs/YARC" target="_blank" rel="noopener">
       ⎇ GitHub
@@ -782,7 +817,7 @@
                 class="rw-card"
                 :class="{ complete: rw.complete }"
               >
-                <div class="rw-name" x-text="rw.name_en"></div>
+                <div class="rw-name" x-text="t(rw.name_key, rw.name_en)"></div>
                 <div class="rw-runes">
                   <template x-for="r in rw.runeList" :key="r.id">
                     <span
@@ -809,7 +844,7 @@
                   </template>
                 </div>
                 <ul class="rw-effects">
-                  <template x-for="fx in rw.effects" :key="fx">
+                  <template x-for="fx in tEffects(rw.name_key, rw.effects)" :key="fx">
                     <li x-text="fx"></li>
                   </template>
                   <template x-if="rw.effects.length === 0">
@@ -854,10 +889,46 @@
         for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
         this.db = new SQL.Database(buf);
 
+        // Détecter la langue du browser
+        const browserLang = (navigator.language || 'en').substring(0, 2).toLowerCase();
+        this.lang = browserLang === 'fr' ? 'fr' : 'en';
+
         this.runes     = this._query('SELECT id, name_en, clvl FROM runes ORDER BY id');
         this.itemTypes = this._query('SELECT id, code, name_en FROM item_types ORDER BY name_en');
         this._loadRW();
         this.dbReady = true;
+      },
+
+      setLang(l) {
+        this.lang = l;
+      },
+
+      // Patch courant du jeu
+      CURRENT_PATCH: 300,
+
+      // Traduire un nom (runeword, item type...)
+      t(name_key, fallback) {
+        if (this.lang === 'en') return fallback;
+        const rows = this._query(
+          `SELECT value FROM translations
+           WHERE name_key=? AND lang=?
+           AND (patch_min IS NULL OR patch_min <= ?)
+           AND (patch_max IS NULL OR patch_max >= ?)
+           ORDER BY patch_min DESC
+           LIMIT 1`,
+          [name_key, this.lang, this.CURRENT_PATCH, this.CURRENT_PATCH]
+        );
+        return rows.length > 0 ? rows[0].value : fallback;
+      },
+
+      // Traduire une liste d'effets avec fallback sur l'anglais
+      tEffects(name_key, fallback_effects) {
+        if (this.lang === 'en') return fallback_effects;
+        const rows = this._query(
+          "SELECT value FROM translations WHERE name_key=? AND lang=?",
+          [name_key + '.effect', this.lang]
+        );
+        return rows.length > 0 ? rows.map(r => r.value) : fallback_effects;
       },
 
       _query(sql, params = []) {
