@@ -685,8 +685,8 @@
       </template>
     </div>
     <div class="header-count" x-show="dbReady">
-      <span x-text="filteredRW.length"></span> runewords
-      <template x-if="selectedRunes.size > 0">
+      <span x-text="dbReady ? filteredRW.length : ''"></span> runewords
+      <template x-if="dbReady && selectedRunes.size > 0">
         <span> — <span x-text="filteredRW.filter(r=>r.complete).length"></span> craftable</span>
       </template>
     </div>
@@ -850,6 +850,9 @@
       runes: [],
       itemTypes: [],
       allRW: [],
+      versions: [],
+      availableLangs: ['en'],
+      lang: 'en',
 
       // Filters
       selectedRunes: new Set(),
@@ -859,6 +862,7 @@
       selectedModes: [],
 
       async init() {
+        try {
         const SQL = await initSqlJs({
           locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}`
         });
@@ -884,6 +888,7 @@
           }));
         this._loadRW();
         this.dbReady = true;
+        } catch(e) { console.error('YARC init error:', e); }
       },
 
       setLang(l) {
@@ -965,7 +970,7 @@
         `);
 
         const runeMap = {};
-        this.runes.forEach(r => runeMap[r.id] = r);
+        this.runes.forEach(r => runeMap[parseInt(r.id)] = r);
 
         const itemTypeMap = {};
         this.itemTypes.forEach(it => itemTypeMap[it.id] = it);
@@ -973,8 +978,8 @@
         // Item types par runeword
         const rwItemTypes = this._query(`
           SELECT rwit.runeword_id, it.name_en
-          FROM runeword_item_subtypes rwit
-          JOIN item_subtypes it ON it.id = rwit.item_type_id
+          FROM runeword_item_types rwit
+          JOIN item_subtypes it ON it.id = rwit.item_subtype_id
         `);
         const itByRW = {};
         rwItemTypes.forEach(r => {
@@ -995,7 +1000,7 @@
         });
 
         this.allRW = rws.map(rw => {
-          const runeIds = [rw.rune1_id, rw.rune2_id, rw.rune3_id, rw.rune4_id, rw.rune5_id, rw.rune6_id].filter(Boolean);
+          const runeIds = [rw.rune1_id, rw.rune2_id, rw.rune3_id, rw.rune4_id, rw.rune5_id, rw.rune6_id].filter(Boolean).map(id => parseInt(id));
           return {
             ...rw,
             runeList: runeIds.map(id => runeMap[id]).filter(Boolean),
@@ -1008,6 +1013,7 @@
       },
 
       get filteredRW() {
+        if (!this.dbReady) return [];
         return this.allRW
           .map(rw => {
             // Calcul "complete" (toutes les runes cochées)
@@ -1029,7 +1035,7 @@
             // Filtre item types
             if (this.selectedItemTypes.length > 0) {
               const rwItIds = this._query(
-                'SELECT item_type_id FROM runeword_item_subtypes WHERE runeword_id = ?',
+                'SELECT item_subtype_id FROM runeword_item_types WHERE runeword_id = ?',
                 [rw.id]
               ).map(r => r.item_type_id);
               const match = this.selectedItemTypes.some(id => rwItIds.includes(parseInt(id)));
@@ -1081,5 +1087,13 @@
     };
   }
   </script>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  console.error('YARC window.onerror:', msg, 'line:', line, err);
+};
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('YARC unhandled promise:', e.reason);
+});
+</script>
 </body>
 </html>
