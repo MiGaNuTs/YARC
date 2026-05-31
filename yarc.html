@@ -700,6 +700,18 @@
     <!-- Sidebar -->
     <aside class="sidebar">
 
+      <!-- Niveau requis -->
+      <div class="filter-section">
+        <div class="filter-title">Required Level</div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px">
+          <span class="rw-tag clvl" x-text="'clvl ' + minClvl"></span>
+          <span style="color:var(--text-dim)">—</span>
+          <span class="rw-tag clvl" x-text="'clvl ' + maxClvl"></span>
+        </div>
+        <input type="range" min="1" max="99" x-model="minClvl" style="width:100%; accent-color:var(--gold)">
+        <input type="range" min="1" max="99" x-model="maxClvl" style="width:100%; accent-color:var(--gold); margin-top:4px">
+      </div>
+
       <!-- Runes -->
       <div class="filter-section">
         <div class="filter-title">Runes owned</div>
@@ -798,7 +810,7 @@
               >
                 <div class="rw-name" x-text="t(rw.name_key, rw.name_en)"></div>
                 <div class="rw-runes">
-                  <template x-for="r in rw.runeList" :key="r.id">
+                  <template x-for="(r, ri) in rw.runeList" :key="rw.id + '_' + ri">
                     <span
                       class="rw-rune-tag"
                       :class="{ owned: selectedRunes.has(r.id), missing: selectedRunes.size > 0 && !selectedRunes.has(r.id) }"
@@ -823,7 +835,7 @@
                   </template>
                 </div>
                 <ul class="rw-effects">
-                  <template x-for="fx in tEffects(rw.name_key, rw.effects)" :key="fx">
+                  <template x-for="(fx, fxi) in tEffects(rw.name_key, rw.effects)" :key="rw.id + '_' + fxi">
                     <li x-text="fx"></li>
                   </template>
                   <template x-if="rw.effects.length === 0">
@@ -859,6 +871,8 @@
       selectedItemTypes: [],
       selectedSockets: new Set(),
       selectedVersions: [], // patch_min integers
+      minClvl: 1,
+      maxClvl: 99,
       selectedModes: [],
 
       async init() {
@@ -1028,6 +1042,10 @@
               if (!hasAny) return false;
             }
 
+            // Filtre clvl
+            if (rw.clvl < parseInt(this.minClvl) || rw.clvl > parseInt(this.maxClvl))
+              return false;
+
             // Filtre sockets
             if (this.selectedSockets.size > 0 && !this.selectedSockets.has(rw.sockets))
               return false;
@@ -1081,6 +1099,8 @@
         this.selectedRunes     = new Set();
         this.selectedItemTypes = [];
         this.selectedSockets   = new Set();
+        this.minClvl           = 1;
+        this.maxClvl           = 99;
         this.selectedVersions  = [];
         this.selectedModes     = [];
       },

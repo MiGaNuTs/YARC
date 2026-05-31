@@ -1,28 +1,948 @@
 -- YARC - Yet Another Runeword Calculator
--- Seed data generated from blizzhackers/d2data
 
-CREATE TABLE IF NOT EXISTS runes (
-    id       INTEGER PRIMARY KEY,
-    name_key TEXT NOT NULL,
-    name_en  TEXT NOT NULL,
-    clvl     INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS rune_effects (
-    id        INTEGER PRIMARY KEY,
-    name_key  TEXT NOT NULL,
-    item_type TEXT NOT NULL,
-    effect_en TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS item_subtypes (
+BEGIN TRANSACTION;
+CREATE TABLE item_subtypes (
     id        INTEGER PRIMARY KEY,
     code      TEXT NOT NULL UNIQUE,
     name_en   TEXT NOT NULL,
     item_type TEXT NOT NULL  -- "weapon", "armor", "shield"
 );
-
-CREATE TABLE IF NOT EXISTS runewords (
+INSERT INTO "item_subtypes" VALUES(1,'axe','Axes','weapon');
+INSERT INTO "item_subtypes" VALUES(2,'club','Clubs','weapon');
+INSERT INTO "item_subtypes" VALUES(3,'grim','Primal Helms (Druid)','armor');
+INSERT INTO "item_subtypes" VALUES(4,'h2h','Claws (Assassin)','weapon');
+INSERT INTO "item_subtypes" VALUES(5,'hamm','Hammers','weapon');
+INSERT INTO "item_subtypes" VALUES(6,'head','Necromancer Heads','shield');
+INSERT INTO "item_subtypes" VALUES(7,'helm','Helms','armor');
+INSERT INTO "item_subtypes" VALUES(8,'knif','Knives','weapon');
+INSERT INTO "item_subtypes" VALUES(9,'mace','Maces','weapon');
+INSERT INTO "item_subtypes" VALUES(10,'mele','Melee Weapons','weapon');
+INSERT INTO "item_subtypes" VALUES(11,'miss','Missile Weapons','weapon');
+INSERT INTO "item_subtypes" VALUES(12,'pala','Paladin Shields','shield');
+INSERT INTO "item_subtypes" VALUES(13,'pole','Polearms','weapon');
+INSERT INTO "item_subtypes" VALUES(14,'scep','Scepters','weapon');
+INSERT INTO "item_subtypes" VALUES(15,'shld','Shields','shield');
+INSERT INTO "item_subtypes" VALUES(16,'spea','Spears','weapon');
+INSERT INTO "item_subtypes" VALUES(17,'staf','Staves','weapon');
+INSERT INTO "item_subtypes" VALUES(18,'swor','Swords','weapon');
+INSERT INTO "item_subtypes" VALUES(19,'tors','Body Armor','armor');
+INSERT INTO "item_subtypes" VALUES(20,'wand','Wands','weapon');
+INSERT INTO "item_subtypes" VALUES(21,'weap','All Weapons','weapon');
+CREATE TABLE rune_effects (
+    id        INTEGER PRIMARY KEY,
+    name_key  TEXT NOT NULL,
+    item_type TEXT NOT NULL,
+    effect_en TEXT NOT NULL
+);
+INSERT INTO "rune_effects" VALUES(1,'rune.el','weapon','+1 to Light Radius');
+INSERT INTO "rune_effects" VALUES(2,'rune.el','weapon','+50 to Attack Rating');
+INSERT INTO "rune_effects" VALUES(3,'rune.el','armor','+1 to Light Radius');
+INSERT INTO "rune_effects" VALUES(4,'rune.el','armor','+15 Defense');
+INSERT INTO "rune_effects" VALUES(5,'rune.el','shield','+1 to Light Radius');
+INSERT INTO "rune_effects" VALUES(6,'rune.el','shield','+15 Defense');
+INSERT INTO "rune_effects" VALUES(7,'rune.eld','weapon','+50 to Attack Rating against Undead');
+INSERT INTO "rune_effects" VALUES(8,'rune.eld','weapon','+75% Damage to Undead');
+INSERT INTO "rune_effects" VALUES(9,'rune.eld','armor','15% Slower Stamina Drain');
+INSERT INTO "rune_effects" VALUES(10,'rune.eld','shield','7% Increased Chance of Blocking');
+INSERT INTO "rune_effects" VALUES(11,'rune.tir','weapon','+2 to Mana after each Kill');
+INSERT INTO "rune_effects" VALUES(12,'rune.tir','armor','+2 to Mana after each Kill');
+INSERT INTO "rune_effects" VALUES(13,'rune.tir','shield','+2 to Mana after each Kill');
+INSERT INTO "rune_effects" VALUES(14,'rune.nef','weapon','Knockback');
+INSERT INTO "rune_effects" VALUES(15,'rune.nef','armor','+30 Defense vs. Missile');
+INSERT INTO "rune_effects" VALUES(16,'rune.nef','shield','+30 Defense vs. Missile');
+INSERT INTO "rune_effects" VALUES(17,'rune.eth','weapon','-25% Target Defense');
+INSERT INTO "rune_effects" VALUES(18,'rune.eth','armor','Regenerate Mana 15%');
+INSERT INTO "rune_effects" VALUES(19,'rune.eth','shield','Regenerate Mana 15%');
+INSERT INTO "rune_effects" VALUES(20,'rune.ith','weapon','+9 to Maximum Damage');
+INSERT INTO "rune_effects" VALUES(21,'rune.ith','armor','15% Damage Taken Goes To Mana');
+INSERT INTO "rune_effects" VALUES(22,'rune.ith','shield','15% Damage Taken Goes To Mana');
+INSERT INTO "rune_effects" VALUES(23,'rune.tal','weapon','Adds 75 Poison Damage Over 5 Seconds');
+INSERT INTO "rune_effects" VALUES(24,'rune.tal','armor','Poison Resist +30%');
+INSERT INTO "rune_effects" VALUES(25,'rune.tal','shield','Poison Resist +35%');
+INSERT INTO "rune_effects" VALUES(26,'rune.ral','weapon','Adds 5-30 Fire Damage');
+INSERT INTO "rune_effects" VALUES(27,'rune.ral','armor','Fire Resist +30%');
+INSERT INTO "rune_effects" VALUES(28,'rune.ral','shield','Fire Resist +35%');
+INSERT INTO "rune_effects" VALUES(29,'rune.ort','weapon','Adds 1-50 Lightning Damage');
+INSERT INTO "rune_effects" VALUES(30,'rune.ort','armor','Lightning Resist +30%');
+INSERT INTO "rune_effects" VALUES(31,'rune.ort','shield','Lightning Resist +35%');
+INSERT INTO "rune_effects" VALUES(32,'rune.thul','weapon','Adds 3-14 Cold Damage (2 sec Duration)');
+INSERT INTO "rune_effects" VALUES(33,'rune.thul','armor','Cold Resist +30%');
+INSERT INTO "rune_effects" VALUES(34,'rune.thul','shield','Cold Resist +35%');
+INSERT INTO "rune_effects" VALUES(35,'rune.amn','weapon','7% Life stolen per hit');
+INSERT INTO "rune_effects" VALUES(36,'rune.amn','armor','Attacker Takes Damage of 14');
+INSERT INTO "rune_effects" VALUES(37,'rune.amn','shield','Attacker Takes Damage of 14');
+INSERT INTO "rune_effects" VALUES(38,'rune.sol','weapon','+9 to Minimum Damage');
+INSERT INTO "rune_effects" VALUES(39,'rune.sol','armor','Damage Reduced by 7');
+INSERT INTO "rune_effects" VALUES(40,'rune.sol','shield','Damage Reduced by 7');
+INSERT INTO "rune_effects" VALUES(41,'rune.shael','weapon','+20% Increased Attack Speed');
+INSERT INTO "rune_effects" VALUES(42,'rune.shael','armor','+20% Faster Hit Recovery');
+INSERT INTO "rune_effects" VALUES(43,'rune.shael','shield','+20% Faster Block Rate');
+INSERT INTO "rune_effects" VALUES(44,'rune.dol','weapon','Hit Causes Monster to Flee 32%');
+INSERT INTO "rune_effects" VALUES(45,'rune.dol','armor','Replenish Life +7');
+INSERT INTO "rune_effects" VALUES(46,'rune.dol','shield','Replenish Life +7');
+INSERT INTO "rune_effects" VALUES(47,'rune.hel','weapon','Requirements -20%');
+INSERT INTO "rune_effects" VALUES(48,'rune.hel','armor','Requirements -15%');
+INSERT INTO "rune_effects" VALUES(49,'rune.hel','shield','Requirements -15%');
+INSERT INTO "rune_effects" VALUES(50,'rune.io','weapon','+10 to Vitality');
+INSERT INTO "rune_effects" VALUES(51,'rune.io','armor','+10 to Vitality');
+INSERT INTO "rune_effects" VALUES(52,'rune.io','shield','+10 to Vitality');
+INSERT INTO "rune_effects" VALUES(53,'rune.lum','weapon','+10 to Energy');
+INSERT INTO "rune_effects" VALUES(54,'rune.lum','armor','+10 to Energy');
+INSERT INTO "rune_effects" VALUES(55,'rune.lum','shield','+10 to Energy');
+INSERT INTO "rune_effects" VALUES(56,'rune.ko','weapon','+10 to Dexterity');
+INSERT INTO "rune_effects" VALUES(57,'rune.ko','armor','+10 to Dexterity');
+INSERT INTO "rune_effects" VALUES(58,'rune.ko','shield','+10 to Dexterity');
+INSERT INTO "rune_effects" VALUES(59,'rune.fal','weapon','+10 to Strength');
+INSERT INTO "rune_effects" VALUES(60,'rune.fal','armor','+10 to Strength');
+INSERT INTO "rune_effects" VALUES(61,'rune.fal','shield','+10 to Strength');
+INSERT INTO "rune_effects" VALUES(62,'rune.lem','weapon','75% Extra Gold from Monsters');
+INSERT INTO "rune_effects" VALUES(63,'rune.lem','armor','50% Extra Gold from Monsters');
+INSERT INTO "rune_effects" VALUES(64,'rune.lem','shield','50% Extra Gold from Monsters');
+INSERT INTO "rune_effects" VALUES(65,'rune.pul','weapon','+100 to Attack Rating against Demons');
+INSERT INTO "rune_effects" VALUES(66,'rune.pul','weapon','+75% Damage to Demons');
+INSERT INTO "rune_effects" VALUES(67,'rune.pul','armor','+30% Enhanced Defense');
+INSERT INTO "rune_effects" VALUES(68,'rune.pul','shield','+30% Enhanced Defense');
+INSERT INTO "rune_effects" VALUES(69,'rune.um','weapon','25% Chance of Open Wounds');
+INSERT INTO "rune_effects" VALUES(70,'rune.um','armor','All Resistances +15');
+INSERT INTO "rune_effects" VALUES(71,'rune.um','shield','All Resistances +22');
+INSERT INTO "rune_effects" VALUES(72,'rune.mal','weapon','Prevent Monster Heal');
+INSERT INTO "rune_effects" VALUES(73,'rune.mal','armor','Magic Damage Reduced by 7');
+INSERT INTO "rune_effects" VALUES(74,'rune.mal','shield','Magic Damage Reduced by 7');
+INSERT INTO "rune_effects" VALUES(75,'rune.ist','weapon','30% Better Chance of Getting Magic Items');
+INSERT INTO "rune_effects" VALUES(76,'rune.ist','armor','25% Better Chance of Getting Magic Items');
+INSERT INTO "rune_effects" VALUES(77,'rune.ist','shield','25% Better Chance of Getting Magic Items');
+INSERT INTO "rune_effects" VALUES(78,'rune.gul','weapon','20% Bonus to Attack Rating');
+INSERT INTO "rune_effects" VALUES(79,'rune.gul','armor','+5% to Maximum Poison Resist');
+INSERT INTO "rune_effects" VALUES(80,'rune.gul','shield','+5% to Maximum Poison Resist');
+INSERT INTO "rune_effects" VALUES(81,'rune.vex','weapon','7% Mana stolen per hit');
+INSERT INTO "rune_effects" VALUES(82,'rune.vex','armor','+5% to Maximum Fire Resist');
+INSERT INTO "rune_effects" VALUES(83,'rune.vex','shield','+5% to Maximum Fire Resist');
+INSERT INTO "rune_effects" VALUES(84,'rune.ohm','weapon','+50% Enhanced Damage');
+INSERT INTO "rune_effects" VALUES(85,'rune.ohm','armor','+5% to Maximum Cold Resist');
+INSERT INTO "rune_effects" VALUES(86,'rune.ohm','shield','+5% to Maximum Cold Resist');
+INSERT INTO "rune_effects" VALUES(87,'rune.lo','weapon','20% Deadly Strike');
+INSERT INTO "rune_effects" VALUES(88,'rune.lo','armor','+5% to Maximum Lightning Resist');
+INSERT INTO "rune_effects" VALUES(89,'rune.lo','shield','+5% to Maximum Lightning Resist');
+INSERT INTO "rune_effects" VALUES(90,'rune.sur','weapon','Hit Blinds Target +1');
+INSERT INTO "rune_effects" VALUES(91,'rune.sur','armor','Increase Maximum Mana 5%');
+INSERT INTO "rune_effects" VALUES(92,'rune.sur','shield','+50 to Mana');
+INSERT INTO "rune_effects" VALUES(93,'rune.ber','weapon','20% Chance of Crushing Blow');
+INSERT INTO "rune_effects" VALUES(94,'rune.ber','armor','Damage Reduced by 8%');
+INSERT INTO "rune_effects" VALUES(95,'rune.ber','shield','Damage Reduced by 8%');
+INSERT INTO "rune_effects" VALUES(96,'rune.jah','weapon','Ignore Target''s Defense');
+INSERT INTO "rune_effects" VALUES(97,'rune.jah','armor','Increase Maximum Life 5%');
+INSERT INTO "rune_effects" VALUES(98,'rune.jah','shield','+50 to Life');
+INSERT INTO "rune_effects" VALUES(99,'rune.cham','weapon','Freezes Target +3');
+INSERT INTO "rune_effects" VALUES(100,'rune.cham','armor','Cannot Be Frozen');
+INSERT INTO "rune_effects" VALUES(101,'rune.cham','shield','Cannot Be Frozen');
+INSERT INTO "rune_effects" VALUES(102,'rune.zod','weapon','Indestructible');
+INSERT INTO "rune_effects" VALUES(103,'rune.zod','armor','Indestructible');
+INSERT INTO "rune_effects" VALUES(104,'rune.zod','shield','Indestructible');
+CREATE TABLE runes (
+    id       INTEGER PRIMARY KEY,
+    name_key TEXT NOT NULL,
+    name_en  TEXT NOT NULL,
+    clvl     INTEGER NOT NULL
+);
+INSERT INTO "runes" VALUES(1,'rune.el','El',11);
+INSERT INTO "runes" VALUES(2,'rune.eld','Eld',11);
+INSERT INTO "runes" VALUES(3,'rune.tir','Tir',13);
+INSERT INTO "runes" VALUES(4,'rune.nef','Nef',13);
+INSERT INTO "runes" VALUES(5,'rune.eth','Eth',15);
+INSERT INTO "runes" VALUES(6,'rune.ith','Ith',15);
+INSERT INTO "runes" VALUES(7,'rune.tal','Tal',17);
+INSERT INTO "runes" VALUES(8,'rune.ral','Ral',19);
+INSERT INTO "runes" VALUES(9,'rune.ort','Ort',21);
+INSERT INTO "runes" VALUES(10,'rune.thul','Thul',23);
+INSERT INTO "runes" VALUES(11,'rune.amn','Amn',25);
+INSERT INTO "runes" VALUES(12,'rune.sol','Sol',27);
+INSERT INTO "runes" VALUES(13,'rune.shael','Shael',29);
+INSERT INTO "runes" VALUES(14,'rune.dol','Dol',31);
+INSERT INTO "runes" VALUES(15,'rune.hel','Hel',0);
+INSERT INTO "runes" VALUES(16,'rune.io','Io',35);
+INSERT INTO "runes" VALUES(17,'rune.lum','Lum',37);
+INSERT INTO "runes" VALUES(18,'rune.ko','Ko',39);
+INSERT INTO "runes" VALUES(19,'rune.fal','Fal',41);
+INSERT INTO "runes" VALUES(20,'rune.lem','Lem',43);
+INSERT INTO "runes" VALUES(21,'rune.pul','Pul',45);
+INSERT INTO "runes" VALUES(22,'rune.um','Um',47);
+INSERT INTO "runes" VALUES(23,'rune.mal','Mal',49);
+INSERT INTO "runes" VALUES(24,'rune.ist','Ist',51);
+INSERT INTO "runes" VALUES(25,'rune.gul','Gul',53);
+INSERT INTO "runes" VALUES(26,'rune.vex','Vex',55);
+INSERT INTO "runes" VALUES(27,'rune.ohm','Ohm',57);
+INSERT INTO "runes" VALUES(28,'rune.lo','Lo',59);
+INSERT INTO "runes" VALUES(29,'rune.sur','Sur',61);
+INSERT INTO "runes" VALUES(30,'rune.ber','Ber',63);
+INSERT INTO "runes" VALUES(31,'rune.jah','Jah',65);
+INSERT INTO "runes" VALUES(32,'rune.cham','Cham',67);
+INSERT INTO "runes" VALUES(33,'rune.zod','Zod',69);
+CREATE TABLE runeword_effects (
+    id        INTEGER PRIMARY KEY,
+    name_key  TEXT NOT NULL,
+    item_type TEXT,          -- NULL = commun à tous, "weapon", "armor", "shield"
+    effect_en TEXT NOT NULL
+);
+INSERT INTO "runeword_effects" VALUES(1,'runeword.ancients_pledge',NULL,'Cold Resist +30%');
+INSERT INTO "runeword_effects" VALUES(2,'runeword.ancients_pledge',NULL,'All Resistances +13');
+INSERT INTO "runeword_effects" VALUES(3,'runeword.ancients_pledge',NULL,'+50% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(4,'runeword.ancients_pledge',NULL,'10% Damage Taken Goes To Mana');
+INSERT INTO "runeword_effects" VALUES(5,'runeword.authority',NULL,'2-10% Chance to cast level 2-10 Psychic Ward when struck');
+INSERT INTO "runeword_effects" VALUES(6,'runeword.authority',NULL,'10-15% Chance to cast level 10-15 Miasma Chains on striking');
+INSERT INTO "runeword_effects" VALUES(7,'runeword.authority',NULL,'+2 to Warlock Skill Levels');
+INSERT INTO "runeword_effects" VALUES(8,'runeword.authority',NULL,'+40-60% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(9,'runeword.beast',NULL,'+40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(10,'runeword.beast',NULL,'Level 9 Fanaticism Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(11,'runeword.beast',NULL,'+240-270% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(12,'runeword.beast',NULL,'+25-40 to Strength');
+INSERT INTO "runeword_effects" VALUES(13,'runeword.beast',NULL,'Level 5 Summon Grizzly (13/13 Charges)');
+INSERT INTO "runeword_effects" VALUES(14,'runeword.beast',NULL,'+3 to Wearbear');
+INSERT INTO "runeword_effects" VALUES(15,'runeword.beast',NULL,'+3 to Shape Shifting');
+INSERT INTO "runeword_effects" VALUES(16,'runeword.black',NULL,'40% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(17,'runeword.black',NULL,'+120% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(18,'runeword.black',NULL,'+15% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(19,'runeword.black',NULL,'Magic Damage Reduced by 2');
+INSERT INTO "runeword_effects" VALUES(20,'runeword.black',NULL,'+200 to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(21,'runeword.black',NULL,'Level 4 Corpse Explosion (12/12 Charges)');
+INSERT INTO "runeword_effects" VALUES(22,'runeword.bone',NULL,'15% Chance to cast level 10 Bone Spear on striking');
+INSERT INTO "runeword_effects" VALUES(23,'runeword.bone',NULL,'15% Chance to cast level 10 Bone Armor when struck');
+INSERT INTO "runeword_effects" VALUES(24,'runeword.bone',NULL,'+2 to Necromancer Skill Levels');
+INSERT INTO "runeword_effects" VALUES(25,'runeword.bone',NULL,'+100-150 to Mana');
+INSERT INTO "runeword_effects" VALUES(26,'runeword.bramble',NULL,'+50% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(27,'runeword.bramble',NULL,'+300 Defense');
+INSERT INTO "runeword_effects" VALUES(28,'runeword.bramble',NULL,'Level 15-21 Thorns Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(29,'runeword.bramble',NULL,'+13 Life after each Kill');
+INSERT INTO "runeword_effects" VALUES(30,'runeword.bramble',NULL,'+25-50% to Poison Skill Damage');
+INSERT INTO "runeword_effects" VALUES(31,'runeword.bramble',NULL,'Poison Resist +100%');
+INSERT INTO "runeword_effects" VALUES(32,'runeword.bramble',NULL,'Level 13 Spirit of Barbs (33/33 Charges)');
+INSERT INTO "runeword_effects" VALUES(33,'runeword.brand',NULL,'+260-340% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(34,'runeword.brand',NULL,'+280-330% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(35,'runeword.brand',NULL,'100% Chance to cast level 18 Bone Spear on striking');
+INSERT INTO "runeword_effects" VALUES(36,'runeword.brand',NULL,'35% Chance to cast level 14 Amplify Damage when struck');
+INSERT INTO "runeword_effects" VALUES(37,'runeword.brand',NULL,'Knockback');
+INSERT INTO "runeword_effects" VALUES(38,'runeword.brand',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(39,'runeword.brand',NULL,'Fires Explosive Arrows or Bolts');
+INSERT INTO "runeword_effects" VALUES(40,'runeword.breath_of_the_dying',NULL,'+60% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(41,'runeword.breath_of_the_dying',NULL,'+125% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(42,'runeword.breath_of_the_dying',NULL,'12-15% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(43,'runeword.breath_of_the_dying',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(44,'runeword.breath_of_the_dying',NULL,'50% Chance to cast level 20 Poison Nova when you Kill an Enemy');
+INSERT INTO "runeword_effects" VALUES(45,'runeword.breath_of_the_dying',NULL,'+350-400% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(46,'runeword.breath_of_the_dying',NULL,'+30 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(47,'runeword.bulwark',NULL,'Increase Maximum Life 5%');
+INSERT INTO "runeword_effects" VALUES(48,'runeword.bulwark',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(49,'runeword.bulwark',NULL,'Damage Reduced by 10-15%');
+INSERT INTO "runeword_effects" VALUES(50,'runeword.bulwark',NULL,'Replenish Life +30');
+INSERT INTO "runeword_effects" VALUES(51,'runeword.bulwark',NULL,'4-6% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(52,'runeword.call_to_arms',NULL,'+40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(53,'runeword.call_to_arms',NULL,'+200-240% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(54,'runeword.call_to_arms',NULL,'+1 to All Skills');
+INSERT INTO "runeword_effects" VALUES(55,'runeword.call_to_arms',NULL,'+2-6 to Battle Command');
+INSERT INTO "runeword_effects" VALUES(56,'runeword.call_to_arms',NULL,'+1-6 to Battle Orders');
+INSERT INTO "runeword_effects" VALUES(57,'runeword.call_to_arms',NULL,'+1-4 to Battle Cry');
+INSERT INTO "runeword_effects" VALUES(58,'runeword.call_to_arms',NULL,'Replenish Life +12');
+INSERT INTO "runeword_effects" VALUES(59,'runeword.chains_of_honor',NULL,'All Resistances +50');
+INSERT INTO "runeword_effects" VALUES(60,'runeword.chains_of_honor',NULL,'+70% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(61,'runeword.chains_of_honor',NULL,'+200% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(62,'runeword.chains_of_honor',NULL,'+100% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(63,'runeword.chains_of_honor',NULL,'8% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(64,'runeword.chains_of_honor',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(65,'runeword.chains_of_honor',NULL,'+20 to Strength');
+INSERT INTO "runeword_effects" VALUES(66,'runeword.chaos',NULL,'+15 Life after each Demon Kill');
+INSERT INTO "runeword_effects" VALUES(67,'runeword.chaos',NULL,'+240-290% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(68,'runeword.chaos',NULL,'Adds 216-471 Magic Damage');
+INSERT INTO "runeword_effects" VALUES(69,'runeword.chaos',NULL,'+1 to Whirlwind');
+INSERT INTO "runeword_effects" VALUES(70,'runeword.chaos',NULL,'+35% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(71,'runeword.chaos',NULL,'9% Chance to cast level 11 Frozen Orb on striking');
+INSERT INTO "runeword_effects" VALUES(72,'runeword.chaos',NULL,'11% Chance to cast level 9 Charged Bolt on striking');
+INSERT INTO "runeword_effects" VALUES(73,'runeword.coven',NULL,'5% Chance to cast level 10 Sigil Lethargy when struck');
+INSERT INTO "runeword_effects" VALUES(74,'runeword.coven',NULL,'+1 to All Skills');
+INSERT INTO "runeword_effects" VALUES(75,'runeword.coven',NULL,'+20% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(76,'runeword.coven',NULL,'+30-50% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(77,'runeword.coven',NULL,'1-15% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(78,'runeword.coven',NULL,'+1-5 Life after each Kill');
+INSERT INTO "runeword_effects" VALUES(79,'runeword.crescent_moon',NULL,'-35% to Enemy Lightning Resistance');
+INSERT INTO "runeword_effects" VALUES(80,'runeword.crescent_moon',NULL,'Ignore Target''s Defense');
+INSERT INTO "runeword_effects" VALUES(81,'runeword.crescent_moon',NULL,'+180-220% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(82,'runeword.crescent_moon',NULL,'Magic Absorb 9-11%');
+INSERT INTO "runeword_effects" VALUES(83,'runeword.crescent_moon',NULL,'Level 18 Summon Spirit Wolf (30/30 Charges)');
+INSERT INTO "runeword_effects" VALUES(84,'runeword.crescent_moon',NULL,'7% Chance to cast level 13 Static Field on striking');
+INSERT INTO "runeword_effects" VALUES(85,'runeword.crescent_moon',NULL,'10% Chance to cast level 17 Chain Lightning on striking');
+INSERT INTO "runeword_effects" VALUES(86,'runeword.cure',NULL,'Increase Maximum Life 5%');
+INSERT INTO "runeword_effects" VALUES(87,'runeword.cure',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(88,'runeword.cure',NULL,'Poison Resist +10-30%');
+INSERT INTO "runeword_effects" VALUES(89,'runeword.cure',NULL,'Poison Length Reduced by 50%');
+INSERT INTO "runeword_effects" VALUES(90,'runeword.cure',NULL,'Level 1 Cleansing Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(91,'runeword.death',NULL,'+300-385% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(92,'runeword.death',NULL,'x% Deadly Strike (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(93,'runeword.death',NULL,'Level 15 BloodGolem (22/22 Charges)');
+INSERT INTO "runeword_effects" VALUES(94,'runeword.death',NULL,'25% Chance to cast level 18 Glacial Spike on attack');
+INSERT INTO "runeword_effects" VALUES(95,'runeword.death',NULL,'100% Chance to cast level 44 Chain Lightning when you Die');
+INSERT INTO "runeword_effects" VALUES(96,'runeword.death',NULL,'50% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(97,'runeword.death',NULL,'Indestructible');
+INSERT INTO "runeword_effects" VALUES(98,'runeword.delirium',NULL,'11% Chance to cast level 18 Confuse on striking');
+INSERT INTO "runeword_effects" VALUES(99,'runeword.delirium',NULL,'Level 17 Attract (60/60 Charges)');
+INSERT INTO "runeword_effects" VALUES(100,'runeword.delirium',NULL,'14% Chance to cast level 13 Terror when struck');
+INSERT INTO "runeword_effects" VALUES(101,'runeword.delirium',NULL,'+261 Defense');
+INSERT INTO "runeword_effects" VALUES(102,'runeword.delirium',NULL,'6% Chance to cast level 14 Mind Blast when struck');
+INSERT INTO "runeword_effects" VALUES(103,'runeword.delirium',NULL,'1% Chance to cast level 50 Delerium Change when struck');
+INSERT INTO "runeword_effects" VALUES(104,'runeword.delirium',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(105,'runeword.destruction',NULL,'+350% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(106,'runeword.destruction',NULL,'Adds 100-180 Magic Damage');
+INSERT INTO "runeword_effects" VALUES(107,'runeword.destruction',NULL,'5% Chance to cast level 23 Molten Boulder on striking');
+INSERT INTO "runeword_effects" VALUES(108,'runeword.destruction',NULL,'100% Chance to cast level 45 Meteor when you Die');
+INSERT INTO "runeword_effects" VALUES(109,'runeword.destruction',NULL,'15% Chance to cast level 22 Nova on attack');
+INSERT INTO "runeword_effects" VALUES(110,'runeword.destruction',NULL,'23% Chance to cast level 12 Volcano on striking');
+INSERT INTO "runeword_effects" VALUES(111,'runeword.destruction',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(112,'runeword.doom',NULL,'+280-320% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(113,'runeword.doom',NULL,'Level 12 Holy Freeze Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(114,'runeword.doom',NULL,'+45% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(115,'runeword.doom',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(116,'runeword.doom',NULL,'-40-60% to Enemy Cold Resistance');
+INSERT INTO "runeword_effects" VALUES(117,'runeword.doom',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(118,'runeword.doom',NULL,'5% Chance to cast level 18 Volcano on striking');
+INSERT INTO "runeword_effects" VALUES(119,'runeword.dragon',NULL,'+360 Defense');
+INSERT INTO "runeword_effects" VALUES(120,'runeword.dragon',NULL,'+230 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(121,'runeword.dragon',NULL,'+x to Strength (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(122,'runeword.dragon',NULL,'12% Chance to cast level 15 Hydra on striking');
+INSERT INTO "runeword_effects" VALUES(123,'runeword.dragon',NULL,'20% Chance to cast level 18 Venom when struck');
+INSERT INTO "runeword_effects" VALUES(124,'runeword.dragon',NULL,'Level 14 Holy Fire Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(125,'runeword.dragon',NULL,'+3-5 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(126,'runeword.dream',NULL,'+150-220 Defense');
+INSERT INTO "runeword_effects" VALUES(127,'runeword.dream',NULL,'10% Chance to cast level 15 Confuse when struck');
+INSERT INTO "runeword_effects" VALUES(128,'runeword.dream',NULL,'+x to Mana (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(129,'runeword.dream',NULL,'All Resistances +5-20');
+INSERT INTO "runeword_effects" VALUES(130,'runeword.dream',NULL,'+20-30% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(131,'runeword.dream',NULL,'Level 15 Holy Shock Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(132,'runeword.dream',NULL,'12-25% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(133,'runeword.duress',NULL,'Adds 37-133 Cold Damage');
+INSERT INTO "runeword_effects" VALUES(134,'runeword.duress',NULL,'+10-20% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(135,'runeword.duress',NULL,'+150-200% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(136,'runeword.duress',NULL,'+20% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(137,'runeword.duress',NULL,'33% Chance of Open Wounds');
+INSERT INTO "runeword_effects" VALUES(138,'runeword.duress',NULL,'15% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(139,'runeword.duress',NULL,'-20% Slower Stamina Drain');
+INSERT INTO "runeword_effects" VALUES(140,'runeword.edge',NULL,'+320-380% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(141,'runeword.edge',NULL,'+280% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(142,'runeword.edge',NULL,'+35% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(143,'runeword.edge',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(144,'runeword.edge',NULL,'Level 15 Thorns Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(145,'runeword.edge',NULL,'+5-10 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(146,'runeword.edge',NULL,'Reduces all Vendor Prices 15%');
+INSERT INTO "runeword_effects" VALUES(147,'runeword.enigma',NULL,'+750-775 Defense');
+INSERT INTO "runeword_effects" VALUES(148,'runeword.enigma',NULL,'+14 Life after each Kill');
+INSERT INTO "runeword_effects" VALUES(149,'runeword.enigma',NULL,'+45% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(150,'runeword.enigma',NULL,'+x to Strength (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(151,'runeword.enigma',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(152,'runeword.enigma',NULL,'x% Better Chance of Getting Magic Items (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(153,'runeword.enigma',NULL,'+1 to Teleport');
+INSERT INTO "runeword_effects" VALUES(154,'runeword.enlightenment',NULL,'5-15% Chance to cast level 5-15 Fire Ball on striking');
+INSERT INTO "runeword_effects" VALUES(155,'runeword.enlightenment',NULL,'5-15% Chance to cast level 5-15 Blaze when struck');
+INSERT INTO "runeword_effects" VALUES(156,'runeword.enlightenment',NULL,'+2 to Sorceress Skill Levels');
+INSERT INTO "runeword_effects" VALUES(157,'runeword.enlightenment',NULL,'+1 to Warmth');
+INSERT INTO "runeword_effects" VALUES(158,'runeword.eternity',NULL,'+260-310% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(159,'runeword.eternity',NULL,'Indestructible');
+INSERT INTO "runeword_effects" VALUES(160,'runeword.eternity',NULL,'Slows Target by 33%');
+INSERT INTO "runeword_effects" VALUES(161,'runeword.eternity',NULL,'Level 8 Revive (88/88 Charges)');
+INSERT INTO "runeword_effects" VALUES(162,'runeword.eternity',NULL,'Replenish Life +16');
+INSERT INTO "runeword_effects" VALUES(163,'runeword.eternity',NULL,'Regenerate Mana 16%');
+INSERT INTO "runeword_effects" VALUES(164,'runeword.eternity',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(165,'runeword.exile',NULL,'+30% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(166,'runeword.exile',NULL,'Freezes Target +1');
+INSERT INTO "runeword_effects" VALUES(167,'runeword.exile',NULL,'+220-260% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(168,'runeword.exile',NULL,'Level 13-16 Defiance Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(169,'runeword.exile',NULL,'+2 to Offensive Auras (Paladin only)');
+INSERT INTO "runeword_effects" VALUES(170,'runeword.exile',NULL,'5% Chance to cast level 15 Life Tap on striking');
+INSERT INTO "runeword_effects" VALUES(171,'runeword.exile',NULL,'Repairs 1 durability per 4 seconds');
+INSERT INTO "runeword_effects" VALUES(172,'runeword.faith',NULL,'+280% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(173,'runeword.faith',NULL,'300% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(174,'runeword.faith',NULL,'Adds 120-120 Fire Damage');
+INSERT INTO "runeword_effects" VALUES(175,'runeword.faith',NULL,'All Resistances +15');
+INSERT INTO "runeword_effects" VALUES(176,'runeword.faith',NULL,'Level 12-15 Fanaticism Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(177,'runeword.faith',NULL,'Reanimate As: [Returned]');
+INSERT INTO "runeword_effects" VALUES(178,'runeword.faith',NULL,'+1-2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(179,'runeword.famine',NULL,'+270-320% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(180,'runeword.famine',NULL,'12% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(181,'runeword.famine',NULL,'+30% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(182,'runeword.famine',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(183,'runeword.famine',NULL,'Adds 180-200 Magic Damage');
+INSERT INTO "runeword_effects" VALUES(184,'runeword.famine',NULL,'Adds 50-200 Fire/Lightning/Cold Damage');
+INSERT INTO "runeword_effects" VALUES(185,'runeword.famine',NULL,'Indestructible');
+INSERT INTO "runeword_effects" VALUES(186,'runeword.flickering_flame',NULL,'+3 to Fire Skills');
+INSERT INTO "runeword_effects" VALUES(187,'runeword.flickering_flame',NULL,'Level 4-8 Resist Fire Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(188,'runeword.flickering_flame',NULL,'-10-15% to Enemy Fire Resistance');
+INSERT INTO "runeword_effects" VALUES(189,'runeword.flickering_flame',NULL,'+50-75 to Mana');
+INSERT INTO "runeword_effects" VALUES(190,'runeword.flickering_flame',NULL,'Half Freeze Duration');
+INSERT INTO "runeword_effects" VALUES(191,'runeword.flickering_flame',NULL,'Poison Length Reduced by 50%');
+INSERT INTO "runeword_effects" VALUES(192,'runeword.fortitude',NULL,'+200% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(193,'runeword.fortitude',NULL,'+300% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(194,'runeword.fortitude',NULL,'+25% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(195,'runeword.fortitude',NULL,'20% Chance to cast level 15 Chilling Armor when struck');
+INSERT INTO "runeword_effects" VALUES(196,'runeword.fortitude',NULL,'12% Damage Taken Goes To Mana');
+INSERT INTO "runeword_effects" VALUES(197,'runeword.fortitude',NULL,'+1 to +1.2 to Life (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(198,'runeword.fortitude',NULL,'All Resistances +25-30');
+INSERT INTO "runeword_effects" VALUES(199,'runeword.fury',NULL,'+209% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(200,'runeword.fury',NULL,'+40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(201,'runeword.fury',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(202,'runeword.fury',NULL,'66% Chance of Open Wounds');
+INSERT INTO "runeword_effects" VALUES(203,'runeword.fury',NULL,'6% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(204,'runeword.fury',NULL,'33% Deadly Strike');
+INSERT INTO "runeword_effects" VALUES(205,'runeword.fury',NULL,'+5 to Frenzy (Barbarian only)');
+INSERT INTO "runeword_effects" VALUES(206,'runeword.gloom',NULL,'+170-230% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(207,'runeword.gloom',NULL,'All Resistances +30');
+INSERT INTO "runeword_effects" VALUES(208,'runeword.gloom',NULL,'15% Chance to cast level 3 Dim Vision when struck');
+INSERT INTO "runeword_effects" VALUES(209,'runeword.gloom',NULL,'+10% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(210,'runeword.gloom',NULL,'5% Damage Taken Goes To Mana');
+INSERT INTO "runeword_effects" VALUES(211,'runeword.gloom',NULL,'+3 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(212,'runeword.gloom',NULL,'Half Freeze Duration');
+INSERT INTO "runeword_effects" VALUES(213,'runeword.grief',NULL,'+x% Damage to Demons (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(214,'runeword.grief',NULL,'Damage +340-400');
+INSERT INTO "runeword_effects" VALUES(215,'runeword.grief',NULL,'+30-40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(216,'runeword.grief',NULL,'35% Chance to cast level 15 Venom on striking');
+INSERT INTO "runeword_effects" VALUES(217,'runeword.grief',NULL,'-20-25% to Enemy Poison Resistance');
+INSERT INTO "runeword_effects" VALUES(218,'runeword.grief',NULL,'Ignore Target''s Defense');
+INSERT INTO "runeword_effects" VALUES(219,'runeword.grief',NULL,'+10-15 Life after each Kill');
+INSERT INTO "runeword_effects" VALUES(220,'runeword.ground',NULL,'Increase Maximum Life 5%');
+INSERT INTO "runeword_effects" VALUES(221,'runeword.ground',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(222,'runeword.ground',NULL,'Lightning Resist +10-30%');
+INSERT INTO "runeword_effects" VALUES(223,'runeword.ground',NULL,'+10-15 Lightning Absorb');
+INSERT INTO "runeword_effects" VALUES(224,'runeword.hand_of_justice',NULL,'+33% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(225,'runeword.hand_of_justice',NULL,'+280-330% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(226,'runeword.hand_of_justice',NULL,'Level 16 Holy Fire Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(227,'runeword.hand_of_justice',NULL,'100% Chance to cast level 36 Blaze when you Level-Up');
+INSERT INTO "runeword_effects" VALUES(228,'runeword.hand_of_justice',NULL,'100% Chance to cast level 48 Meteor when you Die');
+INSERT INTO "runeword_effects" VALUES(229,'runeword.hand_of_justice',NULL,'Ignore Target''s Defense');
+INSERT INTO "runeword_effects" VALUES(230,'runeword.hand_of_justice',NULL,'-20% to Enemy Fire Resistance');
+INSERT INTO "runeword_effects" VALUES(231,'runeword.harmony',NULL,'+200-275% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(232,'runeword.harmony',NULL,'Adds 55-160 Fire/Lightning/Cold Damage');
+INSERT INTO "runeword_effects" VALUES(233,'runeword.harmony',NULL,'Level 20 Revive (25/25 Charges)');
+INSERT INTO "runeword_effects" VALUES(234,'runeword.harmony',NULL,'Level 10 Vigor Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(235,'runeword.harmony',NULL,'+2-6 to Valkyrie');
+INSERT INTO "runeword_effects" VALUES(236,'runeword.harmony',NULL,'Regenerate Mana 20%');
+INSERT INTO "runeword_effects" VALUES(237,'runeword.harmony',NULL,'+2 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(238,'runeword.heart_of_the_oak',NULL,'+40% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(239,'runeword.heart_of_the_oak',NULL,'Level 4 Oak Sage (25/25 Charges)');
+INSERT INTO "runeword_effects" VALUES(240,'runeword.heart_of_the_oak',NULL,'Increase Maximum Mana 15%');
+INSERT INTO "runeword_effects" VALUES(241,'runeword.heart_of_the_oak',NULL,'+3 to All Skills');
+INSERT INTO "runeword_effects" VALUES(242,'runeword.heart_of_the_oak',NULL,'Replenish Life +20');
+INSERT INTO "runeword_effects" VALUES(243,'runeword.heart_of_the_oak',NULL,'All Resistances +30-40');
+INSERT INTO "runeword_effects" VALUES(244,'runeword.heart_of_the_oak',NULL,'Level 14 Raven (60/60 Charges)');
+INSERT INTO "runeword_effects" VALUES(245,'runeword.hearth',NULL,'Increase Maximum Life 5%');
+INSERT INTO "runeword_effects" VALUES(246,'runeword.hearth',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(247,'runeword.hearth',NULL,'Cold Resist +10-30%');
+INSERT INTO "runeword_effects" VALUES(248,'runeword.hearth',NULL,'+10-15 Cold Absorb');
+INSERT INTO "runeword_effects" VALUES(249,'runeword.hearth',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(250,'runeword.holy_thunder',NULL,'+60% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(251,'runeword.holy_thunder',NULL,'Adds 20-60 Lightning Damage');
+INSERT INTO "runeword_effects" VALUES(252,'runeword.holy_thunder',NULL,'+10 to Maximum Damage');
+INSERT INTO "runeword_effects" VALUES(253,'runeword.holy_thunder',NULL,'Lightning Resist +60%');
+INSERT INTO "runeword_effects" VALUES(254,'runeword.holy_thunder',NULL,'+5% to Maximum Lightning Resist');
+INSERT INTO "runeword_effects" VALUES(255,'runeword.holy_thunder',NULL,'+3 to Holy Shock (Paladin only)');
+INSERT INTO "runeword_effects" VALUES(256,'runeword.holy_thunder',NULL,'Level 7 Chain Lightning (60/60 Charges)');
+INSERT INTO "runeword_effects" VALUES(257,'runeword.honor',NULL,'+160% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(258,'runeword.honor',NULL,'Replenish Life +10');
+INSERT INTO "runeword_effects" VALUES(259,'runeword.honor',NULL,'+1 to All Skills');
+INSERT INTO "runeword_effects" VALUES(260,'runeword.honor',NULL,'+200 to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(261,'runeword.honor',NULL,'25% Deadly Strike');
+INSERT INTO "runeword_effects" VALUES(262,'runeword.honor',NULL,'+10 to Strength');
+INSERT INTO "runeword_effects" VALUES(263,'runeword.hustle',NULL,'+65% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(264,'runeword.hustle',NULL,'35% Slower Stamina Drain');
+INSERT INTO "runeword_effects" VALUES(265,'runeword.hustle',NULL,'+40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(266,'runeword.hustle',NULL,'All Resistances +10');
+INSERT INTO "runeword_effects" VALUES(267,'runeword.hustle',NULL,'+6 to Evade');
+INSERT INTO "runeword_effects" VALUES(268,'runeword.mania',NULL,'5% Chance to cast level 1 Quickness on striking');
+INSERT INTO "runeword_effects" VALUES(269,'runeword.mania',NULL,'+10% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(270,'runeword.mania',NULL,'+180-200% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(271,'runeword.mania',NULL,'Level 1 Fanaticism Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(272,'runeword.ice',NULL,'+140-210% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(273,'runeword.ice',NULL,'Level 18 Holy Freeze Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(274,'runeword.ice',NULL,'+25-30% to Cold Skill Damage');
+INSERT INTO "runeword_effects" VALUES(275,'runeword.ice',NULL,'25% Chance to cast level 22 Frost Nova on striking');
+INSERT INTO "runeword_effects" VALUES(276,'runeword.ice',NULL,'100% Chance to cast level 40 Blizzard when you Level-Up');
+INSERT INTO "runeword_effects" VALUES(277,'runeword.ice',NULL,'-20% to Enemy Cold Resistance');
+INSERT INTO "runeword_effects" VALUES(278,'runeword.ice',NULL,'x% Extra Gold from Monsters (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(279,'runeword.infinity',NULL,'+255-325% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(280,'runeword.infinity',NULL,'+35% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(281,'runeword.infinity',NULL,'+x to Vitality (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(282,'runeword.infinity',NULL,'Level 12 Conviction Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(283,'runeword.infinity',NULL,'50% Chance to cast level 20 Chain Lightning when you Kill an Enemy');
+INSERT INTO "runeword_effects" VALUES(284,'runeword.infinity',NULL,'-45-55% to Enemy Lightning Resistance');
+INSERT INTO "runeword_effects" VALUES(285,'runeword.infinity',NULL,'Level 21 Cyclone Armor (30/30 Charges)');
+INSERT INTO "runeword_effects" VALUES(286,'runeword.insight',NULL,'+200-260% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(287,'runeword.insight',NULL,'180-250% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(288,'runeword.insight',NULL,'23% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(289,'runeword.insight',NULL,'+1-6 to Critical Strike');
+INSERT INTO "runeword_effects" VALUES(290,'runeword.insight',NULL,'+35% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(291,'runeword.insight',NULL,'Level 12-17 Meditation Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(292,'runeword.insight',NULL,'+5 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(293,'runeword.kings_grace',NULL,'+100% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(294,'runeword.kings_grace',NULL,'+150 to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(295,'runeword.kings_grace',NULL,'+100% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(296,'runeword.kings_grace',NULL,'+50% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(297,'runeword.kings_grace',NULL,'+100 to Attack Rating against Demons');
+INSERT INTO "runeword_effects" VALUES(298,'runeword.kings_grace',NULL,'+100 to Attack Rating against Undead');
+INSERT INTO "runeword_effects" VALUES(299,'runeword.kingslayer',NULL,'+30% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(300,'runeword.kingslayer',NULL,'+230-270% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(301,'runeword.kingslayer',NULL,'-25% Target Defense');
+INSERT INTO "runeword_effects" VALUES(302,'runeword.kingslayer',NULL,'33% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(303,'runeword.kingslayer',NULL,'25% Chance of Open Wounds');
+INSERT INTO "runeword_effects" VALUES(304,'runeword.kingslayer',NULL,'+1 to Vengeance');
+INSERT INTO "runeword_effects" VALUES(305,'runeword.kingslayer',NULL,'40% Extra Gold from Monsters');
+INSERT INTO "runeword_effects" VALUES(306,'runeword.last_wish',NULL,'+330-375% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(307,'runeword.last_wish',NULL,'20% Chance to cast level 20 Charged Bolt on attack');
+INSERT INTO "runeword_effects" VALUES(308,'runeword.last_wish',NULL,'10-18% Chance to cast level 10-18 Life Tap on striking');
+INSERT INTO "runeword_effects" VALUES(309,'runeword.last_wish',NULL,'6-11% Chance to cast level 6-11 Fade when struck');
+INSERT INTO "runeword_effects" VALUES(310,'runeword.last_wish',NULL,'40-50% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(311,'runeword.last_wish',NULL,'x% Better Chance of Getting Magic Items (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(312,'runeword.last_wish',NULL,'Level 17 Might Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(313,'runeword.lawbringer',NULL,'Adds 130-180 Cold Damage');
+INSERT INTO "runeword_effects" VALUES(314,'runeword.lawbringer',NULL,'Adds 150-210 Fire Damage');
+INSERT INTO "runeword_effects" VALUES(315,'runeword.lawbringer',NULL,'Level 16-18 Sanctuary Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(316,'runeword.lawbringer',NULL,'20% Chance to cast level 15 Decrepify on striking');
+INSERT INTO "runeword_effects" VALUES(317,'runeword.lawbringer',NULL,'+200-250 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(318,'runeword.lawbringer',NULL,'Slain Monsters Rest in Peace');
+INSERT INTO "runeword_effects" VALUES(319,'runeword.lawbringer',NULL,'-50% Target Defense');
+INSERT INTO "runeword_effects" VALUES(320,'runeword.leaf',NULL,'+3 to Fire Skills');
+INSERT INTO "runeword_effects" VALUES(321,'runeword.leaf',NULL,'+x Defense (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(322,'runeword.leaf',NULL,'Cold Resist +33%');
+INSERT INTO "runeword_effects" VALUES(323,'runeword.leaf',NULL,'+3 to Fireball (Sorceress only)');
+INSERT INTO "runeword_effects" VALUES(324,'runeword.leaf',NULL,'+3 to Warmth (Sorceress only)');
+INSERT INTO "runeword_effects" VALUES(325,'runeword.leaf',NULL,'+3 to Firebolt (Sorceress only)');
+INSERT INTO "runeword_effects" VALUES(326,'runeword.lionheart',NULL,'+15 to Strength');
+INSERT INTO "runeword_effects" VALUES(327,'runeword.lionheart',NULL,'+20 to Vitality');
+INSERT INTO "runeword_effects" VALUES(328,'runeword.lionheart',NULL,'+15 to Dexterity');
+INSERT INTO "runeword_effects" VALUES(329,'runeword.lionheart',NULL,'+20% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(330,'runeword.lionheart',NULL,'+50 to Life');
+INSERT INTO "runeword_effects" VALUES(331,'runeword.lionheart',NULL,'All Resistances +30');
+INSERT INTO "runeword_effects" VALUES(332,'runeword.lore',NULL,'+10 to Energy');
+INSERT INTO "runeword_effects" VALUES(333,'runeword.lore',NULL,'+1 to All Skills');
+INSERT INTO "runeword_effects" VALUES(334,'runeword.lore',NULL,'+2 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(335,'runeword.lore',NULL,'+2 to Mana after each Kill');
+INSERT INTO "runeword_effects" VALUES(336,'runeword.malice',NULL,'100% Chance of Open Wounds');
+INSERT INTO "runeword_effects" VALUES(337,'runeword.malice',NULL,'-100 to Monster Defense Per Hit');
+INSERT INTO "runeword_effects" VALUES(338,'runeword.malice',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(339,'runeword.malice',NULL,'+33% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(340,'runeword.malice',NULL,'+1 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(341,'runeword.malice',NULL,'Replenish Life -5');
+INSERT INTO "runeword_effects" VALUES(342,'runeword.melody',NULL,'+50% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(343,'runeword.melody',NULL,'+3 to Bow and Crossbow Skills');
+INSERT INTO "runeword_effects" VALUES(344,'runeword.melody',NULL,'+3 to Critical Strike (Amazon only)');
+INSERT INTO "runeword_effects" VALUES(345,'runeword.melody',NULL,'+3 to Dodge (Amazon only)');
+INSERT INTO "runeword_effects" VALUES(346,'runeword.melody',NULL,'+3 to Slow Missiles (Amazon only)');
+INSERT INTO "runeword_effects" VALUES(347,'runeword.melody',NULL,'+300% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(348,'runeword.memory',NULL,'Increase Maximum Mana 20%');
+INSERT INTO "runeword_effects" VALUES(349,'runeword.memory',NULL,'Magic Damage Reduced by 7');
+INSERT INTO "runeword_effects" VALUES(350,'runeword.memory',NULL,'+50% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(351,'runeword.memory',NULL,'+33% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(352,'runeword.memory',NULL,'+3 to Sorceress Skill Levels');
+INSERT INTO "runeword_effects" VALUES(353,'runeword.memory',NULL,'+3 to Energy Shield (Sorceress only)');
+INSERT INTO "runeword_effects" VALUES(354,'runeword.memory',NULL,'+2 to Telekinesis (Sorceress only)');
+INSERT INTO "runeword_effects" VALUES(355,'runeword.metamorphosis',NULL,'100% Chance to cast level 1 Mark of the Bear on striking');
+INSERT INTO "runeword_effects" VALUES(356,'runeword.metamorphosis',NULL,'100% Chance to cast level 1 Mark of the Wolf on striking');
+INSERT INTO "runeword_effects" VALUES(357,'runeword.metamorphosis',NULL,'+5 to Shape Shifting Skills (Druid only)');
+INSERT INTO "runeword_effects" VALUES(358,'runeword.metamorphosis',NULL,'+50-80% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(359,'runeword.metamorphosis',NULL,'All Resistances +10');
+INSERT INTO "runeword_effects" VALUES(360,'runeword.metamorphosis',NULL,'25% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(361,'runeword.mist',NULL,'+3 to All Skills');
+INSERT INTO "runeword_effects" VALUES(362,'runeword.mist',NULL,'+325-375% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(363,'runeword.mist',NULL,'Level 8-12 Concentration Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(364,'runeword.mist',NULL,'Piercing Attack');
+INSERT INTO "runeword_effects" VALUES(365,'runeword.mist',NULL,'+24 to Vitality');
+INSERT INTO "runeword_effects" VALUES(366,'runeword.mist',NULL,'All Resistances +40');
+INSERT INTO "runeword_effects" VALUES(367,'runeword.mosaic',NULL,'+2 to Martial Arts (Assassin only)');
+INSERT INTO "runeword_effects" VALUES(368,'runeword.mosaic',NULL,'+50% chance for finishing moves to not consume charges');
+INSERT INTO "runeword_effects" VALUES(369,'runeword.mosaic',NULL,'+20% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(370,'runeword.mosaic',NULL,'+200-250% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(371,'runeword.mosaic',NULL,'+8-15% to Fire Skill Damage');
+INSERT INTO "runeword_effects" VALUES(372,'runeword.mosaic',NULL,'+8-15% to Cold Skill Damage');
+INSERT INTO "runeword_effects" VALUES(373,'runeword.mosaic',NULL,'+8-15% to Lightning Skill Damage');
+INSERT INTO "runeword_effects" VALUES(374,'runeword.myth',NULL,'10% Chance to cast level 1 Taunt on striking');
+INSERT INTO "runeword_effects" VALUES(375,'runeword.myth',NULL,'3% Chance to cast level 1 Howl when struck');
+INSERT INTO "runeword_effects" VALUES(376,'runeword.myth',NULL,'+2  to Barbarian Skill Levels');
+INSERT INTO "runeword_effects" VALUES(377,'runeword.myth',NULL,'Replenish Life +10');
+INSERT INTO "runeword_effects" VALUES(378,'runeword.nadir',NULL,'+50% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(379,'runeword.nadir',NULL,'+10 Defense');
+INSERT INTO "runeword_effects" VALUES(380,'runeword.nadir',NULL,'-3 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(381,'runeword.nadir',NULL,'Level 9 Cloak of Shadows (13/13 Charges)');
+INSERT INTO "runeword_effects" VALUES(382,'runeword.nadir',NULL,'-33% Extra Gold from Monsters');
+INSERT INTO "runeword_effects" VALUES(383,'runeword.nadir',NULL,'+5 to Strength');
+INSERT INTO "runeword_effects" VALUES(384,'runeword.oath',NULL,'+210-340% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(385,'runeword.oath',NULL,'+30% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(386,'runeword.oath',NULL,'30% Chance to cast level 20 Bone Spirit on striking');
+INSERT INTO "runeword_effects" VALUES(387,'runeword.oath',NULL,'Level 14 IronGolem (17/17 Charges)');
+INSERT INTO "runeword_effects" VALUES(388,'runeword.oath',NULL,'Level 16 Heart of Wolverine (20/20 Charges)');
+INSERT INTO "runeword_effects" VALUES(389,'runeword.oath',NULL,'Magic Absorb 10-15%');
+INSERT INTO "runeword_effects" VALUES(390,'runeword.oath',NULL,'Indestructible');
+INSERT INTO "runeword_effects" VALUES(391,'runeword.obedience',NULL,'+370% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(392,'runeword.obedience',NULL,'40% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(393,'runeword.obedience',NULL,'30% Chance to cast level 21 Enchant when you Kill an Enemy');
+INSERT INTO "runeword_effects" VALUES(394,'runeword.obedience',NULL,'-25% to Enemy Fire Resistance');
+INSERT INTO "runeword_effects" VALUES(395,'runeword.obedience',NULL,'+200-300 Defense');
+INSERT INTO "runeword_effects" VALUES(396,'runeword.obedience',NULL,'+40% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(397,'runeword.obedience',NULL,'All Resistances +20-30');
+INSERT INTO "runeword_effects" VALUES(398,'runeword.obsession',NULL,'+4 to All Skills');
+INSERT INTO "runeword_effects" VALUES(399,'runeword.obsession',NULL,'24% Chance to cast level 10 Weaken when struck');
+INSERT INTO "runeword_effects" VALUES(400,'runeword.obsession',NULL,'+65% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(401,'runeword.obsession',NULL,'+60% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(402,'runeword.obsession',NULL,'All Resistances +60-70');
+INSERT INTO "runeword_effects" VALUES(403,'runeword.obsession',NULL,'Increase Maximum Life 15-25%');
+INSERT INTO "runeword_effects" VALUES(404,'runeword.obsession',NULL,'Regenerate Mana 15-30%');
+INSERT INTO "runeword_effects" VALUES(405,'runeword.passion',NULL,'+160-210% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(406,'runeword.passion',NULL,'+1 to Zeal');
+INSERT INTO "runeword_effects" VALUES(407,'runeword.passion',NULL,'50-80% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(408,'runeword.passion',NULL,'+1 to Berserk');
+INSERT INTO "runeword_effects" VALUES(409,'runeword.passion',NULL,'+25% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(410,'runeword.passion',NULL,'Level 3 Heart of Wolverine (12/12 Charges)');
+INSERT INTO "runeword_effects" VALUES(411,'runeword.passion',NULL,'Hit Blinds Target +10');
+INSERT INTO "runeword_effects" VALUES(412,'runeword.pattern',NULL,'10% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(413,'runeword.pattern',NULL,'+40-80% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(414,'runeword.pattern',NULL,'Adds 12-32 Fire Damage');
+INSERT INTO "runeword_effects" VALUES(415,'runeword.pattern',NULL,'All Resistances +15');
+INSERT INTO "runeword_effects" VALUES(416,'runeword.pattern',NULL,'+6 to Strength');
+INSERT INTO "runeword_effects" VALUES(417,'runeword.pattern',NULL,'+6 to Dexterity');
+INSERT INTO "runeword_effects" VALUES(418,'runeword.pattern',NULL,'+30% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(419,'runeword.peace',NULL,'2% Chance to cast level 15 Valkyrie on striking');
+INSERT INTO "runeword_effects" VALUES(420,'runeword.peace',NULL,'4% Chance to cast level 5 Slow Missiles when struck');
+INSERT INTO "runeword_effects" VALUES(421,'runeword.peace',NULL,'+2 to Amazon Skill Levels');
+INSERT INTO "runeword_effects" VALUES(422,'runeword.peace',NULL,'+2 to Critical Strike');
+INSERT INTO "runeword_effects" VALUES(423,'runeword.phoenix',NULL,'+350-400% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(424,'runeword.phoenix',NULL,'+350-400 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(425,'runeword.phoenix',NULL,'40% Chance to cast level 22 Firestorm on striking');
+INSERT INTO "runeword_effects" VALUES(426,'runeword.phoenix',NULL,'100% Chance to cast level 40 Blaze when you Level-Up');
+INSERT INTO "runeword_effects" VALUES(427,'runeword.phoenix',NULL,'-28% to Enemy Fire Resistance');
+INSERT INTO "runeword_effects" VALUES(428,'runeword.phoenix',NULL,'Level 10-15 Redemption Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(429,'runeword.phoenix',NULL,'Fire Absorb 15-21%');
+INSERT INTO "runeword_effects" VALUES(430,'runeword.plague',NULL,'+220-320% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(431,'runeword.plague',NULL,'20% Chance to cast level 12 Lower Resist when struck');
+INSERT INTO "runeword_effects" VALUES(432,'runeword.plague',NULL,'25% Chance to cast level 15 Poison Nova on striking');
+INSERT INTO "runeword_effects" VALUES(433,'runeword.plague',NULL,'-23% to Enemy Poison Resistance');
+INSERT INTO "runeword_effects" VALUES(434,'runeword.plague',NULL,'x% Deadly Strike (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(435,'runeword.plague',NULL,'Level 13-17 Cleansing Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(436,'runeword.plague',NULL,'+1-2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(437,'runeword.pride',NULL,'+x% Damage to Demons (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(438,'runeword.pride',NULL,'Adds 50-280 Lightning Damage');
+INSERT INTO "runeword_effects" VALUES(439,'runeword.pride',NULL,'260-300% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(440,'runeword.pride',NULL,'Level 16-20 Concentration Aura When Equipped');
+INSERT INTO "runeword_effects" VALUES(441,'runeword.pride',NULL,'25% Chance to cast level 17 Fire Wall when struck');
+INSERT INTO "runeword_effects" VALUES(442,'runeword.pride',NULL,'Replenish Life +8');
+INSERT INTO "runeword_effects" VALUES(443,'runeword.pride',NULL,'x% Extra Gold from Monsters (Based on Character Level)');
+INSERT INTO "runeword_effects" VALUES(444,'runeword.principle',NULL,'100% Chance to cast level 5 Holy Bolt on striking');
+INSERT INTO "runeword_effects" VALUES(445,'runeword.principle',NULL,'+2 to Paladin Skill Levels');
+INSERT INTO "runeword_effects" VALUES(446,'runeword.principle',NULL,'+100-150 to Life');
+INSERT INTO "runeword_effects" VALUES(447,'runeword.principle',NULL,'+50% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(448,'runeword.prudence',NULL,'+140-170% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(449,'runeword.prudence',NULL,'Magic Damage Reduced by 10');
+INSERT INTO "runeword_effects" VALUES(450,'runeword.prudence',NULL,'Damage Reduced by 3');
+INSERT INTO "runeword_effects" VALUES(451,'runeword.prudence',NULL,'All Resistances +25-35');
+INSERT INTO "runeword_effects" VALUES(452,'runeword.prudence',NULL,'+25% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(453,'runeword.prudence',NULL,'Repairs 1 durability per 4 seconds');
+INSERT INTO "runeword_effects" VALUES(454,'runeword.prudence',NULL,'+1 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(455,'runeword.radiance',NULL,'+5 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(456,'runeword.radiance',NULL,'+10 to Energy');
+INSERT INTO "runeword_effects" VALUES(457,'runeword.radiance',NULL,'+10 to Vitality');
+INSERT INTO "runeword_effects" VALUES(458,'runeword.radiance',NULL,'Magic Damage Reduced by 3');
+INSERT INTO "runeword_effects" VALUES(459,'runeword.radiance',NULL,'+33 to Mana');
+INSERT INTO "runeword_effects" VALUES(460,'runeword.radiance',NULL,'+75% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(461,'runeword.rain',NULL,'5% Chance to cast level 15 Twister on striking');
+INSERT INTO "runeword_effects" VALUES(462,'runeword.rain',NULL,'5% Chance to cast level 15 Cyclone Armor when struck');
+INSERT INTO "runeword_effects" VALUES(463,'runeword.rain',NULL,'+2 to Druid Skill Levels');
+INSERT INTO "runeword_effects" VALUES(464,'runeword.rain',NULL,'+100-150 to Mana');
+INSERT INTO "runeword_effects" VALUES(465,'runeword.rhyme',NULL,'+20% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(466,'runeword.rhyme',NULL,'20% Increased Chance of Blocking');
+INSERT INTO "runeword_effects" VALUES(467,'runeword.rhyme',NULL,'All Resistances +25');
+INSERT INTO "runeword_effects" VALUES(468,'runeword.rhyme',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(469,'runeword.rhyme',NULL,'50% Extra Gold from Monsters');
+INSERT INTO "runeword_effects" VALUES(470,'runeword.rhyme',NULL,'25% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(471,'runeword.rift',NULL,'Adds 160-250 Magic Damage');
+INSERT INTO "runeword_effects" VALUES(472,'runeword.rift',NULL,'Adds 60-180 Fire Damage');
+INSERT INTO "runeword_effects" VALUES(473,'runeword.rift',NULL,'38% Damage Taken Goes To Mana');
+INSERT INTO "runeword_effects" VALUES(474,'runeword.rift',NULL,'20% Chance to cast level 16 Tornado on striking');
+INSERT INTO "runeword_effects" VALUES(475,'runeword.rift',NULL,'16% Chance to cast level 21 Frozen Orb on attack');
+INSERT INTO "runeword_effects" VALUES(476,'runeword.rift',NULL,'Level 15 Iron Maiden (40/40 Charges)');
+INSERT INTO "runeword_effects" VALUES(477,'runeword.rift',NULL,'+5-10 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(478,'runeword.ritual',NULL,'13% Chance to cast level 1 Sigil Death when struck');
+INSERT INTO "runeword_effects" VALUES(479,'runeword.ritual',NULL,'+20% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(480,'runeword.ritual',NULL,'+200-270% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(481,'runeword.ritual',NULL,'+150-250% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(482,'runeword.ritual',NULL,'200-260% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(483,'runeword.ritual',NULL,'+3-5 Life after each Kill');
+INSERT INTO "runeword_effects" VALUES(484,'runeword.ritual',NULL,'Slain Monsters Rest in Peace');
+INSERT INTO "runeword_effects" VALUES(485,'runeword.sanctuary',NULL,'20% Increased Chance of Blocking');
+INSERT INTO "runeword_effects" VALUES(486,'runeword.sanctuary',NULL,'+20% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(487,'runeword.sanctuary',NULL,'+130-160% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(488,'runeword.sanctuary',NULL,'+250 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(489,'runeword.sanctuary',NULL,'All Resistances +50-70');
+INSERT INTO "runeword_effects" VALUES(490,'runeword.sanctuary',NULL,'+20% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(491,'runeword.sanctuary',NULL,'Level 12 Slow Missiles (60/60 Charges)');
+INSERT INTO "runeword_effects" VALUES(492,'runeword.silence',NULL,'4% Mana stolen per hit');
+INSERT INTO "runeword_effects" VALUES(493,'runeword.silence',NULL,'Hit Blinds Target +33');
+INSERT INTO "runeword_effects" VALUES(494,'runeword.silence',NULL,'+200% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(495,'runeword.silence',NULL,'+20% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(496,'runeword.silence',NULL,'All Resistances +75');
+INSERT INTO "runeword_effects" VALUES(497,'runeword.silence',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(498,'runeword.silence',NULL,'+20% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(499,'runeword.smoke',NULL,'+250 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(500,'runeword.smoke',NULL,'+75% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(501,'runeword.smoke',NULL,'All Resistances +50');
+INSERT INTO "runeword_effects" VALUES(502,'runeword.smoke',NULL,'+20% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(503,'runeword.smoke',NULL,'+-1 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(504,'runeword.smoke',NULL,'Level 6 Weaken (18/18 Charges)');
+INSERT INTO "runeword_effects" VALUES(505,'runeword.spirit',NULL,'+55% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(506,'runeword.spirit',NULL,'+89-112 to Mana');
+INSERT INTO "runeword_effects" VALUES(507,'runeword.spirit',NULL,'+250 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(508,'runeword.spirit',NULL,'+22 to Vitality');
+INSERT INTO "runeword_effects" VALUES(509,'runeword.spirit',NULL,'+25-35% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(510,'runeword.spirit',NULL,'Magic Absorb 3-8%');
+INSERT INTO "runeword_effects" VALUES(511,'runeword.spirit',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(512,'runeword.splendor',NULL,'+3 to Light Radius');
+INSERT INTO "runeword_effects" VALUES(513,'runeword.splendor',NULL,'50% Extra Gold from Monsters');
+INSERT INTO "runeword_effects" VALUES(514,'runeword.splendor',NULL,'20% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(515,'runeword.splendor',NULL,'+60-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(516,'runeword.splendor',NULL,'+20% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(517,'runeword.splendor',NULL,'+10% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(518,'runeword.splendor',NULL,'+1 to All Skills');
+INSERT INTO "runeword_effects" VALUES(519,'runeword.stealth',NULL,'Magic Damage Reduced by 3');
+INSERT INTO "runeword_effects" VALUES(520,'runeword.stealth',NULL,'+6 to Dexterity');
+INSERT INTO "runeword_effects" VALUES(521,'runeword.stealth',NULL,'+15 Maximum Stamina');
+INSERT INTO "runeword_effects" VALUES(522,'runeword.stealth',NULL,'+25% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(523,'runeword.stealth',NULL,'+25% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(524,'runeword.stealth',NULL,'+25% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(525,'runeword.steel',NULL,'+25% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(526,'runeword.steel',NULL,'+3 to Minimum Damage');
+INSERT INTO "runeword_effects" VALUES(527,'runeword.steel',NULL,'+3 to Maximum Damage');
+INSERT INTO "runeword_effects" VALUES(528,'runeword.steel',NULL,'50% Chance of Open Wounds');
+INSERT INTO "runeword_effects" VALUES(529,'runeword.steel',NULL,'+20% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(530,'runeword.stone',NULL,'+220-260% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(531,'runeword.stone',NULL,'Level 16 Clay Golem (16/16 Charges)');
+INSERT INTO "runeword_effects" VALUES(532,'runeword.stone',NULL,'+300 Defense vs. Missile');
+INSERT INTO "runeword_effects" VALUES(533,'runeword.stone',NULL,'Level 16 Molten Boulder (80/80 Charges)');
+INSERT INTO "runeword_effects" VALUES(534,'runeword.stone',NULL,'+16 to Strength');
+INSERT INTO "runeword_effects" VALUES(535,'runeword.stone',NULL,'+16 to Vitality');
+INSERT INTO "runeword_effects" VALUES(536,'runeword.stone',NULL,'+40% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(537,'runeword.strength',NULL,'+20 to Strength');
+INSERT INTO "runeword_effects" VALUES(538,'runeword.strength',NULL,'+35% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(539,'runeword.strength',NULL,'+10 to Vitality');
+INSERT INTO "runeword_effects" VALUES(540,'runeword.strength',NULL,'25% Chance of Crushing Blow');
+INSERT INTO "runeword_effects" VALUES(541,'runeword.temper',NULL,'Increase Maximum Life 5%');
+INSERT INTO "runeword_effects" VALUES(542,'runeword.temper',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(543,'runeword.temper',NULL,'Fire Resist +10-30%');
+INSERT INTO "runeword_effects" VALUES(544,'runeword.temper',NULL,'+10-15 Fire Absorb');
+INSERT INTO "runeword_effects" VALUES(545,'runeword.treachery',NULL,'25% Chance to cast level 15 Venom on striking');
+INSERT INTO "runeword_effects" VALUES(546,'runeword.treachery',NULL,'5% Chance to cast level 15 Fade when struck');
+INSERT INTO "runeword_effects" VALUES(547,'runeword.treachery',NULL,'+2 to Assassin Skill Levels');
+INSERT INTO "runeword_effects" VALUES(548,'runeword.treachery',NULL,'+45% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(549,'runeword.unbending_will',NULL,'+3 to Combat Skills (Barbarian only)');
+INSERT INTO "runeword_effects" VALUES(550,'runeword.unbending_will',NULL,'18% Chance to cast level 18 Taunt on striking');
+INSERT INTO "runeword_effects" VALUES(551,'runeword.unbending_will',NULL,'+20-30% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(552,'runeword.unbending_will',NULL,'+300-350% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(553,'runeword.unbending_will',NULL,'Damage Reduced by 8');
+INSERT INTO "runeword_effects" VALUES(554,'runeword.unbending_will',NULL,'Prevent Monster Heal');
+INSERT INTO "runeword_effects" VALUES(555,'runeword.unbending_will',NULL,'8-10% Life stolen per hit');
+INSERT INTO "runeword_effects" VALUES(556,'runeword.venom',NULL,'Adds 312 Poison Damage Over 3 Seconds');
+INSERT INTO "runeword_effects" VALUES(557,'runeword.venom',NULL,'Ignore Target''s Defense');
+INSERT INTO "runeword_effects" VALUES(558,'runeword.venom',NULL,'Level 15 Poison Explosion (27/27 Charges)');
+INSERT INTO "runeword_effects" VALUES(560,'runeword.venom',NULL,'7% Mana stolen per hit');
+INSERT INTO "runeword_effects" VALUES(561,'runeword.vigilance',NULL,'5% Chance to cast level 10 Ring of Fire when struck');
+INSERT INTO "runeword_effects" VALUES(562,'runeword.vigilance',NULL,'+10% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(563,'runeword.vigilance',NULL,'+30% Faster Block Rate');
+INSERT INTO "runeword_effects" VALUES(564,'runeword.vigilance',NULL,'+20-40 to Life');
+INSERT INTO "runeword_effects" VALUES(565,'runeword.vigilance',NULL,'+20-40 to Mana');
+INSERT INTO "runeword_effects" VALUES(566,'runeword.vigilance',NULL,'All Resistances +25-35');
+INSERT INTO "runeword_effects" VALUES(567,'runeword.vigilance',NULL,'+75-100% Enhanced Defense');
+INSERT INTO "runeword_effects" VALUES(568,'runeword.voice_of_reason',NULL,'+220-350% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(569,'runeword.voice_of_reason',NULL,'+280-300% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(570,'runeword.voice_of_reason',NULL,'Adds 100-220 Cold Damage');
+INSERT INTO "runeword_effects" VALUES(571,'runeword.voice_of_reason',NULL,'-24% to Enemy Cold Resistance');
+INSERT INTO "runeword_effects" VALUES(572,'runeword.voice_of_reason',NULL,'18% Chance to cast level 20 Ice Blast on striking');
+INSERT INTO "runeword_effects" VALUES(573,'runeword.voice_of_reason',NULL,'15% Chance to cast level 13 Frozen Orb on striking');
+INSERT INTO "runeword_effects" VALUES(574,'runeword.voice_of_reason',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(575,'runeword.void',NULL,'+2 to All Skills');
+INSERT INTO "runeword_effects" VALUES(576,'runeword.void',NULL,'+40% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(577,'runeword.void',NULL,'+10-15% to Magic Skill Damage');
+INSERT INTO "runeword_effects" VALUES(578,'runeword.void',NULL,'+1-3 to Abyss');
+INSERT INTO "runeword_effects" VALUES(579,'runeword.void',NULL,'+8-12 to all Attributes');
+INSERT INTO "runeword_effects" VALUES(580,'runeword.void',NULL,'Level 4 Decrepify (35/35 Charges)');
+INSERT INTO "runeword_effects" VALUES(581,'runeword.wealth',NULL,'250% Extra Gold from Monsters');
+INSERT INTO "runeword_effects" VALUES(582,'runeword.wealth',NULL,'100% Better Chance of Getting Magic Items');
+INSERT INTO "runeword_effects" VALUES(583,'runeword.white',NULL,'+3 to Poison and Bone Skills (Necromancer only)');
+INSERT INTO "runeword_effects" VALUES(584,'runeword.white',NULL,'Magic Damage Reduced by 4');
+INSERT INTO "runeword_effects" VALUES(585,'runeword.white',NULL,'+20% Faster Cast Rate');
+INSERT INTO "runeword_effects" VALUES(586,'runeword.white',NULL,'+13 to Mana');
+INSERT INTO "runeword_effects" VALUES(587,'runeword.white',NULL,'+3 to Bone Spear (Necromancer only)');
+INSERT INTO "runeword_effects" VALUES(588,'runeword.white',NULL,'+2 to Bone Armor (Necromancer only)');
+INSERT INTO "runeword_effects" VALUES(589,'runeword.white',NULL,'+4 to Bone Spirit (Necromancer only)');
+INSERT INTO "runeword_effects" VALUES(590,'runeword.wind',NULL,'+120-160% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(591,'runeword.wind',NULL,'+40% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(592,'runeword.wind',NULL,'+20% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(593,'runeword.wind',NULL,'-50% Target Defense');
+INSERT INTO "runeword_effects" VALUES(594,'runeword.wind',NULL,'10% Chance to cast level 9 Tornado on striking');
+INSERT INTO "runeword_effects" VALUES(595,'runeword.wind',NULL,'Level 13 Twister (127/127 Charges)');
+INSERT INTO "runeword_effects" VALUES(596,'runeword.wind',NULL,'+15% Faster Hit Recovery');
+INSERT INTO "runeword_effects" VALUES(597,'runeword.wisdom',NULL,'Piercing Attack');
+INSERT INTO "runeword_effects" VALUES(598,'runeword.wisdom',NULL,'4-8% Mana stolen per hit');
+INSERT INTO "runeword_effects" VALUES(599,'runeword.wisdom',NULL,'15-25% Bonus to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(600,'runeword.wisdom',NULL,'+5 to Mana after each Kill');
+INSERT INTO "runeword_effects" VALUES(601,'runeword.wisdom',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(602,'runeword.wisdom',NULL,'+10 to Energy');
+INSERT INTO "runeword_effects" VALUES(603,'runeword.wrath',NULL,'+300% Damage to Demons');
+INSERT INTO "runeword_effects" VALUES(604,'runeword.wrath',NULL,'+250-300% Damage to Undead');
+INSERT INTO "runeword_effects" VALUES(605,'runeword.wrath',NULL,'Adds 41-240 Lightning Damage');
+INSERT INTO "runeword_effects" VALUES(606,'runeword.wrath',NULL,'Adds 85-120 Magic Damage');
+INSERT INTO "runeword_effects" VALUES(607,'runeword.wrath',NULL,'5% Chance to cast level 10 Life Tap on striking');
+INSERT INTO "runeword_effects" VALUES(608,'runeword.wrath',NULL,'30% Chance to cast level 1 Decrepify on striking');
+INSERT INTO "runeword_effects" VALUES(609,'runeword.wrath',NULL,'Cannot Be Frozen');
+INSERT INTO "runeword_effects" VALUES(610,'runeword.zephyr',NULL,'+25% Faster Run/Walk');
+INSERT INTO "runeword_effects" VALUES(611,'runeword.zephyr',NULL,'+25% Increased Attack Speed');
+INSERT INTO "runeword_effects" VALUES(612,'runeword.zephyr',NULL,'+33% Enhanced Damage');
+INSERT INTO "runeword_effects" VALUES(613,'runeword.zephyr',NULL,'+66 to Attack Rating');
+INSERT INTO "runeword_effects" VALUES(614,'runeword.zephyr',NULL,'7% Chance to cast level 1 Twister when struck');
+INSERT INTO "runeword_effects" VALUES(615,'runeword.zephyr',NULL,'+25 Defense');
+CREATE TABLE runeword_item_types (
+    runeword_id    INTEGER NOT NULL,
+    item_subtype_id INTEGER NOT NULL,
+    PRIMARY KEY (runeword_id, item_subtype_id),
+    FOREIGN KEY (runeword_id)  REFERENCES runewords(id),
+    FOREIGN KEY (item_subtype_id) REFERENCES item_subtypes(id)
+);
+INSERT INTO "runeword_item_types" VALUES(1,15);
+INSERT INTO "runeword_item_types" VALUES(2,19);
+INSERT INTO "runeword_item_types" VALUES(3,1);
+INSERT INTO "runeword_item_types" VALUES(3,14);
+INSERT INTO "runeword_item_types" VALUES(3,5);
+INSERT INTO "runeword_item_types" VALUES(4,2);
+INSERT INTO "runeword_item_types" VALUES(4,5);
+INSERT INTO "runeword_item_types" VALUES(4,9);
+INSERT INTO "runeword_item_types" VALUES(5,19);
+INSERT INTO "runeword_item_types" VALUES(6,19);
+INSERT INTO "runeword_item_types" VALUES(7,11);
+INSERT INTO "runeword_item_types" VALUES(8,21);
+INSERT INTO "runeword_item_types" VALUES(9,7);
+INSERT INTO "runeword_item_types" VALUES(10,21);
+INSERT INTO "runeword_item_types" VALUES(11,19);
+INSERT INTO "runeword_item_types" VALUES(12,4);
+INSERT INTO "runeword_item_types" VALUES(13,7);
+INSERT INTO "runeword_item_types" VALUES(14,1);
+INSERT INTO "runeword_item_types" VALUES(14,18);
+INSERT INTO "runeword_item_types" VALUES(14,13);
+INSERT INTO "runeword_item_types" VALUES(15,7);
+INSERT INTO "runeword_item_types" VALUES(16,18);
+INSERT INTO "runeword_item_types" VALUES(16,1);
+INSERT INTO "runeword_item_types" VALUES(17,7);
+INSERT INTO "runeword_item_types" VALUES(18,13);
+INSERT INTO "runeword_item_types" VALUES(18,18);
+INSERT INTO "runeword_item_types" VALUES(19,1);
+INSERT INTO "runeword_item_types" VALUES(19,13);
+INSERT INTO "runeword_item_types" VALUES(19,5);
+INSERT INTO "runeword_item_types" VALUES(20,19);
+INSERT INTO "runeword_item_types" VALUES(20,15);
+INSERT INTO "runeword_item_types" VALUES(21,7);
+INSERT INTO "runeword_item_types" VALUES(21,15);
+INSERT INTO "runeword_item_types" VALUES(22,19);
+INSERT INTO "runeword_item_types" VALUES(23,11);
+INSERT INTO "runeword_item_types" VALUES(24,19);
+INSERT INTO "runeword_item_types" VALUES(25,19);
+INSERT INTO "runeword_item_types" VALUES(26,10);
+INSERT INTO "runeword_item_types" VALUES(27,12);
+INSERT INTO "runeword_item_types" VALUES(28,11);
+INSERT INTO "runeword_item_types" VALUES(29,1);
+INSERT INTO "runeword_item_types" VALUES(29,5);
+INSERT INTO "runeword_item_types" VALUES(30,7);
+INSERT INTO "runeword_item_types" VALUES(31,21);
+INSERT INTO "runeword_item_types" VALUES(31,19);
+INSERT INTO "runeword_item_types" VALUES(32,10);
+INSERT INTO "runeword_item_types" VALUES(33,19);
+INSERT INTO "runeword_item_types" VALUES(34,18);
+INSERT INTO "runeword_item_types" VALUES(34,1);
+INSERT INTO "runeword_item_types" VALUES(35,7);
+INSERT INTO "runeword_item_types" VALUES(36,21);
+INSERT INTO "runeword_item_types" VALUES(37,11);
+INSERT INTO "runeword_item_types" VALUES(38,17);
+INSERT INTO "runeword_item_types" VALUES(38,9);
+INSERT INTO "runeword_item_types" VALUES(39,7);
+INSERT INTO "runeword_item_types" VALUES(40,14);
+INSERT INTO "runeword_item_types" VALUES(41,10);
+INSERT INTO "runeword_item_types" VALUES(42,19);
+INSERT INTO "runeword_item_types" VALUES(43,21);
+INSERT INTO "runeword_item_types" VALUES(44,11);
+INSERT INTO "runeword_item_types" VALUES(45,13);
+INSERT INTO "runeword_item_types" VALUES(45,16);
+INSERT INTO "runeword_item_types" VALUES(46,13);
+INSERT INTO "runeword_item_types" VALUES(46,17);
+INSERT INTO "runeword_item_types" VALUES(46,11);
+INSERT INTO "runeword_item_types" VALUES(47,18);
+INSERT INTO "runeword_item_types" VALUES(47,14);
+INSERT INTO "runeword_item_types" VALUES(48,18);
+INSERT INTO "runeword_item_types" VALUES(48,1);
+INSERT INTO "runeword_item_types" VALUES(49,18);
+INSERT INTO "runeword_item_types" VALUES(49,5);
+INSERT INTO "runeword_item_types" VALUES(49,1);
+INSERT INTO "runeword_item_types" VALUES(50,18);
+INSERT INTO "runeword_item_types" VALUES(50,5);
+INSERT INTO "runeword_item_types" VALUES(50,14);
+INSERT INTO "runeword_item_types" VALUES(51,17);
+INSERT INTO "runeword_item_types" VALUES(52,19);
+INSERT INTO "runeword_item_types" VALUES(53,7);
+INSERT INTO "runeword_item_types" VALUES(54,10);
+INSERT INTO "runeword_item_types" VALUES(55,11);
+INSERT INTO "runeword_item_types" VALUES(56,17);
+INSERT INTO "runeword_item_types" VALUES(57,7);
+INSERT INTO "runeword_item_types" VALUES(58,11);
+INSERT INTO "runeword_item_types" VALUES(59,4);
+INSERT INTO "runeword_item_types" VALUES(60,19);
+INSERT INTO "runeword_item_types" VALUES(61,7);
+INSERT INTO "runeword_item_types" VALUES(62,18);
+INSERT INTO "runeword_item_types" VALUES(62,1);
+INSERT INTO "runeword_item_types" VALUES(62,9);
+INSERT INTO "runeword_item_types" VALUES(63,13);
+INSERT INTO "runeword_item_types" VALUES(63,16);
+INSERT INTO "runeword_item_types" VALUES(64,17);
+INSERT INTO "runeword_item_types" VALUES(65,21);
+INSERT INTO "runeword_item_types" VALUES(66,4);
+INSERT INTO "runeword_item_types" VALUES(67,19);
+INSERT INTO "runeword_item_types" VALUES(68,21);
+INSERT INTO "runeword_item_types" VALUES(68,15);
+INSERT INTO "runeword_item_types" VALUES(69,18);
+INSERT INTO "runeword_item_types" VALUES(69,8);
+INSERT INTO "runeword_item_types" VALUES(69,4);
+INSERT INTO "runeword_item_types" VALUES(70,13);
+INSERT INTO "runeword_item_types" VALUES(70,16);
+INSERT INTO "runeword_item_types" VALUES(71,19);
+INSERT INTO "runeword_item_types" VALUES(72,19);
+INSERT INTO "runeword_item_types" VALUES(73,7);
+INSERT INTO "runeword_item_types" VALUES(74,19);
+INSERT INTO "runeword_item_types" VALUES(75,15);
+INSERT INTO "runeword_item_types" VALUES(76,13);
+INSERT INTO "runeword_item_types" VALUES(76,14);
+INSERT INTO "runeword_item_types" VALUES(77,8);
+INSERT INTO "runeword_item_types" VALUES(78,15);
+INSERT INTO "runeword_item_types" VALUES(79,21);
+INSERT INTO "runeword_item_types" VALUES(80,19);
+INSERT INTO "runeword_item_types" VALUES(81,18);
+INSERT INTO "runeword_item_types" VALUES(81,15);
+INSERT INTO "runeword_item_types" VALUES(82,15);
+INSERT INTO "runeword_item_types" VALUES(83,19);
+INSERT INTO "runeword_item_types" VALUES(84,18);
+INSERT INTO "runeword_item_types" VALUES(84,1);
+INSERT INTO "runeword_item_types" VALUES(84,9);
+INSERT INTO "runeword_item_types" VALUES(85,19);
+INSERT INTO "runeword_item_types" VALUES(86,10);
+INSERT INTO "runeword_item_types" VALUES(87,7);
+INSERT INTO "runeword_item_types" VALUES(88,19);
+INSERT INTO "runeword_item_types" VALUES(89,18);
+INSERT INTO "runeword_item_types" VALUES(90,21);
+INSERT INTO "runeword_item_types" VALUES(91,3);
+INSERT INTO "runeword_item_types" VALUES(91,15);
+INSERT INTO "runeword_item_types" VALUES(91,6);
+INSERT INTO "runeword_item_types" VALUES(92,18);
+INSERT INTO "runeword_item_types" VALUES(92,9);
+INSERT INTO "runeword_item_types" VALUES(93,8);
+INSERT INTO "runeword_item_types" VALUES(94,19);
+INSERT INTO "runeword_item_types" VALUES(95,20);
+INSERT INTO "runeword_item_types" VALUES(96,10);
+INSERT INTO "runeword_item_types" VALUES(97,7);
+INSERT INTO "runeword_item_types" VALUES(98,11);
+INSERT INTO "runeword_item_types" VALUES(99,11);
+CREATE TABLE runewords (
     id            INTEGER PRIMARY KEY,
     name_key      TEXT NOT NULL,
     name_en       TEXT NOT NULL,
@@ -46,23 +966,106 @@ CREATE TABLE IF NOT EXISTS runewords (
     FOREIGN KEY (rune5_id) REFERENCES runes(id),
     FOREIGN KEY (rune6_id) REFERENCES runes(id)
 );
-
-CREATE TABLE IF NOT EXISTS runeword_effects (
-    id        INTEGER PRIMARY KEY,
-    name_key  TEXT NOT NULL,
-    item_type TEXT,          -- NULL = commun à tous, "weapon", "armor", "shield"
-    effect_en TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS runeword_item_types (
-    runeword_id    INTEGER NOT NULL,
-    item_subtype_id INTEGER NOT NULL,
-    PRIMARY KEY (runeword_id, item_subtype_id),
-    FOREIGN KEY (runeword_id)  REFERENCES runewords(id),
-    FOREIGN KEY (item_subtype_id) REFERENCES item_subtypes(id)
-);
-
-CREATE TABLE IF NOT EXISTS translations (
+INSERT INTO "runewords" VALUES(1,'runeword.ancients_pledge','Ancients'' Pledge','RalOrtTal',8,9,7,NULL,NULL,NULL,3,21,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(2,'runeword.authority','Authority','HelShaelRal',15,13,8,NULL,NULL,NULL,3,29,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(3,'runeword.beast','Beast','BerTirUmMalLum',30,3,22,23,17,NULL,5,63,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(4,'runeword.black','Black','ThulIoNef',10,16,4,NULL,NULL,NULL,3,35,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(5,'runeword.bone','Bone','SolUmUm',12,22,22,NULL,NULL,NULL,3,47,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(6,'runeword.bramble','Bramble','RalOhmSurEth',8,27,29,5,NULL,NULL,4,61,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(7,'runeword.brand','Brand','JahLoMalGul',31,28,23,25,NULL,NULL,4,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(8,'runeword.breath_of_the_dying','Breath of the Dying','VexHelElEldZodEth',26,15,1,2,33,5,6,69,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(9,'runeword.bulwark','Bulwark','ShaelIoSol',13,16,12,NULL,NULL,NULL,3,35,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(10,'runeword.call_to_arms','Call to Arms','AmnRalMalIstOhm',11,8,23,24,27,NULL,5,57,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(11,'runeword.chains_of_honor','Chains of Honor','DolUmBerIst',14,22,30,24,NULL,NULL,4,63,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(12,'runeword.chaos','Chaos','FalOhmUm',19,27,22,NULL,NULL,NULL,3,57,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(13,'runeword.coven','Coven','IstRalIo',24,8,16,NULL,NULL,NULL,3,51,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(14,'runeword.crescent_moon','Crescent Moon','ShaelUmTir',13,22,3,NULL,NULL,NULL,3,47,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(15,'runeword.cure','Cure','ShaelIoTal',13,16,7,NULL,NULL,NULL,3,35,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(16,'runeword.death','Death','HelElVexOrtGul',15,1,26,9,25,NULL,5,55,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(17,'runeword.delirium','Delirium','LemIstIo',20,24,16,NULL,NULL,NULL,3,51,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(18,'runeword.destruction','Destruction','VexLoBerJahKo',26,28,30,31,18,NULL,5,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(19,'runeword.doom','Doom','HelOhmUmLoCham',15,27,22,28,32,NULL,5,67,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(20,'runeword.dragon','Dragon','SurLoSol',29,28,12,NULL,NULL,NULL,3,61,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(21,'runeword.dream','Dream','IoJahPul',16,31,21,NULL,NULL,NULL,3,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(22,'runeword.duress','Duress','ShaelUmThul',13,22,10,NULL,NULL,NULL,3,47,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(23,'runeword.edge','Edge','TirTalAmn',3,7,11,NULL,NULL,NULL,3,25,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(24,'runeword.enigma','Enigma','JahIthBer',31,6,30,NULL,NULL,NULL,3,65,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(25,'runeword.enlightenment','Enlightenment','PulRalSur',21,8,12,NULL,NULL,NULL,3,45,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(26,'runeword.eternity','Eternity','AmnBerIstSolSur',11,30,24,12,29,NULL,5,63,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(27,'runeword.exile','Exile','VexOhmIstDol',26,27,24,14,NULL,NULL,4,57,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(28,'runeword.faith','Faith','OhmJahLemEld',27,31,20,2,NULL,NULL,4,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(29,'runeword.famine','Famine','FalOhmOrtJah',19,27,9,31,NULL,NULL,4,65,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(30,'runeword.flickering_flame','Flickering Flame','NefPulVex',4,21,26,NULL,NULL,NULL,3,55,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(31,'runeword.fortitude','Fortitude','ElSolDolLo',1,12,14,28,NULL,NULL,4,59,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(32,'runeword.fury','Fury','JahGulEth',31,25,5,NULL,NULL,NULL,3,65,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(33,'runeword.gloom','Gloom','FalUmPul',19,22,21,NULL,NULL,NULL,3,47,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(34,'runeword.grief','Grief','EthTirLoMalRal',5,3,28,23,8,NULL,5,59,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(35,'runeword.ground','Ground','ShaelIoOrt',13,16,9,NULL,NULL,NULL,3,35,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(36,'runeword.hand_of_justice','Hand of Justice','SurChamAmnLo',29,32,11,28,NULL,NULL,4,67,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(37,'runeword.harmony','Harmony','TirIthSolKo',3,6,12,18,NULL,NULL,4,39,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(38,'runeword.heart_of_the_oak','Heart of the Oak','KoVexPulThul',18,26,21,10,NULL,NULL,4,55,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(39,'runeword.hearth','Hearth','ShaelIoThul',13,16,10,NULL,NULL,NULL,3,35,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(40,'runeword.holy_thunder','Holy Thunder','EthRalOrtTal',5,8,9,7,NULL,NULL,4,21,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(41,'runeword.honor','Honor','AmnElIthTirSol',11,1,6,3,12,NULL,5,27,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(42,'runeword.hustle','Hustle','ShaelKoEld',13,18,2,NULL,NULL,NULL,3,39,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(43,'runeword.mania','Mania','ShaelKoEld',13,18,2,NULL,NULL,NULL,3,39,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(44,'runeword.ice','Ice','AmnShaelJahLo',11,13,31,28,NULL,NULL,4,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(45,'runeword.infinity','Infinity','BerMalBerIst',30,23,30,24,NULL,NULL,4,63,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(46,'runeword.insight','Insight','RalTirTalSol',8,3,7,12,NULL,NULL,4,27,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(47,'runeword.kings_grace','King''s Grace','AmnRalThul',11,8,10,NULL,NULL,NULL,3,25,109,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(48,'runeword.kingslayer','Kingslayer','MalUmGulFal',23,22,25,19,NULL,NULL,4,53,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(49,'runeword.last_wish','Last Wish','JahMalJahSurJahBer',31,23,31,29,31,30,6,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(50,'runeword.lawbringer','Lawbringer','AmnLemKo',11,20,18,NULL,NULL,NULL,3,43,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(51,'runeword.leaf','Leaf','TirRal',3,8,NULL,NULL,NULL,NULL,2,19,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(52,'runeword.lionheart','Lionheart','HelLumFal',15,17,19,NULL,NULL,NULL,3,41,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(53,'runeword.lore','Lore','OrtSol',9,12,NULL,NULL,NULL,NULL,2,27,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(54,'runeword.malice','Malice','IthElEth',6,1,5,NULL,NULL,NULL,3,15,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(55,'runeword.melody','Melody','ShaelKoNef',13,18,4,NULL,NULL,NULL,3,39,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(56,'runeword.memory','Memory','LumIoSolEth',17,16,12,5,NULL,NULL,4,37,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(57,'runeword.metamorphosis','Metamorphosis','IoChamFal',16,32,19,NULL,NULL,NULL,3,67,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(58,'runeword.mist','Mist','ChamShaelGulThulIth',32,13,25,10,6,NULL,5,67,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(59,'runeword.mosaic','Mosaic','MalGulAmn',23,25,11,NULL,NULL,NULL,3,53,260,NULL,3,3);
+INSERT INTO "runewords" VALUES(60,'runeword.myth','Myth','HelAmnNef',15,11,4,NULL,NULL,NULL,3,25,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(61,'runeword.nadir','Nadir','NefTir',4,3,NULL,NULL,NULL,NULL,2,13,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(62,'runeword.oath','Oath','ShaelPulMalLum',13,21,23,17,NULL,NULL,4,49,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(63,'runeword.obedience','Obedience','HelKoThulEthFal',15,18,10,5,19,NULL,5,41,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(64,'runeword.obsession','Obsession','ZodIstLemLumIoNef',33,24,20,17,16,4,6,69,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(65,'runeword.passion','Passion','DolOrtEldLem',14,9,2,20,NULL,NULL,4,43,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(66,'runeword.pattern','Pattern','TalOrtThul',7,9,10,NULL,NULL,NULL,3,23,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(67,'runeword.peace','Peace','ShaelThulAmn',13,10,11,NULL,NULL,NULL,3,29,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(68,'runeword.phoenix','Phoenix','VexVexLoJah',26,26,28,31,NULL,NULL,4,65,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(69,'runeword.plague','Plague','ChamShaelUm',32,13,22,NULL,NULL,NULL,3,67,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(70,'runeword.pride','Pride','ChamSurIoLo',32,29,16,28,NULL,NULL,4,67,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(71,'runeword.principle','Principle','RalGulEld',8,25,2,NULL,NULL,NULL,3,53,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(72,'runeword.prudence','Prudence','MalTir',23,3,NULL,NULL,NULL,NULL,2,49,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(73,'runeword.radiance','Radiance','NefSolIth',4,12,6,NULL,NULL,NULL,3,27,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(74,'runeword.rain','Rain','OrtMalIth',9,23,6,NULL,NULL,NULL,3,49,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(75,'runeword.rhyme','Rhyme','ShaelEth',13,5,NULL,NULL,NULL,NULL,2,29,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(76,'runeword.rift','Rift','HelKoLemGul',15,18,20,25,NULL,NULL,4,53,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(77,'runeword.ritual','Ritual','AmnShaelOhm',11,13,27,NULL,NULL,NULL,3,57,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(78,'runeword.sanctuary','Sanctuary','KoKoMal',18,18,23,NULL,NULL,NULL,3,49,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(79,'runeword.silence','Silence','DolEldHelIstTirVex',14,2,15,24,3,26,6,55,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(80,'runeword.smoke','Smoke','NefLum',4,17,NULL,NULL,NULL,NULL,2,37,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(81,'runeword.spirit','Spirit','TalThulOrtAmn',7,10,9,11,NULL,NULL,4,25,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(82,'runeword.splendor','Splendor','EthLum',5,17,NULL,NULL,NULL,NULL,2,37,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(83,'runeword.stealth','Stealth','TalEth',7,5,NULL,NULL,NULL,NULL,2,17,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(84,'runeword.steel','Steel','TirEl',3,1,NULL,NULL,NULL,NULL,2,13,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(85,'runeword.stone','Stone','ShaelUmPulLum',13,22,21,17,NULL,NULL,4,47,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(86,'runeword.strength','Strength','AmnTir',11,3,NULL,NULL,NULL,NULL,2,25,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(87,'runeword.temper','Temper','ShaelIoRal',13,16,8,NULL,NULL,NULL,3,35,260,NULL,3,NULL);
+INSERT INTO "runewords" VALUES(88,'runeword.treachery','Treachery','ShaelThulLem',13,10,20,NULL,NULL,NULL,3,43,111,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(89,'runeword.unbending_will','Unbending Will','FalIoIthEldElHel',19,16,6,2,1,15,6,41,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(90,'runeword.venom','Venom','TalDolMal',7,14,23,NULL,NULL,NULL,3,49,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(91,'runeword.vigilance','Vigilance','DolGul',14,25,NULL,NULL,NULL,NULL,2,53,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(92,'runeword.voice_of_reason','Voice of Reason','LemKoElEld',20,18,1,2,NULL,NULL,4,43,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(93,'runeword.void','Void','ThulZodIst',10,33,24,NULL,NULL,NULL,3,69,300,NULL,13,NULL);
+INSERT INTO "runewords" VALUES(94,'runeword.wealth','Wealth','LmKoTir',20,18,3,NULL,NULL,NULL,3,43,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(95,'runeword.white','White','DolIo',14,16,NULL,NULL,NULL,NULL,2,35,109,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(96,'runeword.wind','Wind','SurEl',29,1,NULL,NULL,NULL,NULL,2,61,110,NULL,NULL,NULL);
+INSERT INTO "runewords" VALUES(97,'runeword.wisdom','Wisdom','PulIthEld',21,6,2,NULL,NULL,NULL,3,45,240,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(98,'runeword.wrath','Wrath','PulLumBerMal',21,17,30,23,NULL,NULL,4,63,110,NULL,1,NULL);
+INSERT INTO "runewords" VALUES(99,'runeword.zephyr','Zephyr','OrtEth',9,5,NULL,NULL,NULL,NULL,2,21,109,NULL,NULL,NULL);
+CREATE TABLE translations (
     id        INTEGER PRIMARY KEY,
     name_key  TEXT NOT NULL,
     lang      TEXT NOT NULL,
@@ -70,1864 +1073,755 @@ CREATE TABLE IF NOT EXISTS translations (
     patch_min INTEGER,  -- NULL = valable depuis toujours
     patch_max INTEGER   -- NULL = encore valable aujourd hui
 );
-CREATE INDEX IF NOT EXISTS idx_translations ON translations (name_key, lang);
-
--- Runes
-INSERT INTO runes (id, name_key, name_en, clvl) VALUES
-    (1, 'rune.el', 'El', 11),
-    (2, 'rune.eld', 'Eld', 11),
-    (3, 'rune.tir', 'Tir', 13),
-    (4, 'rune.nef', 'Nef', 13),
-    (5, 'rune.eth', 'Eth', 15),
-    (6, 'rune.ith', 'Ith', 15),
-    (7, 'rune.tal', 'Tal', 17),
-    (8, 'rune.ral', 'Ral', 19),
-    (9, 'rune.ort', 'Ort', 21),
-    (10, 'rune.thul', 'Thul', 23),
-    (11, 'rune.amn', 'Amn', 25),
-    (12, 'rune.sol', 'Sol', 27),
-    (13, 'rune.shael', 'Shael', 29),
-    (14, 'rune.dol', 'Dol', 31),
-    (15, 'rune.hel', 'Hel', 0),
-    (16, 'rune.io', 'Io', 35),
-    (17, 'rune.lum', 'Lum', 37),
-    (18, 'rune.ko', 'Ko', 39),
-    (19, 'rune.fal', 'Fal', 41),
-    (20, 'rune.lem', 'Lem', 43),
-    (21, 'rune.pul', 'Pul', 45),
-    (22, 'rune.um', 'Um', 47),
-    (23, 'rune.mal', 'Mal', 49),
-    (24, 'rune.ist', 'Ist', 51),
-    (25, 'rune.gul', 'Gul', 53),
-    (26, 'rune.vex', 'Vex', 55),
-    (27, 'rune.ohm', 'Ohm', 57),
-    (28, 'rune.lo', 'Lo', 59),
-    (29, 'rune.sur', 'Sur', 61),
-    (30, 'rune.ber', 'Ber', 63),
-    (31, 'rune.jah', 'Jah', 65),
-    (32, 'rune.cham', 'Cham', 67),
-    (33, 'rune.zod', 'Zod', 69);
-
--- Item types
-INSERT INTO item_subtypes (id, code, name_en, item_type) VALUES
-    (1, 'axe', 'Axes', 'weapon'),
-    (2, 'club', 'Clubs', 'weapon'),
-    (3, 'grim', 'Primal Helms (Druid)', 'armor'),
-    (4, 'h2h', 'Claws (Assassin)', 'weapon'),
-    (5, 'hamm', 'Hammers', 'weapon'),
-    (6, 'head', 'Necromancer Heads', 'shield'),
-    (7, 'helm', 'Helms', 'armor'),
-    (8, 'knif', 'Knives', 'weapon'),
-    (9, 'mace', 'Maces', 'weapon'),
-    (10, 'mele', 'Melee Weapons', 'weapon'),
-    (11, 'miss', 'Missile Weapons', 'weapon'),
-    (12, 'pala', 'Paladin Shields', 'shield'),
-    (13, 'pole', 'Polearms', 'weapon'),
-    (14, 'scep', 'Scepters', 'weapon'),
-    (15, 'shld', 'Shields', 'shield'),
-    (16, 'spea', 'Spears', 'weapon'),
-    (17, 'staf', 'Staves', 'weapon'),
-    (18, 'swor', 'Swords', 'weapon'),
-    (19, 'tors', 'Body Armor', 'armor'),
-    (20, 'wand', 'Wands', 'weapon'),
-    (21, 'weap', 'All Weapons', 'weapon');
-
--- Runewords
-INSERT INTO runewords (id, name_key, name_en, runes_display, rune1_id, rune2_id, rune3_id, rune4_id, rune5_id, rune6_id, sockets, clvl, patch_min, patch_max, season_min, season_max) VALUES
-    (1, 'runeword.ancients_pledge', 'Ancients'' Pledge', 'RalOrtTal', 8, 9, 7, NULL, NULL, NULL, 3, 21, 109, NULL, NULL, NULL),
-    (2, 'runeword.authority', 'Authority', 'HelShaelRal', 15, 13, 8, NULL, NULL, NULL, 3, 29, 300, NULL, 13, NULL),
-    (3, 'runeword.beast', 'Beast', 'BerTirUmMalLum', 30, 3, 22, 23, 17, NULL, 5, 63, 110, NULL, NULL, NULL),
-    (4, 'runeword.black', 'Black', 'ThulIoNef', 10, 16, 4, NULL, NULL, NULL, 3, 35, 109, NULL, NULL, NULL),
-    (5, 'runeword.bone', 'Bone', 'SolUmUm', 12, 22, 22, NULL, NULL, NULL, 3, 47, 111, NULL, NULL, NULL),
-    (6, 'runeword.bramble', 'Bramble', 'RalOhmSurEth', 8, 27, 29, 5, NULL, NULL, 4, 61, 110, NULL, NULL, NULL),
-    (7, 'runeword.brand', 'Brand', 'JahLoMalGul', 31, 28, 23, 25, NULL, NULL, 4, 65, 110, NULL, 1, NULL),
-    (8, 'runeword.breath_of_the_dying', 'Breath of the Dying', 'VexHelElEldZodEth', 26, 15, 1, 2, 33, 5, 6, 69, 110, NULL, NULL, NULL),
-    (9, 'runeword.bulwark', 'Bulwark', 'ShaelIoSol', 13, 16, 12, NULL, NULL, NULL, 3, 35, 260, NULL, 3, NULL),
-    (10, 'runeword.call_to_arms', 'Call to Arms', 'AmnRalMalIstOhm', 11, 8, 23, 24, 27, NULL, 5, 57, 110, NULL, NULL, NULL),
-    (11, 'runeword.chains_of_honor', 'Chains of Honor', 'DolUmBerIst', 14, 22, 30, 24, NULL, NULL, 4, 63, 110, NULL, NULL, NULL),
-    (12, 'runeword.chaos', 'Chaos', 'FalOhmUm', 19, 27, 22, NULL, NULL, NULL, 3, 57, 110, NULL, NULL, NULL),
-    (13, 'runeword.coven', 'Coven', 'IstRalIo', 24, 8, 16, NULL, NULL, NULL, 3, 51, 300, NULL, 13, NULL),
-    (14, 'runeword.crescent_moon', 'Crescent Moon', 'ShaelUmTir', 13, 22, 3, NULL, NULL, NULL, 3, 47, 110, NULL, NULL, NULL),
-    (15, 'runeword.cure', 'Cure', 'ShaelIoTal', 13, 16, 7, NULL, NULL, NULL, 3, 35, 260, NULL, 3, NULL),
-    (16, 'runeword.death', 'Death', 'HelElVexOrtGul', 15, 1, 26, 9, 25, NULL, 5, 55, 110, NULL, 1, NULL),
-    (17, 'runeword.delirium', 'Delirium', 'LemIstIo', 20, 24, 16, NULL, NULL, NULL, 3, 51, 110, NULL, NULL, NULL),
-    (18, 'runeword.destruction', 'Destruction', 'VexLoBerJahKo', 26, 28, 30, 31, 18, NULL, 5, 65, 110, NULL, 1, NULL),
-    (19, 'runeword.doom', 'Doom', 'HelOhmUmLoCham', 15, 27, 22, 28, 32, NULL, 5, 67, 110, NULL, NULL, NULL),
-    (20, 'runeword.dragon', 'Dragon', 'SurLoSol', 29, 28, 12, NULL, NULL, NULL, 3, 61, 110, NULL, 1, NULL),
-    (21, 'runeword.dream', 'Dream', 'IoJahPul', 16, 31, 21, NULL, NULL, NULL, 3, 65, 110, NULL, 1, NULL),
-    (22, 'runeword.duress', 'Duress', 'ShaelUmThul', 13, 22, 10, NULL, NULL, NULL, 3, 47, 110, NULL, NULL, NULL),
-    (23, 'runeword.edge', 'Edge', 'TirTalAmn', 3, 7, 11, NULL, NULL, NULL, 3, 25, 110, NULL, 1, NULL),
-    (24, 'runeword.enigma', 'Enigma', 'JahIthBer', 31, 6, 30, NULL, NULL, NULL, 3, 65, 110, NULL, NULL, NULL),
-    (25, 'runeword.enlightenment', 'Enlightenment', 'PulRalSur', 21, 8, 12, NULL, NULL, NULL, 3, 45, 111, NULL, NULL, NULL),
-    (26, 'runeword.eternity', 'Eternity', 'AmnBerIstSolSur', 11, 30, 24, 12, 29, NULL, 5, 63, 110, NULL, NULL, NULL),
-    (27, 'runeword.exile', 'Exile', 'VexOhmIstDol', 26, 27, 24, 14, NULL, NULL, 4, 57, 110, NULL, NULL, NULL),
-    (28, 'runeword.faith', 'Faith', 'OhmJahLemEld', 27, 31, 20, 2, NULL, NULL, 4, 65, 110, NULL, 1, NULL),
-    (29, 'runeword.famine', 'Famine', 'FalOhmOrtJah', 19, 27, 9, 31, NULL, NULL, 4, 65, 300, NULL, 13, NULL),
-    (30, 'runeword.flickering_flame', 'Flickering Flame', 'NefPulVex', 4, 21, 26, NULL, NULL, NULL, 3, 55, 240, NULL, 1, NULL),
-    (31, 'runeword.fortitude', 'Fortitude', 'ElSolDolLo', 1, 12, 14, 28, NULL, NULL, 4, 59, 110, NULL, 1, NULL),
-    (32, 'runeword.fury', 'Fury', 'JahGulEth', 31, 25, 5, NULL, NULL, NULL, 3, 65, 109, NULL, NULL, NULL),
-    (33, 'runeword.gloom', 'Gloom', 'FalUmPul', 19, 22, 21, NULL, NULL, NULL, 3, 47, 110, NULL, NULL, NULL),
-    (34, 'runeword.grief', 'Grief', 'EthTirLoMalRal', 5, 3, 28, 23, 8, NULL, 5, 59, 110, NULL, 1, NULL),
-    (35, 'runeword.ground', 'Ground', 'ShaelIoOrt', 13, 16, 9, NULL, NULL, NULL, 3, 35, 260, NULL, 3, NULL),
-    (36, 'runeword.hand_of_justice', 'Hand of Justice', 'SurChamAmnLo', 29, 32, 11, 28, NULL, NULL, 4, 67, 110, NULL, NULL, NULL),
-    (37, 'runeword.harmony', 'Harmony', 'TirIthSolKo', 3, 6, 12, 18, NULL, NULL, 4, 39, 110, NULL, 1, NULL),
-    (38, 'runeword.heart_of_the_oak', 'Heart of the Oak', 'KoVexPulThul', 18, 26, 21, 10, NULL, NULL, 4, 55, 110, NULL, NULL, NULL),
-    (39, 'runeword.hearth', 'Hearth', 'ShaelIoThul', 13, 16, 10, NULL, NULL, NULL, 3, 35, 260, NULL, 3, NULL),
-    (40, 'runeword.holy_thunder', 'Holy Thunder', 'EthRalOrtTal', 5, 8, 9, 7, NULL, NULL, 4, 21, 109, NULL, NULL, NULL),
-    (41, 'runeword.honor', 'Honor', 'AmnElIthTirSol', 11, 1, 6, 3, 12, NULL, 5, 27, 109, NULL, NULL, NULL),
-    (42, 'runeword.hustle', 'Hustle', 'ShaelKoEld', 13, 18, 2, NULL, NULL, NULL, 3, 39, 260, NULL, 3, NULL),
-    (43, 'runeword.mania', 'Mania', 'ShaelKoEld', 13, 18, 2, NULL, NULL, NULL, 3, 39, 260, NULL, 3, NULL),
-    (44, 'runeword.ice', 'Ice', 'AmnShaelJahLo', 11, 13, 31, 28, NULL, NULL, 4, 65, 110, NULL, 1, NULL),
-    (45, 'runeword.infinity', 'Infinity', 'BerMalBerIst', 30, 23, 30, 24, NULL, NULL, 4, 63, 110, NULL, 1, NULL),
-    (46, 'runeword.insight', 'Insight', 'RalTirTalSol', 8, 3, 7, 12, NULL, NULL, 4, 27, 110, NULL, 1, NULL),
-    (47, 'runeword.kings_grace', 'King''s Grace', 'AmnRalThul', 11, 8, 10, NULL, NULL, NULL, 3, 25, 109, NULL, 1, NULL),
-    (48, 'runeword.kingslayer', 'Kingslayer', 'MalUmGulFal', 23, 22, 25, 19, NULL, NULL, 4, 53, 110, NULL, NULL, NULL),
-    (49, 'runeword.last_wish', 'Last Wish', 'JahMalJahSurJahBer', 31, 23, 31, 29, 31, 30, 6, 65, 110, NULL, 1, NULL),
-    (50, 'runeword.lawbringer', 'Lawbringer', 'AmnLemKo', 11, 20, 18, NULL, NULL, NULL, 3, 43, 110, NULL, 1, NULL),
-    (51, 'runeword.leaf', 'Leaf', 'TirRal', 3, 8, NULL, NULL, NULL, NULL, 2, 19, 109, NULL, NULL, NULL),
-    (52, 'runeword.lionheart', 'Lionheart', 'HelLumFal', 15, 17, 19, NULL, NULL, NULL, 3, 41, 109, NULL, NULL, NULL),
-    (53, 'runeword.lore', 'Lore', 'OrtSol', 9, 12, NULL, NULL, NULL, NULL, 2, 27, 109, NULL, NULL, NULL),
-    (54, 'runeword.malice', 'Malice', 'IthElEth', 6, 1, 5, NULL, NULL, NULL, 3, 15, 109, NULL, NULL, NULL),
-    (55, 'runeword.melody', 'Melody', 'ShaelKoNef', 13, 18, 4, NULL, NULL, NULL, 3, 39, 109, NULL, NULL, NULL),
-    (56, 'runeword.memory', 'Memory', 'LumIoSolEth', 17, 16, 12, 5, NULL, NULL, 4, 37, 109, NULL, NULL, NULL),
-    (57, 'runeword.metamorphosis', 'Metamorphosis', 'IoChamFal', 16, 32, 19, NULL, NULL, NULL, 3, 67, 260, NULL, 3, NULL),
-    (58, 'runeword.mist', 'Mist', 'ChamShaelGulThulIth', 32, 13, 25, 10, 6, NULL, 5, 67, 240, NULL, 1, NULL),
-    (59, 'runeword.mosaic', 'Mosaic', 'MalGulAmn', 23, 25, 11, NULL, NULL, NULL, 3, 53, 260, NULL, 3, 3),
-    (60, 'runeword.myth', 'Myth', 'HelAmnNef', 15, 11, 4, NULL, NULL, NULL, 3, 25, 111, NULL, NULL, NULL),
-    (61, 'runeword.nadir', 'Nadir', 'NefTir', 4, 3, NULL, NULL, NULL, NULL, 2, 13, 109, NULL, NULL, NULL),
-    (62, 'runeword.oath', 'Oath', 'ShaelPulMalLum', 13, 21, 23, 17, NULL, NULL, 4, 49, 110, NULL, 1, NULL),
-    (63, 'runeword.obedience', 'Obedience', 'HelKoThulEthFal', 15, 18, 10, 5, 19, NULL, 5, 41, 110, NULL, 1, NULL),
-    (64, 'runeword.obsession', 'Obsession', 'ZodIstLemLumIoNef', 33, 24, 20, 17, 16, 4, 6, 69, 240, NULL, 1, NULL),
-    (65, 'runeword.passion', 'Passion', 'DolOrtEldLem', 14, 9, 2, 20, NULL, NULL, 4, 43, 110, NULL, NULL, NULL),
-    (66, 'runeword.pattern', 'Pattern', 'TalOrtThul', 7, 9, 10, NULL, NULL, NULL, 3, 23, 240, NULL, 1, NULL),
-    (67, 'runeword.peace', 'Peace', 'ShaelThulAmn', 13, 10, 11, NULL, NULL, NULL, 3, 29, 111, NULL, NULL, NULL),
-    (68, 'runeword.phoenix', 'Phoenix', 'VexVexLoJah', 26, 26, 28, 31, NULL, NULL, 4, 65, 110, NULL, 1, NULL),
-    (69, 'runeword.plague', 'Plague', 'ChamShaelUm', 32, 13, 22, NULL, NULL, NULL, 3, 67, 240, NULL, 1, NULL),
-    (70, 'runeword.pride', 'Pride', 'ChamSurIoLo', 32, 29, 16, 28, NULL, NULL, 4, 67, 110, NULL, 1, NULL),
-    (71, 'runeword.principle', 'Principle', 'RalGulEld', 8, 25, 2, NULL, NULL, NULL, 3, 53, 111, NULL, NULL, NULL),
-    (72, 'runeword.prudence', 'Prudence', 'MalTir', 23, 3, NULL, NULL, NULL, NULL, 2, 49, 110, NULL, NULL, NULL),
-    (73, 'runeword.radiance', 'Radiance', 'NefSolIth', 4, 12, 6, NULL, NULL, NULL, 3, 27, 109, NULL, NULL, NULL),
-    (74, 'runeword.rain', 'Rain', 'OrtMalIth', 9, 23, 6, NULL, NULL, NULL, 3, 49, 111, NULL, NULL, NULL),
-    (75, 'runeword.rhyme', 'Rhyme', 'ShaelEth', 13, 5, NULL, NULL, NULL, NULL, 2, 29, 109, NULL, NULL, NULL),
-    (76, 'runeword.rift', 'Rift', 'HelKoLemGul', 15, 18, 20, 25, NULL, NULL, 4, 53, 110, NULL, 1, NULL),
-    (77, 'runeword.ritual', 'Ritual', 'AmnShaelOhm', 11, 13, 27, NULL, NULL, NULL, 3, 57, 300, NULL, 13, NULL),
-    (78, 'runeword.sanctuary', 'Sanctuary', 'KoKoMal', 18, 18, 23, NULL, NULL, NULL, 3, 49, 110, NULL, NULL, NULL),
-    (79, 'runeword.silence', 'Silence', 'DolEldHelIstTirVex', 14, 2, 15, 24, 3, 26, 6, 55, 109, NULL, NULL, NULL),
-    (80, 'runeword.smoke', 'Smoke', 'NefLum', 4, 17, NULL, NULL, NULL, NULL, 2, 37, 109, NULL, NULL, NULL),
-    (81, 'runeword.spirit', 'Spirit', 'TalThulOrtAmn', 7, 10, 9, 11, NULL, NULL, 4, 25, 110, NULL, 1, NULL),
-    (82, 'runeword.splendor', 'Splendor', 'EthLum', 5, 17, NULL, NULL, NULL, NULL, 2, 37, 110, NULL, NULL, NULL),
-    (83, 'runeword.stealth', 'Stealth', 'TalEth', 7, 5, NULL, NULL, NULL, NULL, 2, 17, 109, NULL, NULL, NULL),
-    (84, 'runeword.steel', 'Steel', 'TirEl', 3, 1, NULL, NULL, NULL, NULL, 2, 13, 109, NULL, NULL, NULL),
-    (85, 'runeword.stone', 'Stone', 'ShaelUmPulLum', 13, 22, 21, 17, NULL, NULL, 4, 47, 110, NULL, NULL, NULL),
-    (86, 'runeword.strength', 'Strength', 'AmnTir', 11, 3, NULL, NULL, NULL, NULL, 2, 25, 109, NULL, NULL, NULL),
-    (87, 'runeword.temper', 'Temper', 'ShaelIoRal', 13, 16, 8, NULL, NULL, NULL, 3, 35, 260, NULL, 3, NULL),
-    (88, 'runeword.treachery', 'Treachery', 'ShaelThulLem', 13, 10, 20, NULL, NULL, NULL, 3, 43, 111, NULL, NULL, NULL),
-    (89, 'runeword.unbending_will', 'Unbending Will', 'FalIoIthEldElHel', 19, 16, 6, 2, 1, 15, 6, 41, 240, NULL, 1, NULL),
-    (90, 'runeword.venom', 'Venom', 'TalDolMal', 7, 14, 23, NULL, NULL, NULL, 3, 49, 109, NULL, NULL, NULL),
-    (91, 'runeword.vigilance', 'Vigilance', 'DolGul', 14, 25, NULL, NULL, NULL, NULL, 2, 53, 300, NULL, 13, NULL),
-    (92, 'runeword.voice_of_reason', 'Voice of Reason', 'LemKoElEld', 20, 18, 1, 2, NULL, NULL, 4, 43, 110, NULL, 1, NULL),
-    (93, 'runeword.void', 'Void', 'ThulZodIst', 10, 33, 24, NULL, NULL, NULL, 3, 69, 300, NULL, 13, NULL),
-    (94, 'runeword.wealth', 'Wealth', 'LmKoTir', 20, 18, 3, NULL, NULL, NULL, 3, 43, 109, NULL, NULL, NULL),
-    (95, 'runeword.white', 'White', 'DolIo', 14, 16, NULL, NULL, NULL, NULL, 2, 35, 109, NULL, NULL, NULL),
-    (96, 'runeword.wind', 'Wind', 'SurEl', 29, 1, NULL, NULL, NULL, NULL, 2, 61, 110, NULL, NULL, NULL),
-    (97, 'runeword.wisdom', 'Wisdom', 'PulIthEld', 21, 6, 2, NULL, NULL, NULL, 3, 45, 240, NULL, 1, NULL),
-    (98, 'runeword.wrath', 'Wrath', 'PulLumBerMal', 21, 17, 30, 23, NULL, NULL, 4, 63, 110, NULL, 1, NULL),
-    (99, 'runeword.zephyr', 'Zephyr', 'OrtEth', 9, 5, NULL, NULL, NULL, NULL, 2, 21, 109, NULL, NULL, NULL);
-
--- Runeword item types
-INSERT INTO runeword_item_types (runeword_id, item_subtype_id) VALUES
-    (1, 15),
-    (2, 19),
-    (3, 1),
-    (3, 14),
-    (3, 5),
-    (4, 2),
-    (4, 5),
-    (4, 9),
-    (5, 19),
-    (6, 19),
-    (7, 11),
-    (8, 21),
-    (9, 7),
-    (10, 21),
-    (11, 19),
-    (12, 4),
-    (13, 7),
-    (14, 1),
-    (14, 18),
-    (14, 13),
-    (15, 7),
-    (16, 18),
-    (16, 1),
-    (17, 7),
-    (18, 13),
-    (18, 18),
-    (19, 1),
-    (19, 13),
-    (19, 5),
-    (20, 19),
-    (20, 15),
-    (21, 7),
-    (21, 15),
-    (22, 19),
-    (23, 11),
-    (24, 19),
-    (25, 19),
-    (26, 10),
-    (27, 12),
-    (28, 11),
-    (29, 1),
-    (29, 5),
-    (30, 7),
-    (31, 21),
-    (31, 19),
-    (32, 10),
-    (33, 19),
-    (34, 18),
-    (34, 1),
-    (35, 7),
-    (36, 21),
-    (37, 11),
-    (38, 17),
-    (38, 9),
-    (39, 7),
-    (40, 14),
-    (41, 10),
-    (42, 19),
-    (43, 21),
-    (44, 11),
-    (45, 13),
-    (45, 16),
-    (46, 13),
-    (46, 17),
-    (46, 11),
-    (47, 18),
-    (47, 14),
-    (48, 18),
-    (48, 1),
-    (49, 18),
-    (49, 5),
-    (49, 1),
-    (50, 18),
-    (50, 5),
-    (50, 14),
-    (51, 17),
-    (52, 19),
-    (53, 7),
-    (54, 10),
-    (55, 11),
-    (56, 17),
-    (57, 7),
-    (58, 11),
-    (59, 4),
-    (60, 19),
-    (61, 7),
-    (62, 18),
-    (62, 1),
-    (62, 9),
-    (63, 13),
-    (63, 16),
-    (64, 17),
-    (65, 21),
-    (66, 4),
-    (67, 19),
-    (68, 21),
-    (68, 15),
-    (69, 18),
-    (69, 8),
-    (69, 4),
-    (70, 13),
-    (70, 16),
-    (71, 19),
-    (72, 19),
-    (73, 7),
-    (74, 19),
-    (75, 15),
-    (76, 13),
-    (76, 14),
-    (77, 8),
-    (78, 15),
-    (79, 21),
-    (80, 19),
-    (81, 18),
-    (81, 15),
-    (82, 15),
-    (83, 19),
-    (84, 18),
-    (84, 1),
-    (84, 9),
-    (85, 19),
-    (86, 10),
-    (87, 7),
-    (88, 19),
-    (89, 18),
-    (90, 21),
-    (91, 3),
-    (91, 15),
-    (91, 6),
-    (92, 18),
-    (92, 9),
-    (93, 8),
-    (94, 19),
-    (95, 20),
-    (96, 10),
-    (97, 7),
-    (98, 11),
-    (99, 11);
--- Rune effects
-INSERT INTO rune_effects (id, name_key, item_type, effect_en) VALUES
-    (1, 'rune.el', 'weapon', '+1 to Light Radius / +50 to Attack Rating'),
-    (2, 'rune.el', 'armor', '+1 to Light Radius / +15 Defense'),
-    (3, 'rune.el', 'shield', '+1 to Light Radius / +15 Defense'),
-    (4, 'rune.eld', 'weapon', '+50 to Attack Rating against Undead / +75% Damage to Undead'),
-    (5, 'rune.eld', 'armor', '15% Slower Stamina Drain'),
-    (6, 'rune.eld', 'shield', '7% Increased Chance of Blocking'),
-    (7, 'rune.tir', 'weapon', '+2 to Mana after each Kill'),
-    (8, 'rune.tir', 'armor', '+2 to Mana after each Kill'),
-    (9, 'rune.tir', 'shield', '+2 to Mana after each Kill'),
-    (10, 'rune.nef', 'weapon', 'Knockback'),
-    (11, 'rune.nef', 'armor', '+30 Defense vs. Missile'),
-    (12, 'rune.nef', 'shield', '+30 Defense vs. Missile'),
-    (13, 'rune.eth', 'weapon', '-25% Target Defense'),
-    (14, 'rune.eth', 'armor', 'Regenerate Mana 15%'),
-    (15, 'rune.eth', 'shield', 'Regenerate Mana 15%'),
-    (16, 'rune.ith', 'weapon', '+9 to Maximum Damage'),
-    (17, 'rune.ith', 'armor', '15% Damage Taken Goes To Mana'),
-    (18, 'rune.ith', 'shield', '15% Damage Taken Goes To Mana'),
-    (19, 'rune.tal', 'weapon', 'Adds 154-154 Poison Damage Over 154 Seconds'),
-    (20, 'rune.tal', 'armor', 'Poison Resist +30%'),
-    (21, 'rune.tal', 'shield', 'Poison Resist +35%'),
-    (22, 'rune.ral', 'weapon', 'Adds 5-30-5-30 Fire Damage'),
-    (23, 'rune.ral', 'armor', 'Fire Resist +30%'),
-    (24, 'rune.ral', 'shield', 'Fire Resist +35%'),
-    (25, 'rune.ort', 'weapon', 'Adds 1-50-1-50 Lightning Damage'),
-    (26, 'rune.ort', 'armor', 'Lightning Resist +30%'),
-    (27, 'rune.ort', 'shield', 'Lightning Resist +35%'),
-    (28, 'rune.thul', 'weapon', 'Adds 3-14-3-14 Cold Damage'),
-    (29, 'rune.thul', 'armor', 'Cold Resist +30%'),
-    (30, 'rune.thul', 'shield', 'Cold Resist +35%'),
-    (31, 'rune.amn', 'weapon', '7% Life stolen per hit'),
-    (32, 'rune.amn', 'armor', 'Attacker Takes Damage of 14'),
-    (33, 'rune.amn', 'shield', 'Attacker Takes Damage of 14'),
-    (34, 'rune.sol', 'weapon', '+9 to Minimum Damage'),
-    (35, 'rune.sol', 'armor', 'Damage Reduced by 7'),
-    (36, 'rune.sol', 'shield', 'Damage Reduced by 7'),
-    (37, 'rune.shael', 'weapon', '+20% Increased Attack Speed'),
-    (38, 'rune.shael', 'armor', '+20% Faster Hit Recovery'),
-    (39, 'rune.shael', 'shield', '+20% Faster Block Rate'),
-    (40, 'rune.dol', 'weapon', 'Hit Causes Monster to Flee 32%'),
-    (41, 'rune.dol', 'armor', 'Replenish Life +7'),
-    (42, 'rune.dol', 'shield', 'Replenish Life +7'),
-    (43, 'rune.hel', 'weapon', 'Requirements --20%'),
-    (44, 'rune.hel', 'armor', 'Requirements --15%'),
-    (45, 'rune.hel', 'shield', 'Requirements --15%'),
-    (46, 'rune.io', 'weapon', '+10 to Vitality'),
-    (47, 'rune.io', 'armor', '+10 to Vitality'),
-    (48, 'rune.io', 'shield', '+10 to Vitality'),
-    (49, 'rune.lum', 'weapon', '+10 to Energy'),
-    (50, 'rune.lum', 'armor', '+10 to Energy'),
-    (51, 'rune.lum', 'shield', '+10 to Energy'),
-    (52, 'rune.ko', 'weapon', '+10 to Dexterity'),
-    (53, 'rune.ko', 'armor', '+10 to Dexterity'),
-    (54, 'rune.ko', 'shield', '+10 to Dexterity'),
-    (55, 'rune.fal', 'weapon', '+10 to Strength'),
-    (56, 'rune.fal', 'armor', '+10 to Strength'),
-    (57, 'rune.fal', 'shield', '+10 to Strength'),
-    (58, 'rune.lem', 'weapon', '75% Extra Gold from Monsters'),
-    (59, 'rune.lem', 'armor', '50% Extra Gold from Monsters'),
-    (60, 'rune.lem', 'shield', '50% Extra Gold from Monsters'),
-    (61, 'rune.pul', 'weapon', '+100 to Attack Rating against Demons / +75% Damage to Demons'),
-    (62, 'rune.pul', 'armor', '+30% Enhanced Defense'),
-    (63, 'rune.pul', 'shield', '+30% Enhanced Defense'),
-    (64, 'rune.um', 'weapon', '25% Chance of Open Wounds'),
-    (65, 'rune.um', 'armor', 'All Resistances +15'),
-    (66, 'rune.um', 'shield', 'All Resistances +22'),
-    (67, 'rune.mal', 'weapon', 'Prevent Monster Heal'),
-    (68, 'rune.mal', 'armor', 'Magic Damage Reduced by 7'),
-    (69, 'rune.mal', 'shield', 'Magic Damage Reduced by 7'),
-    (70, 'rune.ist', 'weapon', '30% Better Chance of Getting Magic Items'),
-    (71, 'rune.ist', 'armor', '25% Better Chance of Getting Magic Items'),
-    (72, 'rune.ist', 'shield', '25% Better Chance of Getting Magic Items'),
-    (73, 'rune.gul', 'weapon', '20% Bonus to Attack Rating'),
-    (74, 'rune.gul', 'armor', '+5% to Maximum Poison Resist'),
-    (75, 'rune.gul', 'shield', '+5% to Maximum Poison Resist'),
-    (76, 'rune.vex', 'weapon', '7% Mana stolen per hit'),
-    (77, 'rune.vex', 'armor', '+5% to Maximum Fire Resist'),
-    (78, 'rune.vex', 'shield', '+5% to Maximum Fire Resist'),
-    (79, 'rune.ohm', 'weapon', '+50% Enhanced Damage'),
-    (80, 'rune.ohm', 'armor', '+5% to Maximum Cold Resist'),
-    (81, 'rune.ohm', 'shield', '+5% to Maximum Cold Resist'),
-    (82, 'rune.lo', 'weapon', '20% Deadly Strike'),
-    (83, 'rune.lo', 'armor', '+5% to Maximum Lightning Resist'),
-    (84, 'rune.lo', 'shield', '+5% to Maximum Lightning Resist'),
-    (85, 'rune.sur', 'weapon', 'Hit Blinds Target +1'),
-    (86, 'rune.sur', 'armor', 'Increase Maximum Mana 5%'),
-    (87, 'rune.sur', 'shield', '+50 to Mana'),
-    (88, 'rune.ber', 'weapon', '20% Chance of Crushing Blow'),
-    (89, 'rune.ber', 'armor', 'Damage Reduced by 8%'),
-    (90, 'rune.ber', 'shield', 'Damage Reduced by 8%'),
-    (91, 'rune.jah', 'weapon', 'Ignore Target''s Defense'),
-    (92, 'rune.jah', 'armor', 'Increase Maximum Life 5%'),
-    (93, 'rune.jah', 'shield', '+50 to Life'),
-    (94, 'rune.cham', 'weapon', 'Freezes Target +3'),
-    (95, 'rune.cham', 'armor', 'Cannot Be Frozen'),
-    (96, 'rune.cham', 'shield', 'Cannot Be Frozen'),
-    (97, 'rune.zod', 'weapon', 'Indestructible'),
-    (98, 'rune.zod', 'armor', 'Indestructible'),
-    (99, 'rune.zod', 'shield', 'Indestructible');
-
--- Corrections effets runes
-UPDATE rune_effects SET effect_en='Adds 5-30 Fire Damage' WHERE name_key='rune.ral' AND item_type='weapon';
-UPDATE rune_effects SET effect_en='Adds 1-50 Lightning Damage' WHERE name_key='rune.ort' AND item_type='weapon';
-UPDATE rune_effects SET effect_en='Adds 3-14 Cold Damage (2 sec Duration)' WHERE name_key='rune.thul' AND item_type='weapon';
-UPDATE rune_effects SET effect_en='Adds 75 Poison Damage Over 5 Seconds' WHERE name_key='rune.tal' AND item_type='weapon';
-UPDATE rune_effects SET effect_en='Requirements -20%' WHERE item_type='weapon' AND name_key='rune.hel';
-UPDATE rune_effects SET effect_en='Requirements -15%' WHERE item_type IN ('armor','shield') AND name_key='rune.hel';
--- Runeword effects
-INSERT INTO runeword_effects (id, name_key, item_type, effect_en) VALUES
-    (1, 'runeword.ancients_pledge', NULL, 'Cold Resist +30%'),
-    (2, 'runeword.ancients_pledge', NULL, 'All Resistances +13'),
-    (3, 'runeword.ancients_pledge', NULL, '+50% Enhanced Defense'),
-    (4, 'runeword.ancients_pledge', NULL, '10% Damage Taken Goes To Mana'),
-    (5, 'runeword.authority', NULL, '2-10% Chance to cast level 2-10 Psychic Ward when struck'),
-    (6, 'runeword.authority', NULL, '10-15% Chance to cast level 10-15 Miasma Chains on striking'),
-    (7, 'runeword.authority', NULL, '+2 to Warlock Skill Levels'),
-    (8, 'runeword.authority', NULL, '+40-60% Enhanced Damage'),
-    (9, 'runeword.beast', NULL, '+40% Increased Attack Speed'),
-    (10, 'runeword.beast', NULL, 'Level 9 Fanaticism Aura When Equipped'),
-    (11, 'runeword.beast', NULL, '+240-270% Enhanced Damage'),
-    (12, 'runeword.beast', NULL, '+25-40 to Strength'),
-    (13, 'runeword.beast', NULL, 'Level 5-13 Summon Grizzly (5-13/5-13 Charges)'),
-    (14, 'runeword.beast', NULL, '+3 to Wearbear'),
-    (15, 'runeword.beast', NULL, '+3 to Shape Shifting'),
-    (16, 'runeword.black', NULL, '40% Chance of Crushing Blow'),
-    (17, 'runeword.black', NULL, '+120% Enhanced Damage'),
-    (18, 'runeword.black', NULL, '+15% Increased Attack Speed'),
-    (19, 'runeword.black', NULL, 'Magic Damage Reduced by 2'),
-    (20, 'runeword.black', NULL, '+200 to Attack Rating'),
-    (21, 'runeword.black', NULL, 'Level 12-4 74 (12-4/12-4 Charges)'),
-    (22, 'runeword.bone', NULL, '15-10% Chance to cast level 15-10 Bone Spear on striking'),
-    (23, 'runeword.bone', NULL, '15-10% Chance to cast level 15-10 Bone Armor when struck'),
-    (24, 'runeword.bone', NULL, '+2 to Necromancer Skill Levels'),
-    (25, 'runeword.bone', NULL, '+100-150 to Mana'),
-    (26, 'runeword.bramble', NULL, '+50% Faster Hit Recovery'),
-    (27, 'runeword.bramble', NULL, '+300 Defense'),
-    (28, 'runeword.bramble', NULL, 'Level 15-21 Thorns Aura When Equipped'),
-    (29, 'runeword.bramble', NULL, '+13 Life after each Kill'),
-    (30, 'runeword.bramble', NULL, '+25-50% to Poison Skill Damage'),
-    (31, 'runeword.bramble', NULL, 'Poison Resist +100%'),
-    (32, 'runeword.bramble', NULL, 'Level 33-13 Spirit of Barbs (33-13/33-13 Charges)'),
-    (33, 'runeword.brand', NULL, '+260-340% Enhanced Damage'),
-    (34, 'runeword.brand', NULL, '+280-330% Damage to Demons'),
-    (35, 'runeword.brand', NULL, '100-18% Chance to cast level 100-18 Bone Spear on striking'),
-    (36, 'runeword.brand', NULL, '35-14% Chance to cast level 35-14 Amplify Damage when struck'),
-    (37, 'runeword.brand', NULL, 'Knockback'),
-    (38, 'runeword.brand', NULL, 'Prevent Monster Heal'),
-    (39, 'runeword.brand', NULL, 'Fires Explosive Arrows or Bolts'),
-    (40, 'runeword.breath_of_the_dying', NULL, '+60% Increased Attack Speed'),
-    (41, 'runeword.breath_of_the_dying', NULL, '+125% Damage to Undead'),
-    (42, 'runeword.breath_of_the_dying', NULL, '12-15% Life stolen per hit'),
-    (43, 'runeword.breath_of_the_dying', NULL, 'Prevent Monster Heal'),
-    (44, 'runeword.breath_of_the_dying', NULL, '50-20% Chance to cast level 50-20 Poison Nova when you Kill an Enemy'),
-    (45, 'runeword.breath_of_the_dying', NULL, '+350-400% Enhanced Damage'),
-    (46, 'runeword.breath_of_the_dying', NULL, '+30 to all Attributes'),
-    (47, 'runeword.bulwark', NULL, 'Increase Maximum Life 5%'),
-    (48, 'runeword.bulwark', NULL, '+75-100% Enhanced Defense'),
-    (49, 'runeword.bulwark', NULL, 'Damage Reduced by 10-15%'),
-    (50, 'runeword.bulwark', NULL, 'Replenish Life +30'),
-    (51, 'runeword.bulwark', NULL, '4-6% Life stolen per hit'),
-    (52, 'runeword.call_to_arms', NULL, '+40% Increased Attack Speed'),
-    (53, 'runeword.call_to_arms', NULL, '+200-240% Enhanced Damage'),
-    (54, 'runeword.call_to_arms', NULL, '+1 to All Skills'),
-    (55, 'runeword.call_to_arms', NULL, '+2-6 to Battle Command'),
-    (56, 'runeword.call_to_arms', NULL, '+1-6 to Battle Orders'),
-    (57, 'runeword.call_to_arms', NULL, '+1-4 to Battle Cry'),
-    (58, 'runeword.call_to_arms', NULL, 'Replenish Life +12'),
-    (59, 'runeword.chains_of_honor', NULL, 'All Resistances +50'),
-    (60, 'runeword.chains_of_honor', NULL, '+70% Enhanced Defense'),
-    (61, 'runeword.chains_of_honor', NULL, '+200% Damage to Demons'),
-    (62, 'runeword.chains_of_honor', NULL, '+100% Damage to Undead'),
-    (63, 'runeword.chains_of_honor', NULL, '8% Life stolen per hit'),
-    (64, 'runeword.chains_of_honor', NULL, '+2 to All Skills'),
-    (65, 'runeword.chains_of_honor', NULL, '+20 to Strength'),
-    (66, 'runeword.chaos', NULL, '+15 Life after each Demon Kill'),
-    (67, 'runeword.chaos', NULL, '+240-290% Enhanced Damage'),
-    (68, 'runeword.chaos', NULL, 'Adds 216-471-216-471 Magic Damage'),
-    (69, 'runeword.chaos', NULL, '+1 to Whirlwind'),
-    (70, 'runeword.chaos', NULL, '+35% Increased Attack Speed'),
-    (71, 'runeword.chaos', NULL, '9-11% Chance to cast level 9-11 Frozen Orb on striking'),
-    (72, 'runeword.chaos', NULL, '11-9% Chance to cast level 11-9 Charged Bolt on striking'),
-    (73, 'runeword.coven', NULL, '5-10% Chance to cast level 5-10 Sigil Lethargy when struck'),
-    (74, 'runeword.coven', NULL, '+1 to All Skills'),
-    (75, 'runeword.coven', NULL, '+20% Faster Cast Rate'),
-    (76, 'runeword.coven', NULL, '+30-50% Enhanced Defense'),
-    (77, 'runeword.coven', NULL, '1-15% Better Chance of Getting Magic Items'),
-    (78, 'runeword.coven', NULL, '+1-5 Life after each Kill'),
-    (79, 'runeword.crescent_moon', NULL, '-35% to Enemy Lightning Resistance'),
-    (80, 'runeword.crescent_moon', NULL, 'Ignore Target''s Defense'),
-    (81, 'runeword.crescent_moon', NULL, '+180-220% Enhanced Damage'),
-    (82, 'runeword.crescent_moon', NULL, 'Magic Absorb 9-11%'),
-    (83, 'runeword.crescent_moon', NULL, 'Level 30-18 Summon Spirit Wolf (30-18/30-18 Charges)'),
-    (84, 'runeword.crescent_moon', NULL, '7-13% Chance to cast level 7-13 Static Field on striking'),
-    (85, 'runeword.crescent_moon', NULL, '10-17% Chance to cast level 10-17 Chain Lightning on striking'),
-    (86, 'runeword.cure', NULL, 'Increase Maximum Life 5%'),
-    (87, 'runeword.cure', NULL, '+75-100% Enhanced Defense'),
-    (88, 'runeword.cure', NULL, 'Poison Resist +10-30%'),
-    (89, 'runeword.cure', NULL, 'Poison Length Reduced by 50%'),
-    (90, 'runeword.cure', NULL, 'Level 1 Cleansing Aura When Equipped'),
-    (91, 'runeword.death', NULL, '+300-385% Enhanced Damage'),
-    (92, 'runeword.death', NULL, '0% Deadly Strike (Based on Character Level)'),
-    (93, 'runeword.death', NULL, 'Level 15-22 BloodGolem (15-22/15-22 Charges)'),
-    (94, 'runeword.death', NULL, '25-18% Chance to cast level 25-18 Glacial Spike on attack'),
-    (95, 'runeword.death', NULL, '100-44% Chance to cast level 100-44 Chain Lightning when you Die'),
-    (96, 'runeword.death', NULL, '50% Chance of Crushing Blow'),
-    (97, 'runeword.death', NULL, 'Indestructible'),
-    (98, 'runeword.delirium', NULL, '11-18% Chance to cast level 11-18 Confuse on striking'),
-    (99, 'runeword.delirium', NULL, 'Level 60-17 Attract (60-17/60-17 Charges)'),
-    (100, 'runeword.delirium', NULL, '14-13% Chance to cast level 14-13 Terror when struck'),
-    (101, 'runeword.delirium', NULL, '+261 Defense'),
-    (102, 'runeword.delirium', NULL, '6-14% Chance to cast level 6-14 Mind Blast when struck'),
-    (103, 'runeword.delirium', NULL, '1-50% Chance to cast level 1-50 Delerium Change when struck'),
-    (104, 'runeword.delirium', NULL, '+2 to All Skills'),
-    (105, 'runeword.destruction', NULL, '+350% Enhanced Damage'),
-    (106, 'runeword.destruction', NULL, 'Adds 100-180-100-180 Magic Damage'),
-    (107, 'runeword.destruction', NULL, '5-23% Chance to cast level 5-23 Molten Boulder on striking'),
-    (108, 'runeword.destruction', NULL, '100-45% Chance to cast level 100-45 Meteor when you Die'),
-    (109, 'runeword.destruction', NULL, '15-22% Chance to cast level 15-22 Nova on attack'),
-    (110, 'runeword.destruction', NULL, '23-12% Chance to cast level 23-12 Volcano on striking'),
-    (111, 'runeword.destruction', NULL, 'Prevent Monster Heal'),
-    (112, 'runeword.doom', NULL, '+280-320% Enhanced Damage'),
-    (113, 'runeword.doom', NULL, 'Level 12 Holy Freeze Aura When Equipped'),
-    (114, 'runeword.doom', NULL, '+45% Increased Attack Speed'),
-    (115, 'runeword.doom', NULL, 'Prevent Monster Heal'),
-    (116, 'runeword.doom', NULL, '-40-60% to Enemy Cold Resistance'),
-    (117, 'runeword.doom', NULL, '+2 to All Skills'),
-    (118, 'runeword.doom', NULL, '5-18% Chance to cast level 5-18 Volcano on striking'),
-    (119, 'runeword.dragon', NULL, '+360 Defense'),
-    (120, 'runeword.dragon', NULL, '+230 Defense vs. Missile'),
-    (121, 'runeword.dragon', NULL, '+0 to Strength (Based on Character Level)'),
-    (122, 'runeword.dragon', NULL, '12-15% Chance to cast level 12-15 Hydra on striking'),
-    (123, 'runeword.dragon', NULL, '20-18% Chance to cast level 20-18 Venom when struck'),
-    (124, 'runeword.dragon', NULL, 'Level 14 Holy Fire Aura When Equipped'),
-    (125, 'runeword.dragon', NULL, '+3-5 to all Attributes'),
-    (126, 'runeword.dream', NULL, '+150-220 Defense'),
-    (127, 'runeword.dream', NULL, '10-15% Chance to cast level 10-15 Confuse when struck'),
-    (128, 'runeword.dream', NULL, '+0 to Mana (Based on Character Level)'),
-    (129, 'runeword.dream', NULL, 'All Resistances +5-20'),
-    (130, 'runeword.dream', NULL, '+20-30% Faster Hit Recovery'),
-    (131, 'runeword.dream', NULL, 'Level 15 Holy Shock Aura When Equipped'),
-    (132, 'runeword.dream', NULL, '12-25% Better Chance of Getting Magic Items'),
-    (133, 'runeword.duress', NULL, 'Adds 37-133-37-133 Cold Damage'),
-    (134, 'runeword.duress', NULL, '+10-20% Enhanced Damage'),
-    (135, 'runeword.duress', NULL, '+150-200% Enhanced Defense'),
-    (136, 'runeword.duress', NULL, '+20% Faster Hit Recovery'),
-    (137, 'runeword.duress', NULL, '33% Chance of Open Wounds'),
-    (138, 'runeword.duress', NULL, '15% Chance of Crushing Blow'),
-    (139, 'runeword.duress', NULL, '-20% Slower Stamina Drain'),
-    (140, 'runeword.edge', NULL, '+320-380% Damage to Demons'),
-    (141, 'runeword.edge', NULL, '+280% Damage to Undead'),
-    (142, 'runeword.edge', NULL, '+35% Increased Attack Speed'),
-    (143, 'runeword.edge', NULL, 'Prevent Monster Heal'),
-    (144, 'runeword.edge', NULL, 'Level 15 Thorns Aura When Equipped'),
-    (145, 'runeword.edge', NULL, '+5-10 to all Attributes'),
-    (146, 'runeword.edge', NULL, 'Reduces all Vendor Prices 15%'),
-    (147, 'runeword.enigma', NULL, '+750-775 Defense'),
-    (148, 'runeword.enigma', NULL, '+14 Life after each Kill'),
-    (149, 'runeword.enigma', NULL, '+45% Faster Run/Walk'),
-    (150, 'runeword.enigma', NULL, '+0 to Strength (Based on Character Level)'),
-    (151, 'runeword.enigma', NULL, '+2 to All Skills'),
-    (152, 'runeword.enigma', NULL, '0% Better Chance of Getting Magic Items (Based on Character Level)'),
-    (153, 'runeword.enigma', NULL, '+1 to Teleport'),
-    (154, 'runeword.enlightenment', NULL, '5-15% Chance to cast level 5-15 Fire Ball on striking'),
-    (155, 'runeword.enlightenment', NULL, '5-15% Chance to cast level 5-15 Blaze when struck'),
-    (156, 'runeword.enlightenment', NULL, '+2 to Sorceress Skill Levels'),
-    (157, 'runeword.enlightenment', NULL, '+1 to Warmth'),
-    (158, 'runeword.eternity', NULL, '+260-310% Enhanced Damage'),
-    (159, 'runeword.eternity', NULL, 'Indestructible'),
-    (160, 'runeword.eternity', NULL, 'Slows Target by 33%'),
-    (161, 'runeword.eternity', NULL, 'Level 88-8 Revive (88-8/88-8 Charges)'),
-    (162, 'runeword.eternity', NULL, 'Replenish Life +16'),
-    (163, 'runeword.eternity', NULL, 'Regenerate Mana 16%'),
-    (164, 'runeword.eternity', NULL, 'Cannot Be Frozen'),
-    (165, 'runeword.exile', NULL, '+30% Faster Block Rate'),
-    (166, 'runeword.exile', NULL, 'Freezes Target +1'),
-    (167, 'runeword.exile', NULL, '+220-260% Enhanced Defense'),
-    (168, 'runeword.exile', NULL, 'Level 13-16 Defiance Aura When Equipped'),
-    (169, 'runeword.exile', NULL, '+2 to [Class Skill Tab] Skills'),
-    (170, 'runeword.exile', NULL, '15-5% Chance to cast level 15-5 Life Tap on striking'),
-    (171, 'runeword.exile', NULL, 'Repairs 1 durability in 0 seconds'),
-    (172, 'runeword.faith', NULL, '+280% Enhanced Damage'),
-    (173, 'runeword.faith', NULL, '300% Bonus to Attack Rating'),
-    (174, 'runeword.faith', NULL, 'Adds 120-120 Fire Damage'),
-    (175, 'runeword.faith', NULL, 'All Resistances +15'),
-    (176, 'runeword.faith', NULL, 'Level 12-15 Fanaticism Aura When Equipped'),
-    (177, 'runeword.faith', NULL, 'Reanimate As: [Returned]'),
-    (178, 'runeword.faith', NULL, '+1-2 to All Skills'),
-    (179, 'runeword.famine', NULL, '+270-320% Enhanced Damage'),
-    (180, 'runeword.famine', NULL, '12% Life stolen per hit'),
-    (181, 'runeword.famine', NULL, '+30% Increased Attack Speed'),
-    (182, 'runeword.famine', NULL, 'Prevent Monster Heal'),
-    (183, 'runeword.famine', NULL, 'Adds 180-200-180-200 Magic Damage'),
-    (184, 'runeword.famine', NULL, 'Adds 50-200-50-200 Fire/Lightning/Cold Damage'),
-    (185, 'runeword.famine', NULL, 'Ethereal'),
-    (186, 'runeword.flickering_flame', NULL, '+3 to Fire Skills'),
-    (187, 'runeword.flickering_flame', NULL, 'Level 4-8 Resist Fire Aura When Equipped'),
-    (188, 'runeword.flickering_flame', NULL, '-10-15% to Enemy Fire Resistance'),
-    (189, 'runeword.flickering_flame', NULL, '+50-75 to Mana'),
-    (190, 'runeword.flickering_flame', NULL, 'Half Freeze Duration'),
-    (191, 'runeword.flickering_flame', NULL, 'Poison Length Reduced by 50%'),
-    (192, 'runeword.fortitude', NULL, '+200% Enhanced Defense'),
-    (193, 'runeword.fortitude', NULL, '+300% Enhanced Damage'),
-    (194, 'runeword.fortitude', NULL, '+25% Faster Cast Rate'),
-    (195, 'runeword.fortitude', NULL, '20-15% Chance to cast level 20-15 Chilling Armor when struck'),
-    (196, 'runeword.fortitude', NULL, '12% Damage Taken Goes To Mana'),
-    (197, 'runeword.fortitude', NULL, '+8-12 to Life (Based on Character Level)'),
-    (198, 'runeword.fortitude', NULL, 'All Resistances +25-30'),
-    (199, 'runeword.fury', NULL, '+209% Enhanced Damage'),
-    (200, 'runeword.fury', NULL, '+40% Increased Attack Speed'),
-    (201, 'runeword.fury', NULL, 'Prevent Monster Heal'),
-    (202, 'runeword.fury', NULL, '66% Chance of Open Wounds'),
-    (203, 'runeword.fury', NULL, '6% Life stolen per hit'),
-    (204, 'runeword.fury', NULL, '33% Deadly Strike'),
-    (205, 'runeword.fury', NULL, '+5 to 147 ([Class] only)'),
-    (206, 'runeword.gloom', NULL, '+170-230% Enhanced Defense'),
-    (207, 'runeword.gloom', NULL, 'All Resistances +30'),
-    (208, 'runeword.gloom', NULL, '15-3% Chance to cast level 15-3 Dim Vision when struck'),
-    (209, 'runeword.gloom', NULL, '+10% Faster Hit Recovery'),
-    (210, 'runeword.gloom', NULL, '5% Damage Taken Goes To Mana'),
-    (211, 'runeword.gloom', NULL, '+-3 to Light Radius'),
-    (212, 'runeword.gloom', NULL, 'Half Freeze Duration'),
-    (213, 'runeword.grief', NULL, '+0% Damage to Demons (Based on Character Level)'),
-    (214, 'runeword.grief', NULL, 'Damage +340-400'),
-    (215, 'runeword.grief', NULL, '+30-40% Increased Attack Speed'),
-    (216, 'runeword.grief', NULL, '35-15% Chance to cast level 35-15 Venom on striking'),
-    (217, 'runeword.grief', NULL, '-20-25% to Enemy Poison Resistance'),
-    (218, 'runeword.grief', NULL, 'Ignore Target''s Defense'),
-    (219, 'runeword.grief', NULL, '+10-15 Life after each Kill'),
-    (220, 'runeword.ground', NULL, 'Increase Maximum Life 5%'),
-    (221, 'runeword.ground', NULL, '+75-100% Enhanced Defense'),
-    (222, 'runeword.ground', NULL, 'Lightning Resist +10-30%'),
-    (223, 'runeword.ground', NULL, '+10-15 Lightning Absorb'),
-    (224, 'runeword.hand_of_justice', NULL, '+33% Increased Attack Speed'),
-    (225, 'runeword.hand_of_justice', NULL, '+280-330% Enhanced Damage'),
-    (226, 'runeword.hand_of_justice', NULL, 'Level 16 Holy Fire Aura When Equipped'),
-    (227, 'runeword.hand_of_justice', NULL, '100-36% Chance to cast level 100-36 Blaze when you Level-Up'),
-    (228, 'runeword.hand_of_justice', NULL, '100-48% Chance to cast level 100-48 Meteor when you Die'),
-    (229, 'runeword.hand_of_justice', NULL, 'Ignore Target''s Defense'),
-    (230, 'runeword.hand_of_justice', NULL, '-20% to Enemy Fire Resistance'),
-    (231, 'runeword.harmony', NULL, '+200-275% Enhanced Damage'),
-    (232, 'runeword.harmony', NULL, 'Adds 55-160-55-160 Fire/Lightning/Cold Damage'),
-    (233, 'runeword.harmony', NULL, 'Level 25-20 Revive (25-20/25-20 Charges)'),
-    (234, 'runeword.harmony', NULL, 'Level 10 Vigor Aura When Equipped'),
-    (235, 'runeword.harmony', NULL, '+2-6 to Valkyrie'),
-    (236, 'runeword.harmony', NULL, 'Regenerate Mana 20%'),
-    (237, 'runeword.harmony', NULL, '+2 to Light Radius'),
-    (238, 'runeword.heart_of_the_oak', NULL, '+40% Faster Cast Rate'),
-    (239, 'runeword.heart_of_the_oak', NULL, 'Level 25-4 Oak Sage (25-4/25-4 Charges)'),
-    (240, 'runeword.heart_of_the_oak', NULL, 'Increase Maximum Mana 15%'),
-    (241, 'runeword.heart_of_the_oak', NULL, '+3 to All Skills'),
-    (242, 'runeword.heart_of_the_oak', NULL, 'Replenish Life +20'),
-    (243, 'runeword.heart_of_the_oak', NULL, 'All Resistances +30-40'),
-    (244, 'runeword.heart_of_the_oak', NULL, 'Level 60-14 Raven (60-14/60-14 Charges)'),
-    (245, 'runeword.hearth', NULL, 'Increase Maximum Life 5%'),
-    (246, 'runeword.hearth', NULL, '+75-100% Enhanced Defense'),
-    (247, 'runeword.hearth', NULL, 'Cold Resist +10-30%'),
-    (248, 'runeword.hearth', NULL, '+10-15 Cold Absorb'),
-    (249, 'runeword.hearth', NULL, 'Cannot Be Frozen'),
-    (250, 'runeword.holy_thunder', NULL, '+60% Enhanced Damage'),
-    (251, 'runeword.holy_thunder', NULL, 'Adds 20-60-20-60 Lightning Damage'),
-    (252, 'runeword.holy_thunder', NULL, '+10 to Maximum Damage'),
-    (253, 'runeword.holy_thunder', NULL, 'Lightning Resist +60%'),
-    (254, 'runeword.holy_thunder', NULL, '+5% to Maximum Lightning Resist'),
-    (255, 'runeword.holy_thunder', NULL, '+3 to 118 ([Class] only)'),
-    (256, 'runeword.holy_thunder', NULL, 'Level 60-7 53 (60-7/60-7 Charges)'),
-    (257, 'runeword.honor', NULL, '+160% Enhanced Damage'),
-    (258, 'runeword.honor', NULL, 'Replenish Life +10'),
-    (259, 'runeword.honor', NULL, '+1 to All Skills'),
-    (260, 'runeword.honor', NULL, '+200 to Attack Rating'),
-    (261, 'runeword.honor', NULL, '25% Deadly Strike'),
-    (262, 'runeword.honor', NULL, '+10 to Strength'),
-    (263, 'runeword.hustle_(armor)', NULL, '+65% Faster Run/Walk'),
-    (264, 'runeword.hustle_(armor)', NULL, '35% Slower Stamina Drain'),
-    (265, 'runeword.hustle_(armor)', NULL, '+40% Increased Attack Speed'),
-    (266, 'runeword.hustle_(armor)', NULL, 'All Resistances +10'),
-    (267, 'runeword.hustle_(armor)', NULL, '+6 to Evade'),
-    (268, 'runeword.hustle_(weapon)', NULL, '5-1% Chance to cast level 5-1 Quickness on striking'),
-    (269, 'runeword.hustle_(weapon)', NULL, '+10% Increased Attack Speed'),
-    (270, 'runeword.hustle_(weapon)', NULL, '+180-200% Enhanced Damage'),
-    (271, 'runeword.hustle_(weapon)', NULL, 'Level 1 Fanaticism Aura When Equipped'),
-    (272, 'runeword.ice', NULL, '+140-210% Enhanced Damage'),
-    (273, 'runeword.ice', NULL, 'Level 18 Holy Freeze Aura When Equipped'),
-    (274, 'runeword.ice', NULL, '+25-30% to Cold Skill Damage'),
-    (275, 'runeword.ice', NULL, '25-22% Chance to cast level 25-22 Frost Nova on striking'),
-    (276, 'runeword.ice', NULL, '100-40% Chance to cast level 100-40 Blizzard when you Level-Up'),
-    (277, 'runeword.ice', NULL, '-20% to Enemy Cold Resistance'),
-    (278, 'runeword.ice', NULL, '0% Extra Gold from Monsters (Based on Character Level)'),
-    (279, 'runeword.infinity', NULL, '+255-325% Enhanced Damage'),
-    (280, 'runeword.infinity', NULL, '+35% Faster Run/Walk'),
-    (281, 'runeword.infinity', NULL, '+0 to Vitality (Based on Character Level)'),
-    (282, 'runeword.infinity', NULL, 'Level 12 Conviction Aura When Equipped'),
-    (283, 'runeword.infinity', NULL, '50-20% Chance to cast level 50-20 Chain Lightning when you Kill an Enemy'),
-    (284, 'runeword.infinity', NULL, '-45-55% to Enemy Lightning Resistance'),
-    (285, 'runeword.infinity', NULL, 'Level 30-21 Cyclone Armor (30-21/30-21 Charges)'),
-    (286, 'runeword.insight', NULL, '+200-260% Enhanced Damage'),
-    (287, 'runeword.insight', NULL, '180-250% Bonus to Attack Rating'),
-    (288, 'runeword.insight', NULL, '23% Better Chance of Getting Magic Items'),
-    (289, 'runeword.insight', NULL, '+1-6 to Critical Strike'),
-    (290, 'runeword.insight', NULL, '+35% Faster Cast Rate'),
-    (291, 'runeword.insight', NULL, 'Level 12-17 Meditation Aura When Equipped'),
-    (292, 'runeword.insight', NULL, '+5 to all Attributes'),
-    (293, 'runeword.kings_grace', NULL, '+100% Enhanced Damage'),
-    (294, 'runeword.kings_grace', NULL, '+150 to Attack Rating'),
-    (295, 'runeword.kings_grace', NULL, '+100% Damage to Demons'),
-    (296, 'runeword.kings_grace', NULL, '+50% Damage to Undead'),
-    (297, 'runeword.kings_grace', NULL, '+100 to Attack Rating against Demons'),
-    (298, 'runeword.kings_grace', NULL, '+100 to Attack Rating against Undead'),
-    (299, 'runeword.kingslayer', NULL, '+30% Increased Attack Speed'),
-    (300, 'runeword.kingslayer', NULL, '+230-270% Enhanced Damage'),
-    (301, 'runeword.kingslayer', NULL, '-25% Target Defense'),
-    (302, 'runeword.kingslayer', NULL, '33% Chance of Crushing Blow'),
-    (303, 'runeword.kingslayer', NULL, '25% Chance of Open Wounds'),
-    (304, 'runeword.kingslayer', NULL, '+1 to Vengeance'),
-    (305, 'runeword.kingslayer', NULL, '40% Extra Gold from Monsters'),
-    (306, 'runeword.last_wish', NULL, '+330-375% Enhanced Damage'),
-    (307, 'runeword.last_wish', NULL, '20% Chance to cast level 20 Charged Bolt on attack'),
-    (308, 'runeword.last_wish', NULL, '10-18% Chance to cast level 10-18 Life Tap on striking'),
-    (309, 'runeword.last_wish', NULL, '6-11% Chance to cast level 6-11 Fade when struck'),
-    (310, 'runeword.last_wish', NULL, '40-50% Chance of Crushing Blow'),
-    (311, 'runeword.last_wish', NULL, '0% Better Chance of Getting Magic Items (Based on Character Level)'),
-    (312, 'runeword.last_wish', NULL, 'Level 17 Might Aura When Equipped'),
-    (313, 'runeword.lawbringer', NULL, 'Adds 130-180-130-180 Cold Damage'),
-    (314, 'runeword.lawbringer', NULL, 'Adds 150-210-150-210 Fire Damage'),
-    (315, 'runeword.lawbringer', NULL, 'Level 16-18 Sanctuary Aura When Equipped'),
-    (316, 'runeword.lawbringer', NULL, '20-15% Chance to cast level 20-15 Decrepify on striking'),
-    (317, 'runeword.lawbringer', NULL, '+200-250 Defense vs. Missile'),
-    (318, 'runeword.lawbringer', NULL, 'Slain Monsters Rest in Peace'),
-    (319, 'runeword.lawbringer', NULL, '-50% Target Defense'),
-    (320, 'runeword.leaf', NULL, '+3 to Fire Skills'),
-    (321, 'runeword.leaf', NULL, '+16 Defense (Based on Character Level)'),
-    (322, 'runeword.leaf', NULL, 'Cold Resist +33%'),
-    (323, 'runeword.leaf', NULL, '+3 to 41 ([Class] only)'),
-    (324, 'runeword.leaf', NULL, '+3 to 36 ([Class] only)'),
-    (325, 'runeword.leaf', NULL, '+3 to 37 ([Class] only)'),
-    (326, 'runeword.lionheart', NULL, '+15 to Strength'),
-    (327, 'runeword.lionheart', NULL, '+20 to Vitality'),
-    (328, 'runeword.lionheart', NULL, '+15 to Dexterity'),
-    (329, 'runeword.lionheart', NULL, '+20% Enhanced Damage'),
-    (330, 'runeword.lionheart', NULL, '+50 to Life'),
-    (331, 'runeword.lionheart', NULL, 'All Resistances +30'),
-    (332, 'runeword.lore', NULL, '+10 to Energy'),
-    (333, 'runeword.lore', NULL, '+1 to All Skills'),
-    (334, 'runeword.lore', NULL, '+2 to Light Radius'),
-    (335, 'runeword.lore', NULL, '+2 to Mana after each Kill'),
-    (336, 'runeword.malice', NULL, '100% Chance of Open Wounds'),
-    (337, 'runeword.malice', NULL, '--100 to Monster Defense Per Hit'),
-    (338, 'runeword.malice', NULL, 'Prevent Monster Heal'),
-    (339, 'runeword.malice', NULL, '+33% Enhanced Damage'),
-    (340, 'runeword.malice', NULL, '+-1 to Light Radius'),
-    (341, 'runeword.malice', NULL, 'Replenish Life +-5'),
-    (342, 'runeword.melody', NULL, '+50% Enhanced Damage'),
-    (343, 'runeword.melody', NULL, '+3 to [Class Skill Tab] Skills'),
-    (344, 'runeword.melody', NULL, '+3 to 9 ([Class] only)'),
-    (345, 'runeword.melody', NULL, '+3 to 13 ([Class] only)'),
-    (346, 'runeword.melody', NULL, '+3 to 17 ([Class] only)'),
-    (347, 'runeword.melody', NULL, '+300% Damage to Undead'),
-    (348, 'runeword.memory', NULL, 'Increase Maximum Mana 20%'),
-    (349, 'runeword.memory', NULL, 'Magic Damage Reduced by 7'),
-    (350, 'runeword.memory', NULL, '+50% Enhanced Defense'),
-    (351, 'runeword.memory', NULL, '+33% Faster Cast Rate'),
-    (352, 'runeword.memory', NULL, '+3 to Sorceress Skill Levels'),
-    (353, 'runeword.memory', NULL, '+3 to 58 ([Class] only)'),
-    (354, 'runeword.memory', NULL, '+2 to 42 ([Class] only)'),
-    (355, 'runeword.metamorphosis', NULL, '100-1% Chance to cast level 100-1 Mark of the Bear on striking'),
-    (356, 'runeword.metamorphosis', NULL, '100-1% Chance to cast level 100-1 Mark of the Wolf on striking'),
-    (357, 'runeword.metamorphosis', NULL, '+5 to [Class Skill Tab] Skills'),
-    (358, 'runeword.metamorphosis', NULL, '+50-80% Enhanced Defense'),
-    (359, 'runeword.metamorphosis', NULL, 'All Resistances +10'),
-    (360, 'runeword.metamorphosis', NULL, '25% Chance of Crushing Blow'),
-    (361, 'runeword.mist', NULL, '+3 to All Skills'),
-    (362, 'runeword.mist', NULL, '+325-375% Enhanced Damage'),
-    (363, 'runeword.mist', NULL, 'Level 8-12 Concentration Aura When Equipped'),
-    (364, 'runeword.mist', NULL, 'Piercing Attack'),
-    (365, 'runeword.mist', NULL, '+24 to Vitality'),
-    (366, 'runeword.mist', NULL, 'All Resistances +40'),
-    (367, 'runeword.mosaic', NULL, '+2 to [Class Skill Tab] Skills'),
-    (368, 'runeword.mosaic', NULL, '+50% chance for finishing moves to not consume charges'),
-    (369, 'runeword.mosaic', NULL, '+20% Increased Attack Speed'),
-    (370, 'runeword.mosaic', NULL, '+200-250% Enhanced Damage'),
-    (371, 'runeword.mosaic', NULL, '+8-15% to Fire Skill Damage'),
-    (372, 'runeword.mosaic', NULL, '+8-15% to Cold Skill Damage'),
-    (373, 'runeword.mosaic', NULL, '+8-15% to Lightning Skill Damage'),
-    (374, 'runeword.myth', NULL, '10-1% Chance to cast level 10-1 Taunt on striking'),
-    (375, 'runeword.myth', NULL, '3-1% Chance to cast level 3-1 Howl when struck'),
-    (376, 'runeword.myth', NULL, '+2  to Barbarian Skill Levels'),
-    (377, 'runeword.myth', NULL, 'Replenish Life +10'),
-    (378, 'runeword.nadir', NULL, '+50% Enhanced Defense'),
-    (379, 'runeword.nadir', NULL, '+10 Defense'),
-    (380, 'runeword.nadir', NULL, '+-3 to Light Radius'),
-    (381, 'runeword.nadir', NULL, 'Level 9-13 264 (9-13/9-13 Charges)'),
-    (382, 'runeword.nadir', NULL, '-33% Extra Gold from Monsters'),
-    (383, 'runeword.nadir', NULL, '+5 to Strength'),
-    (384, 'runeword.oath', NULL, '+210-340% Enhanced Damage'),
-    (385, 'runeword.oath', NULL, '+30% Increased Attack Speed'),
-    (386, 'runeword.oath', NULL, '30-20% Chance to cast level 30-20 Bone Spirit on striking'),
-    (387, 'runeword.oath', NULL, 'Level 14-17 IronGolem (14-17/14-17 Charges)'),
-    (388, 'runeword.oath', NULL, 'Level 20-16 Heart of Wolverine (20-16/20-16 Charges)'),
-    (389, 'runeword.oath', NULL, 'Magic Absorb 10-15%'),
-    (390, 'runeword.oath', NULL, 'Indestructible'),
-    (391, 'runeword.obedience', NULL, '+370% Enhanced Damage'),
-    (392, 'runeword.obedience', NULL, '40% Chance of Crushing Blow'),
-    (393, 'runeword.obedience', NULL, '30-21% Chance to cast level 30-21 enchant when you Kill an Enemy'),
-    (394, 'runeword.obedience', NULL, '-25% to Enemy Fire Resistance'),
-    (395, 'runeword.obedience', NULL, '+200-300 Defense'),
-    (396, 'runeword.obedience', NULL, '+40% Faster Hit Recovery'),
-    (397, 'runeword.obedience', NULL, 'All Resistances +20-30'),
-    (398, 'runeword.obsession', NULL, '+4 to All Skills'),
-    (399, 'runeword.obsession', NULL, '24-10% Chance to cast level 24-10 Weaken when struck'),
-    (400, 'runeword.obsession', NULL, '+65% Faster Cast Rate'),
-    (401, 'runeword.obsession', NULL, '+60% Faster Hit Recovery'),
-    (402, 'runeword.obsession', NULL, 'All Resistances +60-70'),
-    (403, 'runeword.obsession', NULL, 'Increase Maximum Life 15-25%'),
-    (404, 'runeword.obsession', NULL, 'Regenerate Mana 15-30%'),
-    (405, 'runeword.passion', NULL, '+160-210% Enhanced Damage'),
-    (406, 'runeword.passion', NULL, '+1 to Zeal'),
-    (407, 'runeword.passion', NULL, '50-80% Bonus to Attack Rating'),
-    (408, 'runeword.passion', NULL, '+1 to Berserk'),
-    (409, 'runeword.passion', NULL, '+25% Increased Attack Speed'),
-    (410, 'runeword.passion', NULL, 'Level 12-3 Heart of Wolverine (12-3/12-3 Charges)'),
-    (411, 'runeword.passion', NULL, 'Hit Blinds Target +10'),
-    (412, 'runeword.pattern', NULL, '10% Bonus to Attack Rating'),
-    (413, 'runeword.pattern', NULL, '+40-80% Enhanced Damage'),
-    (414, 'runeword.pattern', NULL, 'Adds 12-32-12-32 Fire Damage'),
-    (415, 'runeword.pattern', NULL, 'All Resistances +15'),
-    (416, 'runeword.pattern', NULL, '+6 to Strength'),
-    (417, 'runeword.pattern', NULL, '+6 to Dexterity'),
-    (418, 'runeword.pattern', NULL, '+30% Faster Block Rate'),
-    (419, 'runeword.peace', NULL, '2-15% Chance to cast level 2-15 Valkyrie on striking'),
-    (420, 'runeword.peace', NULL, '4-5% Chance to cast level 4-5 Slow Missiles when struck'),
-    (421, 'runeword.peace', NULL, '+2 to Amazon Skill Levels'),
-    (422, 'runeword.peace', NULL, '+2 to Critical Strike'),
-    (423, 'runeword.phoenix', NULL, '+350-400% Enhanced Damage'),
-    (424, 'runeword.phoenix', NULL, '+350-400 Defense vs. Missile'),
-    (425, 'runeword.phoenix', NULL, '40-22% Chance to cast level 40-22 Firestorm on striking'),
-    (426, 'runeword.phoenix', NULL, '100-40% Chance to cast level 100-40 Blaze when you Level-Up'),
-    (427, 'runeword.phoenix', NULL, '-28% to Enemy Fire Resistance'),
-    (428, 'runeword.phoenix', NULL, 'Level 10-15 Redemption Aura When Equipped'),
-    (429, 'runeword.phoenix', NULL, 'Fire Absorb 15-21%'),
-    (430, 'runeword.plague', NULL, '+220-320% Enhanced Damage'),
-    (431, 'runeword.plague', NULL, '20-12% Chance to cast level 20-12 Lower Resist when struck'),
-    (432, 'runeword.plague', NULL, '25-15% Chance to cast level 25-15 Poison Nova on striking'),
-    (433, 'runeword.plague', NULL, '-23% to Enemy Poison Resistance'),
-    (434, 'runeword.plague', NULL, '0% Deadly Strike (Based on Character Level)'),
-    (435, 'runeword.plague', NULL, 'Level 13-17 Cleansing Aura When Equipped'),
-    (436, 'runeword.plague', NULL, '+1-2 to All Skills'),
-    (437, 'runeword.pride', NULL, '+0% Damage to Demons (Based on Character Level)'),
-    (438, 'runeword.pride', NULL, 'Adds 50-280-50-280 Lightning Damage'),
-    (439, 'runeword.pride', NULL, '260-300% Bonus to Attack Rating'),
-    (440, 'runeword.pride', NULL, 'Level 16-20 Concentration Aura When Equipped'),
-    (441, 'runeword.pride', NULL, '25-17% Chance to cast level 25-17 Fire Wall when struck'),
-    (442, 'runeword.pride', NULL, 'Replenish Life +8'),
-    (443, 'runeword.pride', NULL, '0% Extra Gold from Monsters (Based on Character Level)'),
-    (444, 'runeword.principle', NULL, '100-5% Chance to cast level 100-5 Holy Bolt on striking'),
-    (445, 'runeword.principle', NULL, '+2 to Paladin Skill Levels'),
-    (446, 'runeword.principle', NULL, '+100-150 to Life'),
-    (447, 'runeword.principle', NULL, '+50% Damage to Undead'),
-    (448, 'runeword.prudence', NULL, '+140-170% Enhanced Defense'),
-    (449, 'runeword.prudence', NULL, 'Magic Damage Reduced by 10'),
-    (450, 'runeword.prudence', NULL, 'Damage Reduced by 3'),
-    (451, 'runeword.prudence', NULL, 'All Resistances +25-35'),
-    (452, 'runeword.prudence', NULL, '+25% Faster Hit Recovery'),
-    (453, 'runeword.prudence', NULL, 'Repairs 1 durability in 0 seconds'),
-    (454, 'runeword.prudence', NULL, '+1 to Light Radius'),
-    (455, 'runeword.radiance', NULL, '+5 to Light Radius'),
-    (456, 'runeword.radiance', NULL, '+10 to Energy'),
-    (457, 'runeword.radiance', NULL, '+10 to Vitality'),
-    (458, 'runeword.radiance', NULL, 'Magic Damage Reduced by 3'),
-    (459, 'runeword.radiance', NULL, '+33 to Mana'),
-    (460, 'runeword.radiance', NULL, '+75% Enhanced Defense'),
-    (461, 'runeword.rain', NULL, '5-15% Chance to cast level 5-15 Twister on striking'),
-    (462, 'runeword.rain', NULL, '5-15% Chance to cast level 5-15 Cyclone Armor when struck'),
-    (463, 'runeword.rain', NULL, '+2 to Druid Skill Levels'),
-    (464, 'runeword.rain', NULL, '+100-150 to Mana'),
-    (465, 'runeword.rhyme', NULL, '+20% Faster Block Rate'),
-    (466, 'runeword.rhyme', NULL, '20% Increased Chance of Blocking'),
-    (467, 'runeword.rhyme', NULL, 'All Resistances +25'),
-    (468, 'runeword.rhyme', NULL, 'Cannot Be Frozen'),
-    (469, 'runeword.rhyme', NULL, '50% Extra Gold from Monsters'),
-    (470, 'runeword.rhyme', NULL, '25% Better Chance of Getting Magic Items'),
-    (471, 'runeword.rift', NULL, 'Adds 160-250-160-250 Magic Damage'),
-    (472, 'runeword.rift', NULL, 'Adds 60-180-60-180 Fire Damage'),
-    (473, 'runeword.rift', NULL, '38% Damage Taken Goes To Mana'),
-    (474, 'runeword.rift', NULL, '20-16% Chance to cast level 20-16 Tornado on striking'),
-    (475, 'runeword.rift', NULL, '16-21% Chance to cast level 16-21 Frozen Orb on attack'),
-    (476, 'runeword.rift', NULL, 'Level 40-15 Iron Maiden (40-15/40-15 Charges)'),
-    (477, 'runeword.rift', NULL, '+5-10 to all Attributes'),
-    (478, 'runeword.ritual', NULL, '13-1% Chance to cast level 13-1 Sigil Death when struck'),
-    (479, 'runeword.ritual', NULL, '+20% Increased Attack Speed'),
-    (480, 'runeword.ritual', NULL, '+200-270% Enhanced Damage'),
-    (481, 'runeword.ritual', NULL, '+150-250% Damage to Demons'),
-    (482, 'runeword.ritual', NULL, '200-260% Bonus to Attack Rating'),
-    (483, 'runeword.ritual', NULL, '+3-5 Life after each Kill'),
-    (484, 'runeword.ritual', NULL, 'Slain Monsters Rest in Peace'),
-    (485, 'runeword.sanctuary', NULL, '20% Increased Chance of Blocking'),
-    (486, 'runeword.sanctuary', NULL, '+20% Faster Block Rate'),
-    (487, 'runeword.sanctuary', NULL, '+130-160% Enhanced Defense'),
-    (488, 'runeword.sanctuary', NULL, '+250 Defense vs. Missile'),
-    (489, 'runeword.sanctuary', NULL, 'All Resistances +50-70'),
-    (490, 'runeword.sanctuary', NULL, '+20% Faster Hit Recovery'),
-    (491, 'runeword.sanctuary', NULL, 'Level 60-12 Slow Missiles (60-12/60-12 Charges)'),
-    (492, 'runeword.silence', NULL, '4% Mana stolen per hit'),
-    (493, 'runeword.silence', NULL, 'Hit Blinds Target +33'),
-    (494, 'runeword.silence', NULL, '+200% Enhanced Damage'),
-    (495, 'runeword.silence', NULL, '+20% Increased Attack Speed'),
-    (496, 'runeword.silence', NULL, 'All Resistances +75'),
-    (497, 'runeword.silence', NULL, '+2 to All Skills'),
-    (498, 'runeword.silence', NULL, '+20% Faster Hit Recovery'),
-    (499, 'runeword.smoke', NULL, '+250 Defense vs. Missile'),
-    (500, 'runeword.smoke', NULL, '+75% Enhanced Defense'),
-    (501, 'runeword.smoke', NULL, 'All Resistances +50'),
-    (502, 'runeword.smoke', NULL, '+20% Faster Hit Recovery'),
-    (503, 'runeword.smoke', NULL, '+-1 to Light Radius'),
-    (504, 'runeword.smoke', NULL, 'Level 18-6 72 (18-6/18-6 Charges)'),
-    (505, 'runeword.spirit', NULL, '+55% Faster Hit Recovery'),
-    (506, 'runeword.spirit', NULL, '+89-112 to Mana'),
-    (507, 'runeword.spirit', NULL, '+250 Defense vs. Missile'),
-    (508, 'runeword.spirit', NULL, '+22 to Vitality'),
-    (509, 'runeword.spirit', NULL, '+25-35% Faster Cast Rate'),
-    (510, 'runeword.spirit', NULL, 'Magic Absorb 3-8%'),
-    (511, 'runeword.spirit', NULL, '+2 to All Skills'),
-    (512, 'runeword.splendor', NULL, '+3 to Light Radius'),
-    (513, 'runeword.splendor', NULL, '50% Extra Gold from Monsters'),
-    (514, 'runeword.splendor', NULL, '20% Better Chance of Getting Magic Items'),
-    (515, 'runeword.splendor', NULL, '+60-100% Enhanced Defense'),
-    (516, 'runeword.splendor', NULL, '+20% Faster Block Rate'),
-    (517, 'runeword.splendor', NULL, '+10% Faster Cast Rate'),
-    (518, 'runeword.splendor', NULL, '+1 to All Skills'),
-    (519, 'runeword.stealth', NULL, 'Magic Damage Reduced by 3'),
-    (520, 'runeword.stealth', NULL, '+6 to Dexterity'),
-    (521, 'runeword.stealth', NULL, '+15 Maximum Stamina'),
-    (522, 'runeword.stealth', NULL, '+25% Faster Run/Walk'),
-    (523, 'runeword.stealth', NULL, '+25% Faster Cast Rate'),
-    (524, 'runeword.stealth', NULL, '+25% Faster Hit Recovery'),
-    (525, 'runeword.steel', NULL, '+25% Increased Attack Speed'),
-    (526, 'runeword.steel', NULL, '+3 to Minimum Damage'),
-    (527, 'runeword.steel', NULL, '+3 to Maximum Damage'),
-    (528, 'runeword.steel', NULL, '50% Chance of Open Wounds'),
-    (529, 'runeword.steel', NULL, '+20% Enhanced Damage'),
-    (530, 'runeword.stone', NULL, '+220-260% Enhanced Defense'),
-    (531, 'runeword.stone', NULL, 'Level 16 Clay Golem (16/16 Charges)'),
-    (532, 'runeword.stone', NULL, '+300 Defense vs. Missile'),
-    (533, 'runeword.stone', NULL, 'Level 80-16 Molten Boulder (80-16/80-16 Charges)'),
-    (534, 'runeword.stone', NULL, '+16 to Strength'),
-    (535, 'runeword.stone', NULL, '+16 to Vitality'),
-    (536, 'runeword.stone', NULL, '+40% Faster Hit Recovery'),
-    (537, 'runeword.strength', NULL, '+20 to Strength'),
-    (538, 'runeword.strength', NULL, '+35% Enhanced Damage'),
-    (539, 'runeword.strength', NULL, '+10 to Vitality'),
-    (540, 'runeword.strength', NULL, '25% Chance of Crushing Blow'),
-    (541, 'runeword.temper', NULL, 'Increase Maximum Life 5%'),
-    (542, 'runeword.temper', NULL, '+75-100% Enhanced Defense'),
-    (543, 'runeword.temper', NULL, 'Fire Resist +10-30%'),
-    (544, 'runeword.temper', NULL, '+10-15 Fire Absorb'),
-    (545, 'runeword.treachery', NULL, '25-15% Chance to cast level 25-15 Venom on striking'),
-    (546, 'runeword.treachery', NULL, '5-15% Chance to cast level 5-15 Fade when struck'),
-    (547, 'runeword.treachery', NULL, '+2 to Assassin Skill Levels'),
-    (548, 'runeword.treachery', NULL, '+45% Increased Attack Speed'),
-    (549, 'runeword.unbending_will', NULL, '+3 to [Class Skill Tab] Skills'),
-    (550, 'runeword.unbending_will', NULL, '18% Chance to cast level 18 Taunt on striking'),
-    (551, 'runeword.unbending_will', NULL, '+20-30% Increased Attack Speed'),
-    (552, 'runeword.unbending_will', NULL, '+300-350% Enhanced Damage'),
-    (553, 'runeword.unbending_will', NULL, 'Damage Reduced by 8'),
-    (554, 'runeword.unbending_will', NULL, 'Prevent Monster Heal'),
-    (555, 'runeword.unbending_will', NULL, '8-10% Life stolen per hit'),
-    (556, 'runeword.venom', NULL, 'Adds 312-312 Poison Damage Over 312 Seconds'),
-    (557, 'runeword.venom', NULL, 'Ignore Target''s Defense'),
-    (558, 'runeword.venom', NULL, 'Level 27-15 83 (27-15/27-15 Charges)'),
-    (559, 'runeword.venom', NULL, 'Level 11-13 92 (11-13/11-13 Charges)'),
-    (560, 'runeword.venom', NULL, '7% Mana stolen per hit'),
-    (561, 'runeword.vigilance', NULL, '5-10% Chance to cast level 5-10 Ring of Fire when struck'),
-    (562, 'runeword.vigilance', NULL, '+10% Faster Run/Walk'),
-    (563, 'runeword.vigilance', NULL, '+30% Faster Block Rate'),
-    (564, 'runeword.vigilance', NULL, '+20-40 to Life'),
-    (565, 'runeword.vigilance', NULL, '+20-40 to Mana'),
-    (566, 'runeword.vigilance', NULL, 'All Resistances +25-35'),
-    (567, 'runeword.vigilance', NULL, '+75-100% Enhanced Defense'),
-    (568, 'runeword.voice_of_reason', NULL, '+220-350% Damage to Demons'),
-    (569, 'runeword.voice_of_reason', NULL, '+280-300% Damage to Undead'),
-    (570, 'runeword.voice_of_reason', NULL, 'Adds 100-220-100-220 Cold Damage'),
-    (571, 'runeword.voice_of_reason', NULL, '-24% to Enemy Cold Resistance'),
-    (572, 'runeword.voice_of_reason', NULL, '18-20% Chance to cast level 18-20 Ice Blast on striking'),
-    (573, 'runeword.voice_of_reason', NULL, '15-13% Chance to cast level 15-13 Frozen Orb on striking'),
-    (574, 'runeword.voice_of_reason', NULL, 'Cannot Be Frozen'),
-    (575, 'runeword.void', NULL, '+2 to All Skills'),
-    (576, 'runeword.void', NULL, '+40% Faster Cast Rate'),
-    (577, 'runeword.void', NULL, '+10-15% to Magic Skill Damage'),
-    (578, 'runeword.void', NULL, '+1-3 to Abyss'),
-    (579, 'runeword.void', NULL, '+8-12 to all Attributes'),
-    (580, 'runeword.void', NULL, 'Level 35-4 Decrepify (35-4/35-4 Charges)'),
-    (581, 'runeword.wealth', NULL, '250% Extra Gold from Monsters'),
-    (582, 'runeword.wealth', NULL, '100% Better Chance of Getting Magic Items'),
-    (583, 'runeword.white', NULL, '+3 to [Class Skill Tab] Skills'),
-    (584, 'runeword.white', NULL, 'Magic Damage Reduced by 4'),
-    (585, 'runeword.white', NULL, '+20% Faster Cast Rate'),
-    (586, 'runeword.white', NULL, '+13 to Mana'),
-    (587, 'runeword.white', NULL, '+3 to 68 ([Class] only)'),
-    (588, 'runeword.white', NULL, '+2 to 84 ([Class] only)'),
-    (589, 'runeword.white', NULL, '+4 to 69 ([Class] only)'),
-    (590, 'runeword.wind', NULL, '+120-160% Enhanced Damage'),
-    (591, 'runeword.wind', NULL, '+40% Increased Attack Speed'),
-    (592, 'runeword.wind', NULL, '+20% Faster Run/Walk'),
-    (593, 'runeword.wind', NULL, '-50% Target Defense'),
-    (594, 'runeword.wind', NULL, '10-9% Chance to cast level 10-9 Tornado on striking'),
-    (595, 'runeword.wind', NULL, 'Level 127-13 240 (127-13/127-13 Charges)'),
-    (596, 'runeword.wind', NULL, '+15% Faster Hit Recovery'),
-    (597, 'runeword.wisdom', NULL, 'Piercing Attack'),
-    (598, 'runeword.wisdom', NULL, '4-8% Mana stolen per hit'),
-    (599, 'runeword.wisdom', NULL, '15-25% Bonus to Attack Rating'),
-    (600, 'runeword.wisdom', NULL, '+5 to Mana after each Kill'),
-    (601, 'runeword.wisdom', NULL, 'Cannot Be Frozen'),
-    (602, 'runeword.wisdom', NULL, '+10 to Energy'),
-    (603, 'runeword.wrath', NULL, '+300% Damage to Demons'),
-    (604, 'runeword.wrath', NULL, '+250-300% Damage to Undead'),
-    (605, 'runeword.wrath', NULL, 'Adds 41-240-41-240 Lightning Damage'),
-    (606, 'runeword.wrath', NULL, 'Adds 85-120-85-120 Magic Damage'),
-    (607, 'runeword.wrath', NULL, '5-10% Chance to cast level 5-10 Life Tap on striking'),
-    (608, 'runeword.wrath', NULL, '30-1% Chance to cast level 30-1 Decrepify on striking'),
-    (609, 'runeword.wrath', NULL, 'Cannot Be Frozen'),
-    (610, 'runeword.zephyr', NULL, '+25% Faster Run/Walk'),
-    (611, 'runeword.zephyr', NULL, '+25% Increased Attack Speed'),
-    (612, 'runeword.zephyr', NULL, '+33% Enhanced Damage'),
-    (613, 'runeword.zephyr', NULL, '+66 to Attack Rating'),
-    (614, 'runeword.zephyr', NULL, '7-1% Chance to cast level 7-1 240 when struck'),
-    (615, 'runeword.zephyr', NULL, '+25 Defense');
--- Corrections effets per-level
-
--- Traductions françaises
-INSERT INTO translations (name_key, lang, value) VALUES
-    ('runeword.ancients_pledge', 'fr', 'Pacte des Anciens'),
-    ('runeword.authority', 'fr', 'Autorité'),
-    ('runeword.beast', 'fr', 'Bête'),
-    ('runeword.black', 'fr', 'Blanc'),
-    ('runeword.bone', 'fr', 'Blessure'),
-    ('runeword.bramble', 'fr', 'Barbelé'),
-    ('runeword.brand', 'fr', 'Barbe'),
-    ('runeword.breath_of_the_dying', 'fr', 'Bagne'),
-    ('runeword.call_to_arms', 'fr', 'Cicatrice'),
-    ('runeword.chains_of_honor', 'fr', 'Chaînes'),
-    ('runeword.chaos', 'fr', 'Chaos'),
-    ('runeword.crescent_moon', 'fr', 'Croissant de lune'),
-    ('runeword.death', 'fr', 'Dévotion'),
-    ('runeword.delirium', 'fr', 'Délire'),
-    ('runeword.destruction', 'fr', 'Destruction'),
-    ('runeword.doom', 'fr', 'Dévastation'),
-    ('runeword.dragon', 'fr', 'Dragon'),
-    ('runeword.dream', 'fr', 'Dyptique'),
-    ('runeword.duress', 'fr', 'Duel'),
-    ('runeword.edge', 'fr', 'Evocation'),
-    ('runeword.enigma', 'fr', 'Enigme'),
-    ('runeword.enlightenment', 'fr', 'Eclaircissement'),
-    ('runeword.eternity', 'fr', 'Eternité'),
-    ('runeword.exile', 'fr', 'Exil'),
-    ('runeword.faith', 'fr', 'Foi'),
-    ('runeword.famine', 'fr', 'Famine'),
-    ('runeword.flickering_flame', 'fr', 'Flamme'),
-    ('runeword.fortitude', 'fr', 'Fortitude'),
-    ('runeword.fury', 'fr', 'Furie'),
-    ('runeword.gloom', 'fr', 'Guerre'),
-    ('runeword.grief', 'fr', 'Griserie'),
-    ('runeword.hand_of_justice', 'fr', 'Heaume'),
-    ('runeword.harmony', 'fr', 'Harmonie'),
-    ('runeword.heart_of_the_oak', 'fr', 'Hérétique'),
-    ('runeword.holy_thunder', 'fr', 'Halo'),
-    ('runeword.honor', 'fr', 'Honneur'),
-    ('runeword.ice', 'fr', 'Ire'),
-    ('runeword.infinity', 'fr', 'Infini'),
-    ('runeword.insight', 'fr', 'Iris'),
-    ('runeword.kings_grace', 'fr', 'Kana'),
-    ('runeword.kingslayer', 'fr', 'Kaolin'),
-    ('runeword.last_wish', 'fr', 'Lèpre'),
-    ('runeword.lawbringer', 'fr', 'Longévité'),
-    ('runeword.leaf', 'fr', 'Langueur'),
-    ('runeword.lionheart', 'fr', 'Livre'),
-    ('runeword.lore', 'fr', 'Lapsus'),
-    ('runeword.malice', 'fr', 'Méchanceté'),
-    ('runeword.melody', 'fr', 'Melodie'),
-    ('runeword.memory', 'fr', 'Mémoire'),
-    ('runeword.mist', 'fr', 'Marée'),
-    ('runeword.myth', 'fr', 'Mythe'),
-    ('runeword.nadir', 'fr', 'Nadir'),
-    ('runeword.oath', 'fr', 'Orme'),
-    ('runeword.obedience', 'fr', 'Obéissance'),
-    ('runeword.obsession', 'fr', 'Obsession'),
-    ('runeword.passion', 'fr', 'Passion'),
-    ('runeword.pattern', 'fr', 'Parchemin'),
-    ('runeword.peace', 'fr', 'Paix'),
-    ('runeword.phoenix', 'fr', 'Phénix'),
-    ('runeword.plague', 'fr', 'Peste'),
-    ('runeword.pride', 'fr', 'Pierre'),
-    ('runeword.principle', 'fr', 'Principe'),
-    ('runeword.prudence', 'fr', 'Prudence'),
-    ('runeword.radiance', 'fr', 'Rayon'),
-    ('runeword.rain', 'fr', 'Rage'),
-    ('runeword.rhyme', 'fr', 'Rime'),
-    ('runeword.rift', 'fr', 'Rigodon'),
-    ('runeword.sanctuary', 'fr', 'Sanctuaire'),
-    ('runeword.silence', 'fr', 'Silence'),
-    ('runeword.smoke', 'fr', 'Soupe'),
-    ('runeword.spirit', 'fr', 'Esprit'),
-    ('runeword.splendor', 'fr', 'Splendeur'),
-    ('runeword.stealth', 'fr', 'Sillon'),
-    ('runeword.steel', 'fr', 'Style'),
-    ('runeword.stone', 'fr', 'Sacrifice'),
-    ('runeword.strength', 'fr', 'Safran'),
-    ('runeword.treachery', 'fr', 'Traîtrise'),
-    ('runeword.unbending_will', 'fr', 'Urne'),
-    ('runeword.venom', 'fr', 'Venin'),
-    ('runeword.voice_of_reason', 'fr', 'Vérité'),
-    ('runeword.void', 'fr', 'nunusnuenues'),
-    ('runeword.wealth', 'fr', 'Wisigothe'),
-    ('runeword.white', 'fr', 'Wali'),
-    ('runeword.wind', 'fr', 'Wallaby'),
-    ('runeword.wisdom', 'fr', 'Wharf'),
-    ('runeword.wrath', 'fr', 'Wendigo'),
-    ('runeword.zephyr', 'fr', 'Zéphyr'),
-    ('runeword.ancients_pledge.effect', 'fr', 'Résistance au Froid'),
-    ('runeword.ancients_pledge.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.ancients_pledge.effect', 'fr', 'Défense augmentée'),
-    ('runeword.ancients_pledge.effect', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('runeword.authority.effect', 'fr', '2-10%% chances de lancer niveau 2-10 %s quand touché'),
-    ('runeword.authority.effect', 'fr', '10-15%% chances de lancer niveau 10-15 %s en touchant'),
-    ('runeword.authority.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.authority.effect', 'fr', '+40-60% Enhanced Damage'),
-    ('runeword.beast.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.beast.effect', 'fr', 'Aura niveau 9 %s quand équipé'),
-    ('runeword.beast.effect', 'fr', '+240-270% Enhanced Damage'),
-    ('runeword.beast.effect', 'fr', 'pour la Force'),
-    ('runeword.beast.effect', 'fr', '(5-13/5-13 charges)'),
-    ('runeword.beast.effect', 'fr', '+3 to Wearbear'),
-    ('runeword.beast.effect', 'fr', '+3 to Shape Shifting'),
-    ('runeword.black.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.black.effect', 'fr', '+120% Enhanced Damage'),
-    ('runeword.black.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.black.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.black.effect', 'fr', 'pour la puissance offensive'),
-    ('runeword.black.effect', 'fr', '(12-4/12-4 charges)'),
-    ('runeword.bone.effect', 'fr', '15-10%% chances de lancer niveau 15-10 %s en touchant'),
-    ('runeword.bone.effect', 'fr', '15-10%% chances de lancer niveau 15-10 %s quand touché'),
-    ('runeword.bone.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.bone.effect', 'fr', 'pour le Mana'),
-    ('runeword.bramble.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.bramble.effect', 'fr', 'Défense'),
-    ('runeword.bramble.effect', 'fr', 'Aura niveau 15-21 %s quand équipé'),
-    ('runeword.bramble.effect', 'fr', 'Points de vie après chaque victime'),
-    ('runeword.bramble.effect', 'fr', 'aux dégâts de poison'),
-    ('runeword.bramble.effect', 'fr', 'Résistance au Poison'),
-    ('runeword.bramble.effect', 'fr', '(33-13/33-13 charges)'),
-    ('runeword.brand.effect', 'fr', '+260-340% Enhanced Damage'),
-    ('runeword.brand.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.brand.effect', 'fr', '100-18%% chances de lancer niveau 100-18 %s en touchant'),
-    ('runeword.brand.effect', 'fr', '35-14%% chances de lancer niveau 35-14 %s quand touché'),
-    ('runeword.brand.effect', 'fr', 'Riposter'),
-    ('runeword.brand.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.brand.effect', 'fr', 'tire des flèches ou des carreaux explosifs'),
-    ('runeword.breath_of_the_dying.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.breath_of_the_dying.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.breath_of_the_dying.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.breath_of_the_dying.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.breath_of_the_dying.effect', 'fr', '50-20%% chances de lancer niveau 50-20 %s quand vous tuez un ennemi'),
-    ('runeword.breath_of_the_dying.effect', 'fr', '+350-400% Enhanced Damage'),
-    ('runeword.breath_of_the_dying.effect', 'fr', 'pour la Force'),
-    ('runeword.bulwark.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.bulwark.effect', 'fr', 'Défense augmentée'),
-    ('runeword.bulwark.effect', 'fr', 'Damage Reduced by 10-15%'),
-    ('runeword.bulwark.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.bulwark.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.call_to_arms.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.call_to_arms.effect', 'fr', '+200-240% Enhanced Damage'),
-    ('runeword.call_to_arms.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.call_to_arms.effect', 'fr', '+2-6 to Battle Command'),
-    ('runeword.call_to_arms.effect', 'fr', '+1-6 to Battle Orders'),
-    ('runeword.call_to_arms.effect', 'fr', '+1-4 to Battle Cry'),
-    ('runeword.call_to_arms.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.chains_of_honor.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.chains_of_honor.effect', 'fr', 'Défense augmentée'),
-    ('runeword.chains_of_honor.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.chains_of_honor.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.chains_of_honor.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.chains_of_honor.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.chains_of_honor.effect', 'fr', 'pour la Force'),
-    ('runeword.chaos.effect', 'fr', 'Vie après chaque mort de Démon'),
-    ('runeword.chaos.effect', 'fr', '+240-290% Enhanced Damage'),
-    ('runeword.chaos.effect', 'fr', '+216-471 dommages magiques'),
-    ('runeword.chaos.effect', 'fr', '+1 to Whirlwind'),
-    ('runeword.chaos.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.chaos.effect', 'fr', '9-11%% chances de lancer niveau 9-11 %s en touchant'),
-    ('runeword.chaos.effect', 'fr', '11-9%% chances de lancer niveau 11-9 %s en touchant'),
-    ('runeword.coven.effect', 'fr', '5-10%% chances de lancer niveau 5-10 %s quand touché'),
-    ('runeword.coven.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.coven.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.coven.effect', 'fr', 'Défense augmentée'),
-    ('runeword.coven.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.coven.effect', 'fr', 'Points de vie après chaque victime'),
-    ('runeword.crescent_moon.effect', 'fr', 'la résistance électrique de l''''ennemi'),
-    ('runeword.crescent_moon.effect', 'fr', 'Ignore les défenses de l''''adversaire'),
-    ('runeword.crescent_moon.effect', 'fr', '+180-220% Enhanced Damage'),
-    ('runeword.crescent_moon.effect', 'fr', 'Absorbe la Magie'),
-    ('runeword.crescent_moon.effect', 'fr', '(30-18/30-18 charges)'),
-    ('runeword.crescent_moon.effect', 'fr', '7-13%% chances de lancer niveau 7-13 %s en touchant'),
-    ('runeword.crescent_moon.effect', 'fr', '10-17%% chances de lancer niveau 10-17 %s en touchant'),
-    ('runeword.cure.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.cure.effect', 'fr', 'Défense augmentée'),
-    ('runeword.cure.effect', 'fr', 'Résistance au Poison'),
-    ('runeword.cure.effect', 'fr', 'Effet du poison diminué de'),
-    ('runeword.cure.effect', 'fr', 'Aura niveau 1 %s quand équipé'),
-    ('runeword.death.effect', 'fr', '+300-385% Enhanced Damage'),
-    ('runeword.death.effect', 'fr', 'Coup mortel'),
-    ('runeword.death.effect', 'fr', '(15-22/15-22 charges)'),
-    ('runeword.death.effect', 'fr', '25-18%% chances de lancer niveau 25-18 %s en attaquant'),
-    ('runeword.death.effect', 'fr', '100-44%% chances de lancer niveau 100-44 %s quand vous mourrez'),
-    ('runeword.death.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.death.effect', 'fr', 'Indestructible'),
-    ('runeword.delirium.effect', 'fr', '11-18%% chances de lancer niveau 11-18 %s en touchant'),
-    ('runeword.delirium.effect', 'fr', '(60-17/60-17 charges)'),
-    ('runeword.delirium.effect', 'fr', '14-13%% chances de lancer niveau 14-13 %s quand touché'),
-    ('runeword.delirium.effect', 'fr', 'Défense'),
-    ('runeword.delirium.effect', 'fr', '6-14%% chances de lancer niveau 6-14 %s quand touché'),
-    ('runeword.delirium.effect', 'fr', '1-50%% chances de lancer niveau 1-50 %s quand touché'),
-    ('runeword.delirium.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.destruction.effect', 'fr', '+350% Enhanced Damage'),
-    ('runeword.destruction.effect', 'fr', '+100-180 dommages magiques'),
-    ('runeword.destruction.effect', 'fr', '5-23%% chances de lancer niveau 5-23 %s en touchant'),
-    ('runeword.destruction.effect', 'fr', '100-45%% chances de lancer niveau 100-45 %s quand vous mourrez'),
-    ('runeword.destruction.effect', 'fr', '15-22%% chances de lancer niveau 15-22 %s en attaquant'),
-    ('runeword.destruction.effect', 'fr', '23-12%% chances de lancer niveau 23-12 %s en touchant'),
-    ('runeword.destruction.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.doom.effect', 'fr', '+280-320% Enhanced Damage'),
-    ('runeword.doom.effect', 'fr', 'Aura niveau 12 %s quand équipé'),
-    ('runeword.doom.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.doom.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.doom.effect', 'fr', 'la résistance au froid de l''''ennemi'),
-    ('runeword.doom.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.doom.effect', 'fr', '5-18%% chances de lancer niveau 5-18 %s en touchant'),
-    ('runeword.dragon.effect', 'fr', 'Défense'),
-    ('runeword.dragon.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.dragon.effect', 'fr', 'pour la Force'),
-    ('runeword.dragon.effect', 'fr', '12-15%% chances de lancer niveau 12-15 %s en touchant'),
-    ('runeword.dragon.effect', 'fr', '20-18%% chances de lancer niveau 20-18 %s quand touché'),
-    ('runeword.dragon.effect', 'fr', 'Aura niveau 14 %s quand équipé'),
-    ('runeword.dragon.effect', 'fr', 'pour la Force'),
-    ('runeword.dream.effect', 'fr', 'Défense'),
-    ('runeword.dream.effect', 'fr', '10-15%% chances de lancer niveau 10-15 %s quand touché'),
-    ('runeword.dream.effect', 'fr', 'pour le Mana'),
-    ('runeword.dream.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.dream.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.dream.effect', 'fr', 'Aura niveau 15 %s quand équipé'),
-    ('runeword.dream.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.duress.effect', 'fr', 'à la valeur minimum des dégâts par le Froid'),
-    ('runeword.duress.effect', 'fr', '+10-20% Enhanced Damage'),
-    ('runeword.duress.effect', 'fr', 'Défense augmentée'),
-    ('runeword.duress.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.duress.effect', 'fr', 'Proba. de blessures ouvertes'),
-    ('runeword.duress.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.duress.effect', 'fr', 'Ralentit perte d''''endurance'),
-    ('runeword.edge.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.edge.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.edge.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.edge.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.edge.effect', 'fr', 'Aura niveau 15 %s quand équipé'),
-    ('runeword.edge.effect', 'fr', 'pour la Force'),
-    ('runeword.edge.effect', 'fr', 'Réduit les prix des marchands'),
-    ('runeword.enigma.effect', 'fr', 'Défense'),
-    ('runeword.enigma.effect', 'fr', 'Points de vie après chaque victime'),
-    ('runeword.enigma.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.enigma.effect', 'fr', 'pour la Force'),
-    ('runeword.enigma.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.enigma.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.enigma.effect', 'fr', '+1 to Teleport'),
-    ('runeword.enlightenment.effect', 'fr', '5-15%% chances de lancer niveau 5-15 %s en touchant'),
-    ('runeword.enlightenment.effect', 'fr', '5-15%% chances de lancer niveau 5-15 %s quand touché'),
-    ('runeword.enlightenment.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.enlightenment.effect', 'fr', '+1 to Warmth'),
-    ('runeword.eternity.effect', 'fr', '+260-310% Enhanced Damage'),
-    ('runeword.eternity.effect', 'fr', 'Indestructible'),
-    ('runeword.eternity.effect', 'fr', 'Ralentit l''''adversaire de'),
-    ('runeword.eternity.effect', 'fr', '(88-8/88-8 charges)'),
-    ('runeword.eternity.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.eternity.effect', 'fr', 'Régénérer le Mana'),
-    ('runeword.eternity.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.exile.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.exile.effect', 'fr', 'Immobilise l''''adversaire'),
-    ('runeword.exile.effect', 'fr', 'Défense augmentée'),
-    ('runeword.exile.effect', 'fr', 'Aura niveau 13-16 %s quand équipé'),
-    ('runeword.exile.effect', 'fr', '+2 au javelot et à la lance'),
-    ('runeword.exile.effect', 'fr', '15-5%% chances de lancer niveau 15-5 %s en touchant'),
-    ('runeword.exile.effect', 'fr', 'Répare 0 durabilité par seconde'),
-    ('runeword.faith.effect', 'fr', '+280% Enhanced Damage'),
-    ('runeword.faith.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.faith.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.faith.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.faith.effect', 'fr', 'Aura niveau 12-15 %s quand équipé'),
-    ('runeword.faith.effect', 'fr', 'Ranime en :'),
-    ('runeword.faith.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.famine.effect', 'fr', '+270-320% Enhanced Damage'),
-    ('runeword.famine.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.famine.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.famine.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.famine.effect', 'fr', '+180-200 dommages magiques'),
-    ('runeword.famine.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.famine.effect', 'fr', 'Ethereal'),
-    ('runeword.flickering_flame.effect', 'fr', 'pour les aptitudes de Feu'),
-    ('runeword.flickering_flame.effect', 'fr', 'Aura niveau 4-8 %s quand équipé'),
-    ('runeword.flickering_flame.effect', 'fr', 'la résistance au feu de l''''ennemi'),
-    ('runeword.flickering_flame.effect', 'fr', 'pour le Mana'),
-    ('runeword.flickering_flame.effect', 'fr', 'Diminue de moitié la durée d''''Immobilisation'),
-    ('runeword.flickering_flame.effect', 'fr', 'Effet du poison diminué de'),
-    ('runeword.fortitude.effect', 'fr', 'Défense augmentée'),
-    ('runeword.fortitude.effect', 'fr', '+300% Enhanced Damage'),
-    ('runeword.fortitude.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.fortitude.effect', 'fr', '20-15%% chances de lancer niveau 20-15 %s quand touché'),
-    ('runeword.fortitude.effect', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('runeword.fortitude.effect', 'fr', 'pour la Vie'),
-    ('runeword.fortitude.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.fury.effect', 'fr', '+209% Enhanced Damage'),
-    ('runeword.fury.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.fury.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.fury.effect', 'fr', 'Proba. de blessures ouvertes'),
-    ('runeword.fury.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.fury.effect', 'fr', 'Coup mortel'),
-    ('runeword.fury.effect', 'fr', '+5 to 147 ([Class] only)'),
-    ('runeword.gloom.effect', 'fr', 'Défense augmentée'),
-    ('runeword.gloom.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.gloom.effect', 'fr', '15-3%% chances de lancer niveau 15-3 %s quand touché'),
-    ('runeword.gloom.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.gloom.effect', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('runeword.gloom.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.gloom.effect', 'fr', 'Diminue de moitié la durée d''''Immobilisation'),
-    ('runeword.grief.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.grief.effect', 'fr', 'Dommages'),
-    ('runeword.grief.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.grief.effect', 'fr', '35-15%% chances de lancer niveau 35-15 %s en touchant'),
-    ('runeword.grief.effect', 'fr', 'la résistance au poison de l''''ennemi'),
-    ('runeword.grief.effect', 'fr', 'Ignore les défenses de l''''adversaire'),
-    ('runeword.grief.effect', 'fr', 'Points de vie après chaque victime'),
-    ('runeword.ground.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.ground.effect', 'fr', 'Défense augmentée'),
-    ('runeword.ground.effect', 'fr', 'Résistance à la Foudre'),
-    ('runeword.ground.effect', 'fr', 'Absorbe la Foudre'),
-    ('runeword.hand_of_justice.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.hand_of_justice.effect', 'fr', '+280-330% Enhanced Damage'),
-    ('runeword.hand_of_justice.effect', 'fr', 'Aura niveau 16 %s quand équipé'),
-    ('runeword.hand_of_justice.effect', 'fr', '100-36%% chances de lancer niveau 100-36 %s quand vous montez de niveau'),
-    ('runeword.hand_of_justice.effect', 'fr', '100-48%% chances de lancer niveau 100-48 %s quand vous mourrez'),
-    ('runeword.hand_of_justice.effect', 'fr', 'Ignore les défenses de l''''adversaire'),
-    ('runeword.hand_of_justice.effect', 'fr', 'la résistance au feu de l''''ennemi'),
-    ('runeword.harmony.effect', 'fr', '+200-275% Enhanced Damage'),
-    ('runeword.harmony.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.harmony.effect', 'fr', '(25-20/25-20 charges)'),
-    ('runeword.harmony.effect', 'fr', 'Aura niveau 10 %s quand équipé'),
-    ('runeword.harmony.effect', 'fr', '+2-6 to Valkyrie'),
-    ('runeword.harmony.effect', 'fr', 'Régénérer le Mana'),
-    ('runeword.harmony.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.heart_of_the_oak.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.heart_of_the_oak.effect', 'fr', '(25-4/25-4 charges)'),
-    ('runeword.heart_of_the_oak.effect', 'fr', 'Augmente le nombre maximum de points de Mana'),
-    ('runeword.heart_of_the_oak.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.heart_of_the_oak.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.heart_of_the_oak.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.heart_of_the_oak.effect', 'fr', '(60-14/60-14 charges)'),
-    ('runeword.hearth.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.hearth.effect', 'fr', 'Défense augmentée'),
-    ('runeword.hearth.effect', 'fr', 'Résistance au Froid'),
-    ('runeword.hearth.effect', 'fr', 'Absorbe le Froid'),
-    ('runeword.hearth.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.holy_thunder.effect', 'fr', '+60% Enhanced Damage'),
-    ('runeword.holy_thunder.effect', 'fr', 'à la valeur minimum des dégâts par la Foudre'),
-    ('runeword.holy_thunder.effect', 'fr', '+10 to Maximum Damage'),
-    ('runeword.holy_thunder.effect', 'fr', 'Résistance à la Foudre'),
-    ('runeword.holy_thunder.effect', 'fr', 'à la résistance maximum à la Foudre'),
-    ('runeword.holy_thunder.effect', 'fr', '+3 to 118 ([Class] only)'),
-    ('runeword.holy_thunder.effect', 'fr', '(60-7/60-7 charges)'),
-    ('runeword.honor.effect', 'fr', '+160% Enhanced Damage'),
-    ('runeword.honor.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.honor.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.honor.effect', 'fr', 'pour la puissance offensive'),
-    ('runeword.honor.effect', 'fr', 'Coup mortel'),
-    ('runeword.honor.effect', 'fr', 'pour la Force'),
-    ('runeword.hustle_(armor).effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.hustle_(armor).effect', 'fr', 'Ralentit perte d''''endurance'),
-    ('runeword.hustle_(armor).effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.hustle_(armor).effect', 'fr', 'Résistance au Feu'),
-    ('runeword.hustle_(armor).effect', 'fr', '+6 to Evade'),
-    ('runeword.hustle_(weapon).effect', 'fr', '5-1%% chances de lancer niveau 5-1 %s en touchant'),
-    ('runeword.hustle_(weapon).effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.hustle_(weapon).effect', 'fr', '+180-200% Enhanced Damage'),
-    ('runeword.hustle_(weapon).effect', 'fr', 'Aura niveau 1 %s quand équipé'),
-    ('runeword.ice.effect', 'fr', '+140-210% Enhanced Damage'),
-    ('runeword.ice.effect', 'fr', 'Aura niveau 18 %s quand équipé'),
-    ('runeword.ice.effect', 'fr', 'aux dégâts de froid'),
-    ('runeword.ice.effect', 'fr', '25-22%% chances de lancer niveau 25-22 %s en touchant'),
-    ('runeword.ice.effect', 'fr', '100-40%% chances de lancer niveau 100-40 %s quand vous montez de niveau'),
-    ('runeword.ice.effect', 'fr', 'la résistance au froid de l''''ennemi'),
-    ('runeword.ice.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.infinity.effect', 'fr', '+255-325% Enhanced Damage'),
-    ('runeword.infinity.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.infinity.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.infinity.effect', 'fr', 'Aura niveau 12 %s quand équipé'),
-    ('runeword.infinity.effect', 'fr', '50-20%% chances de lancer niveau 50-20 %s quand vous tuez un ennemi'),
-    ('runeword.infinity.effect', 'fr', 'la résistance électrique de l''''ennemi'),
-    ('runeword.infinity.effect', 'fr', '(30-21/30-21 charges)'),
-    ('runeword.insight.effect', 'fr', '+200-260% Enhanced Damage'),
-    ('runeword.insight.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.insight.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.insight.effect', 'fr', '+1-6 to Critical Strike'),
-    ('runeword.insight.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.insight.effect', 'fr', 'Aura niveau 12-17 %s quand équipé'),
-    ('runeword.insight.effect', 'fr', 'pour la Force'),
-    ('runeword.kings_grace.effect', 'fr', '+100% Enhanced Damage'),
-    ('runeword.kings_grace.effect', 'fr', 'pour la puissance offensive'),
-    ('runeword.kings_grace.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.kings_grace.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.kings_grace.effect', 'fr', 'pour la puissance d''''attaque contre les démons'),
-    ('runeword.kings_grace.effect', 'fr', 'pour la puissance d''''attaque contre les morts-vivants'),
-    ('runeword.kingslayer.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.kingslayer.effect', 'fr', '+230-270% Enhanced Damage'),
-    ('runeword.kingslayer.effect', 'fr', 'Défense de la cible'),
-    ('runeword.kingslayer.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.kingslayer.effect', 'fr', 'Proba. de blessures ouvertes'),
-    ('runeword.kingslayer.effect', 'fr', '+1 to Vengeance'),
-    ('runeword.kingslayer.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.last_wish.effect', 'fr', '+330-375% Enhanced Damage'),
-    ('runeword.last_wish.effect', 'fr', '20%% chances de lancer niveau 20 %s en attaquant'),
-    ('runeword.last_wish.effect', 'fr', '10-18%% chances de lancer niveau 10-18 %s en touchant'),
-    ('runeword.last_wish.effect', 'fr', '6-11%% chances de lancer niveau 6-11 %s quand touché'),
-    ('runeword.last_wish.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.last_wish.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.last_wish.effect', 'fr', 'Aura niveau 17 %s quand équipé'),
-    ('runeword.lawbringer.effect', 'fr', 'à la valeur minimum des dégâts par le Froid'),
-    ('runeword.lawbringer.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.lawbringer.effect', 'fr', 'Aura niveau 16-18 %s quand équipé'),
-    ('runeword.lawbringer.effect', 'fr', '20-15%% chances de lancer niveau 20-15 %s en touchant'),
-    ('runeword.lawbringer.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.lawbringer.effect', 'fr', 'Monstres pourfendus reposent en paix'),
-    ('runeword.lawbringer.effect', 'fr', 'Défense de la cible'),
-    ('runeword.leaf.effect', 'fr', 'pour les aptitudes de Feu'),
-    ('runeword.leaf.effect', 'fr', 'Défense'),
-    ('runeword.leaf.effect', 'fr', 'Résistance au Froid'),
-    ('runeword.leaf.effect', 'fr', '+3 to 41 ([Class] only)'),
-    ('runeword.leaf.effect', 'fr', '+3 to 36 ([Class] only)'),
-    ('runeword.leaf.effect', 'fr', '+3 to 37 ([Class] only)'),
-    ('runeword.lionheart.effect', 'fr', 'pour la Force'),
-    ('runeword.lionheart.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.lionheart.effect', 'fr', 'pour la Dextérité'),
-    ('runeword.lionheart.effect', 'fr', '+20% Enhanced Damage'),
-    ('runeword.lionheart.effect', 'fr', 'pour la Vie'),
-    ('runeword.lionheart.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.lore.effect', 'fr', 'pour l''''Energie'),
-    ('runeword.lore.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.lore.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.lore.effect', 'fr', 'de Mana après chaque mort'),
-    ('runeword.malice.effect', 'fr', 'Proba. de blessures ouvertes'),
-    ('runeword.malice.effect', 'fr', 'Protection contre les monstres par coup'),
-    ('runeword.malice.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.malice.effect', 'fr', '+33% Enhanced Damage'),
-    ('runeword.malice.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.malice.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.melody.effect', 'fr', '+50% Enhanced Damage'),
-    ('runeword.melody.effect', 'fr', '+3 au javelot et à la lance'),
-    ('runeword.melody.effect', 'fr', '+3 to 9 ([Class] only)'),
-    ('runeword.melody.effect', 'fr', '+3 to 13 ([Class] only)'),
-    ('runeword.melody.effect', 'fr', '+3 to 17 ([Class] only)'),
-    ('runeword.melody.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.memory.effect', 'fr', 'Augmente le nombre maximum de points de Mana'),
-    ('runeword.memory.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.memory.effect', 'fr', 'Défense augmentée'),
-    ('runeword.memory.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.memory.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.memory.effect', 'fr', '+3 to 58 ([Class] only)'),
-    ('runeword.memory.effect', 'fr', '+2 to 42 ([Class] only)'),
-    ('runeword.metamorphosis.effect', 'fr', '100-1%% chances de lancer niveau 100-1 %s en touchant'),
-    ('runeword.metamorphosis.effect', 'fr', '100-1%% chances de lancer niveau 100-1 %s en touchant'),
-    ('runeword.metamorphosis.effect', 'fr', '+5 au javelot et à la lance'),
-    ('runeword.metamorphosis.effect', 'fr', 'Défense augmentée'),
-    ('runeword.metamorphosis.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.metamorphosis.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.mist.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.mist.effect', 'fr', '+325-375% Enhanced Damage'),
-    ('runeword.mist.effect', 'fr', 'Aura niveau 8-12 %s quand équipé'),
-    ('runeword.mist.effect', 'fr', 'Attaque perforante'),
-    ('runeword.mist.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.mist.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.mosaic.effect', 'fr', '+2 au javelot et à la lance'),
-    ('runeword.mosaic.effect', 'fr', '+50% chance for finishing moves to not consume charges'),
-    ('runeword.mosaic.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.mosaic.effect', 'fr', '+200-250% Enhanced Damage'),
-    ('runeword.mosaic.effect', 'fr', 'aux dégâts de feu'),
-    ('runeword.mosaic.effect', 'fr', 'aux dégâts de froid'),
-    ('runeword.mosaic.effect', 'fr', 'aux dégâts électriques'),
-    ('runeword.myth.effect', 'fr', '10-1%% chances de lancer niveau 10-1 %s en touchant'),
-    ('runeword.myth.effect', 'fr', '3-1%% chances de lancer niveau 3-1 %s quand touché'),
-    ('runeword.myth.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.myth.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.nadir.effect', 'fr', 'Défense augmentée'),
-    ('runeword.nadir.effect', 'fr', 'Défense'),
-    ('runeword.nadir.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.nadir.effect', 'fr', '(9-13/9-13 charges)'),
-    ('runeword.nadir.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.nadir.effect', 'fr', 'pour la Force'),
-    ('runeword.oath.effect', 'fr', '+210-340% Enhanced Damage'),
-    ('runeword.oath.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.oath.effect', 'fr', '30-20%% chances de lancer niveau 30-20 %s en touchant'),
-    ('runeword.oath.effect', 'fr', '(14-17/14-17 charges)'),
-    ('runeword.oath.effect', 'fr', '(20-16/20-16 charges)'),
-    ('runeword.oath.effect', 'fr', 'Absorbe la Magie'),
-    ('runeword.oath.effect', 'fr', 'Indestructible'),
-    ('runeword.obedience.effect', 'fr', '+370% Enhanced Damage'),
-    ('runeword.obedience.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.obedience.effect', 'fr', '30-21%% chances de lancer niveau 30-21 %s quand vous tuez un ennemi'),
-    ('runeword.obedience.effect', 'fr', 'la résistance au feu de l''''ennemi'),
-    ('runeword.obedience.effect', 'fr', 'Défense'),
-    ('runeword.obedience.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.obedience.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.obsession.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.obsession.effect', 'fr', '24-10%% chances de lancer niveau 24-10 %s quand touché'),
-    ('runeword.obsession.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.obsession.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.obsession.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.obsession.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.obsession.effect', 'fr', 'Régénérer le Mana'),
-    ('runeword.passion.effect', 'fr', '+160-210% Enhanced Damage'),
-    ('runeword.passion.effect', 'fr', '+1 to Zeal'),
-    ('runeword.passion.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.passion.effect', 'fr', '+1 to Berserk'),
-    ('runeword.passion.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.passion.effect', 'fr', '(12-3/12-3 charges)'),
-    ('runeword.passion.effect', 'fr', 'Chaque coup aveugle l''''adversaire'),
-    ('runeword.pattern.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.pattern.effect', 'fr', '+40-80% Enhanced Damage'),
-    ('runeword.pattern.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.pattern.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.pattern.effect', 'fr', 'pour la Force'),
-    ('runeword.pattern.effect', 'fr', 'pour la Dextérité'),
-    ('runeword.pattern.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.peace.effect', 'fr', '2-15%% chances de lancer niveau 2-15 %s en touchant'),
-    ('runeword.peace.effect', 'fr', '4-5%% chances de lancer niveau 4-5 %s quand touché'),
-    ('runeword.peace.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.peace.effect', 'fr', '+2 to Critical Strike'),
-    ('runeword.phoenix.effect', 'fr', '+350-400% Enhanced Damage'),
-    ('runeword.phoenix.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.phoenix.effect', 'fr', '40-22%% chances de lancer niveau 40-22 %s en touchant'),
-    ('runeword.phoenix.effect', 'fr', '100-40%% chances de lancer niveau 100-40 %s quand vous montez de niveau'),
-    ('runeword.phoenix.effect', 'fr', 'la résistance au feu de l''''ennemi'),
-    ('runeword.phoenix.effect', 'fr', 'Aura niveau 10-15 %s quand équipé'),
-    ('runeword.phoenix.effect', 'fr', 'Absorbe le Feu'),
-    ('runeword.plague.effect', 'fr', '+220-320% Enhanced Damage'),
-    ('runeword.plague.effect', 'fr', '20-12%% chances de lancer niveau 20-12 %s quand touché'),
-    ('runeword.plague.effect', 'fr', '25-15%% chances de lancer niveau 25-15 %s en touchant'),
-    ('runeword.plague.effect', 'fr', 'la résistance au poison de l''''ennemi'),
-    ('runeword.plague.effect', 'fr', 'Coup mortel'),
-    ('runeword.plague.effect', 'fr', 'Aura niveau 13-17 %s quand équipé'),
-    ('runeword.plague.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.pride.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.pride.effect', 'fr', 'à la valeur minimum des dégâts par la Foudre'),
-    ('runeword.pride.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.pride.effect', 'fr', 'Aura niveau 16-20 %s quand équipé'),
-    ('runeword.pride.effect', 'fr', '25-17%% chances de lancer niveau 25-17 %s quand touché'),
-    ('runeword.pride.effect', 'fr', 'Refaire le plein de Vie'),
-    ('runeword.pride.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.principle.effect', 'fr', '100-5%% chances de lancer niveau 100-5 %s en touchant'),
-    ('runeword.principle.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.principle.effect', 'fr', 'pour la Vie'),
-    ('runeword.principle.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.prudence.effect', 'fr', 'Défense augmentée'),
-    ('runeword.prudence.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.prudence.effect', 'fr', 'Dommages réduits de'),
-    ('runeword.prudence.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.prudence.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.prudence.effect', 'fr', 'Répare 0 durabilité par seconde'),
-    ('runeword.prudence.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.radiance.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.radiance.effect', 'fr', 'pour l''''Energie'),
-    ('runeword.radiance.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.radiance.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.radiance.effect', 'fr', 'pour le Mana'),
-    ('runeword.radiance.effect', 'fr', 'Défense augmentée'),
-    ('runeword.rain.effect', 'fr', '5-15%% chances de lancer niveau 5-15 %s en touchant'),
-    ('runeword.rain.effect', 'fr', '5-15%% chances de lancer niveau 5-15 %s quand touché'),
-    ('runeword.rain.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.rain.effect', 'fr', 'pour le Mana'),
-    ('runeword.rhyme.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.rhyme.effect', 'fr', 'Chances de parade accrues'),
-    ('runeword.rhyme.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.rhyme.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.rhyme.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.rhyme.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.rift.effect', 'fr', '+160-250 dommages magiques'),
-    ('runeword.rift.effect', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('runeword.rift.effect', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('runeword.rift.effect', 'fr', '20-16%% chances de lancer niveau 20-16 %s en touchant'),
-    ('runeword.rift.effect', 'fr', '16-21%% chances de lancer niveau 16-21 %s en attaquant'),
-    ('runeword.rift.effect', 'fr', '(40-15/40-15 charges)'),
-    ('runeword.rift.effect', 'fr', 'pour la Force'),
-    ('runeword.ritual.effect', 'fr', '13-1%% chances de lancer niveau 13-1 %s quand touché'),
-    ('runeword.ritual.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.ritual.effect', 'fr', '+200-270% Enhanced Damage'),
-    ('runeword.ritual.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.ritual.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.ritual.effect', 'fr', 'Points de vie après chaque victime'),
-    ('runeword.ritual.effect', 'fr', 'Monstres pourfendus reposent en paix'),
-    ('runeword.sanctuary.effect', 'fr', 'Chances de parade accrues'),
-    ('runeword.sanctuary.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.sanctuary.effect', 'fr', 'Défense augmentée'),
-    ('runeword.sanctuary.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.sanctuary.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.sanctuary.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.sanctuary.effect', 'fr', '(60-12/60-12 charges)'),
-    ('runeword.silence.effect', 'fr', 'Mana volé à chaque coup'),
-    ('runeword.silence.effect', 'fr', 'Chaque coup aveugle l''''adversaire'),
-    ('runeword.silence.effect', 'fr', '+200% Enhanced Damage'),
-    ('runeword.silence.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.silence.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.silence.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.silence.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.smoke.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.smoke.effect', 'fr', 'Défense augmentée'),
-    ('runeword.smoke.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.smoke.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.smoke.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.smoke.effect', 'fr', '(18-6/18-6 charges)'),
-    ('runeword.spirit.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.spirit.effect', 'fr', 'pour le Mana'),
-    ('runeword.spirit.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.spirit.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.spirit.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.spirit.effect', 'fr', 'Absorbe la Magie'),
-    ('runeword.spirit.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.splendor.effect', 'fr', 'pour la portée lumineuse'),
-    ('runeword.splendor.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.splendor.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.splendor.effect', 'fr', 'Défense augmentée'),
-    ('runeword.splendor.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.splendor.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.splendor.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.stealth.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.stealth.effect', 'fr', 'pour la Dextérité'),
-    ('runeword.stealth.effect', 'fr', 'Endurance maximale'),
-    ('runeword.stealth.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.stealth.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.stealth.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.steel.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.steel.effect', 'fr', '+3 to Minimum Damage'),
-    ('runeword.steel.effect', 'fr', '+3 to Maximum Damage'),
-    ('runeword.steel.effect', 'fr', 'Proba. de blessures ouvertes'),
-    ('runeword.steel.effect', 'fr', '+20% Enhanced Damage'),
-    ('runeword.stone.effect', 'fr', 'Défense augmentée'),
-    ('runeword.stone.effect', 'fr', '(16/16 charges)'),
-    ('runeword.stone.effect', 'fr', 'Défense contre Missile'),
-    ('runeword.stone.effect', 'fr', '(80-16/80-16 charges)'),
-    ('runeword.stone.effect', 'fr', 'pour la Force'),
-    ('runeword.stone.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.stone.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.strength.effect', 'fr', 'pour la Force'),
-    ('runeword.strength.effect', 'fr', '+35% Enhanced Damage'),
-    ('runeword.strength.effect', 'fr', 'pour la Vitalité'),
-    ('runeword.strength.effect', 'fr', 'Proba. de Coup Cinglant'),
-    ('runeword.temper.effect', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('runeword.temper.effect', 'fr', 'Défense augmentée'),
-    ('runeword.temper.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.temper.effect', 'fr', 'Absorbe le Feu'),
-    ('runeword.treachery.effect', 'fr', '25-15%% chances de lancer niveau 25-15 %s en touchant'),
-    ('runeword.treachery.effect', 'fr', '5-15%% chances de lancer niveau 5-15 %s quand touché'),
-    ('runeword.treachery.effect', 'fr', 'pour les niveaux d''''aptitude de l''''Amazone'),
-    ('runeword.treachery.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.unbending_will.effect', 'fr', '+3 au javelot et à la lance'),
-    ('runeword.unbending_will.effect', 'fr', '18%% chances de lancer niveau 18 %s en touchant'),
-    ('runeword.unbending_will.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.unbending_will.effect', 'fr', '+300-350% Enhanced Damage'),
-    ('runeword.unbending_will.effect', 'fr', 'Dommages réduits de'),
-    ('runeword.unbending_will.effect', 'fr', 'Empêche les monstres de guérir'),
-    ('runeword.unbending_will.effect', 'fr', 'Vie volée à chaque coup'),
-    ('runeword.venom.effect', 'fr', 'à la valeur minimum des dégâts par le Poison'),
-    ('runeword.venom.effect', 'fr', 'Ignore les défenses de l''''adversaire'),
-    ('runeword.venom.effect', 'fr', '(27-15/27-15 charges)'),
-    ('runeword.venom.effect', 'fr', '(11-13/11-13 charges)'),
-    ('runeword.venom.effect', 'fr', 'Mana volé à chaque coup'),
-    ('runeword.vigilance.effect', 'fr', '5-10%% chances de lancer niveau 5-10 %s quand touché'),
-    ('runeword.vigilance.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.vigilance.effect', 'fr', 'Vitesse de Parade très rapide'),
-    ('runeword.vigilance.effect', 'fr', 'pour la Vie'),
-    ('runeword.vigilance.effect', 'fr', 'pour le Mana'),
-    ('runeword.vigilance.effect', 'fr', 'Résistance au Feu'),
-    ('runeword.vigilance.effect', 'fr', 'Défense augmentée'),
-    ('runeword.voice_of_reason.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.voice_of_reason.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.voice_of_reason.effect', 'fr', 'à la valeur minimum des dégâts par le Froid'),
-    ('runeword.voice_of_reason.effect', 'fr', 'la résistance au froid de l''''ennemi'),
-    ('runeword.voice_of_reason.effect', 'fr', '18-20%% chances de lancer niveau 18-20 %s en touchant'),
-    ('runeword.voice_of_reason.effect', 'fr', '15-13%% chances de lancer niveau 15-13 %s en touchant'),
-    ('runeword.voice_of_reason.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.void.effect', 'fr', 'pour toutes les aptitudes'),
-    ('runeword.void.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.void.effect', 'fr', '+10-15% to Magic Skill Damage'),
-    ('runeword.void.effect', 'fr', '+1-3 to Abyss'),
-    ('runeword.void.effect', 'fr', 'pour la Force'),
-    ('runeword.void.effect', 'fr', '(35-4/35-4 charges)'),
-    ('runeword.wealth.effect', 'fr', 'd''''or récupéré sur le monstre'),
-    ('runeword.wealth.effect', 'fr', 'plus grandes chances d''''obtenir un objet magique'),
-    ('runeword.white.effect', 'fr', '+3 au javelot et à la lance'),
-    ('runeword.white.effect', 'fr', 'Dommages magiques réduits de'),
-    ('runeword.white.effect', 'fr', 'Vitesse de Sort très rapide'),
-    ('runeword.white.effect', 'fr', 'pour le Mana'),
-    ('runeword.white.effect', 'fr', '+3 to 68 ([Class] only)'),
-    ('runeword.white.effect', 'fr', '+2 to 84 ([Class] only)'),
-    ('runeword.white.effect', 'fr', '+4 to 69 ([Class] only)'),
-    ('runeword.wind.effect', 'fr', '+120-160% Enhanced Damage'),
-    ('runeword.wind.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.wind.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.wind.effect', 'fr', 'Défense de la cible'),
-    ('runeword.wind.effect', 'fr', '10-9%% chances de lancer niveau 10-9 %s en touchant'),
-    ('runeword.wind.effect', 'fr', '(127-13/127-13 charges)'),
-    ('runeword.wind.effect', 'fr', 'Récupération très rapide après un coup'),
-    ('runeword.wisdom.effect', 'fr', 'Attaque perforante'),
-    ('runeword.wisdom.effect', 'fr', 'Mana volé à chaque coup'),
-    ('runeword.wisdom.effect', 'fr', 'bonus du niveau d''''attaque'),
-    ('runeword.wisdom.effect', 'fr', 'de Mana après chaque mort'),
-    ('runeword.wisdom.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.wisdom.effect', 'fr', 'pour l''''Energie'),
-    ('runeword.wrath.effect', 'fr', 'Dommages sur les démons'),
-    ('runeword.wrath.effect', 'fr', 'Dommages sur les morts-vivants'),
-    ('runeword.wrath.effect', 'fr', 'à la valeur minimum des dégâts par la Foudre'),
-    ('runeword.wrath.effect', 'fr', '+85-120 dommages magiques'),
-    ('runeword.wrath.effect', 'fr', '5-10%% chances de lancer niveau 5-10 %s en touchant'),
-    ('runeword.wrath.effect', 'fr', '30-1%% chances de lancer niveau 30-1 %s en touchant'),
-    ('runeword.wrath.effect', 'fr', 'Ne peut être immobilisé'),
-    ('runeword.zephyr.effect', 'fr', 'Marche/Course très rapide'),
-    ('runeword.zephyr.effect', 'fr', 'augmente la vitesse d''''attaque'),
-    ('runeword.zephyr.effect', 'fr', '+33% Enhanced Damage'),
-    ('runeword.zephyr.effect', 'fr', 'pour la puissance offensive'),
-    ('runeword.zephyr.effect', 'fr', '7-1%% chances de lancer niveau 7-1 %s quand touché'),
-    ('runeword.zephyr.effect', 'fr', 'Défense'),
-    ('rune.el.weapon', 'fr', 'pour la portée lumineuse / pour la puissance offensive'),
-    ('rune.el.armor', 'fr', 'pour la portée lumineuse / Défense'),
-    ('rune.el.shield', 'fr', 'pour la portée lumineuse / Défense'),
-    ('rune.eld.weapon', 'fr', 'pour la puissance d''''''''attaque contre les morts-vivants / Dommages sur les morts-vivants'),
-    ('rune.eld.armor', 'fr', 'Ralentit perte d''''''''endurance'),
-    ('rune.eld.shield', 'fr', 'Chances de parade accrues'),
-    ('rune.tir.weapon', 'fr', 'de Mana après chaque mort'),
-    ('rune.tir.armor', 'fr', 'de Mana après chaque mort'),
-    ('rune.tir.shield', 'fr', 'de Mana après chaque mort'),
-    ('rune.nef.weapon', 'fr', 'Riposter'),
-    ('rune.nef.armor', 'fr', 'Défense contre Missile'),
-    ('rune.nef.shield', 'fr', 'Défense contre Missile'),
-    ('rune.eth.weapon', 'fr', 'Défense de la cible'),
-    ('rune.eth.armor', 'fr', 'Régénérer le Mana'),
-    ('rune.eth.shield', 'fr', 'Régénérer le Mana'),
-    ('rune.ith.weapon', 'fr', '+9 to Maximum Damage'),
-    ('rune.ith.armor', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('rune.ith.shield', 'fr', 'Les dommages sont répercutés sur le Mana'),
-    ('rune.tal.weapon', 'fr', 'à la valeur minimum des dégâts par le Poison'),
-    ('rune.tal.armor', 'fr', 'Résistance au Poison'),
-    ('rune.tal.shield', 'fr', 'Résistance au Poison'),
-    ('rune.ral.weapon', 'fr', 'à la valeur minimum des dégâts par le Feu'),
-    ('rune.ral.armor', 'fr', 'Résistance au Feu'),
-    ('rune.ral.shield', 'fr', 'Résistance au Feu'),
-    ('rune.ort.weapon', 'fr', 'à la valeur minimum des dégâts par la Foudre'),
-    ('rune.ort.armor', 'fr', 'Résistance à la Foudre'),
-    ('rune.ort.shield', 'fr', 'Résistance à la Foudre'),
-    ('rune.thul.weapon', 'fr', 'à la valeur minimum des dégâts par le Froid'),
-    ('rune.thul.armor', 'fr', 'Résistance au Froid'),
-    ('rune.thul.shield', 'fr', 'Résistance au Froid'),
-    ('rune.amn.weapon', 'fr', 'Vie volée à chaque coup'),
-    ('rune.amn.armor', 'fr', 'L''''''''adversaire subit des dommages de'),
-    ('rune.amn.shield', 'fr', 'L''''''''adversaire subit des dommages de'),
-    ('rune.sol.weapon', 'fr', '+9 to Minimum Damage'),
-    ('rune.sol.armor', 'fr', 'Dommages réduits de'),
-    ('rune.sol.shield', 'fr', 'Dommages réduits de'),
-    ('rune.shael.weapon', 'fr', 'augmente la vitesse d''''''''attaque'),
-    ('rune.shael.armor', 'fr', 'Récupération très rapide après un coup'),
-    ('rune.shael.shield', 'fr', 'Vitesse de Parade très rapide'),
-    ('rune.dol.weapon', 'fr', 'Le monstre, touché, s''''''''enfuit'),
-    ('rune.dol.armor', 'fr', 'Refaire le plein de Vie'),
-    ('rune.dol.shield', 'fr', 'Refaire le plein de Vie'),
-    ('rune.hel.weapon', 'fr', 'Conditions requises'),
-    ('rune.hel.armor', 'fr', 'Conditions requises'),
-    ('rune.hel.shield', 'fr', 'Conditions requises'),
-    ('rune.io.weapon', 'fr', 'pour la Vitalité'),
-    ('rune.io.armor', 'fr', 'pour la Vitalité'),
-    ('rune.io.shield', 'fr', 'pour la Vitalité'),
-    ('rune.lum.weapon', 'fr', 'pour l''''''''Energie'),
-    ('rune.lum.armor', 'fr', 'pour l''''''''Energie'),
-    ('rune.lum.shield', 'fr', 'pour l''''''''Energie'),
-    ('rune.ko.weapon', 'fr', 'pour la Dextérité'),
-    ('rune.ko.armor', 'fr', 'pour la Dextérité'),
-    ('rune.ko.shield', 'fr', 'pour la Dextérité'),
-    ('rune.fal.weapon', 'fr', 'pour la Force'),
-    ('rune.fal.armor', 'fr', 'pour la Force'),
-    ('rune.fal.shield', 'fr', 'pour la Force'),
-    ('rune.lem.weapon', 'fr', 'd''''''''or récupéré sur le monstre'),
-    ('rune.lem.armor', 'fr', 'd''''''''or récupéré sur le monstre'),
-    ('rune.lem.shield', 'fr', 'd''''''''or récupéré sur le monstre'),
-    ('rune.pul.weapon', 'fr', 'pour la puissance d''''''''attaque contre les démons / Dommages sur les démons'),
-    ('rune.pul.armor', 'fr', 'Défense augmentée'),
-    ('rune.pul.shield', 'fr', 'Défense augmentée'),
-    ('rune.um.weapon', 'fr', 'Proba. de blessures ouvertes'),
-    ('rune.um.armor', 'fr', 'Résistance au Feu'),
-    ('rune.um.shield', 'fr', 'Résistance au Feu'),
-    ('rune.mal.weapon', 'fr', 'Empêche les monstres de guérir'),
-    ('rune.mal.armor', 'fr', 'Dommages magiques réduits de'),
-    ('rune.mal.shield', 'fr', 'Dommages magiques réduits de'),
-    ('rune.ist.weapon', 'fr', 'plus grandes chances d''''''''obtenir un objet magique'),
-    ('rune.ist.armor', 'fr', 'plus grandes chances d''''''''obtenir un objet magique'),
-    ('rune.ist.shield', 'fr', 'plus grandes chances d''''''''obtenir un objet magique'),
-    ('rune.gul.weapon', 'fr', 'bonus du niveau d''''''''attaque'),
-    ('rune.gul.armor', 'fr', 'à la résistance maximum au Poison'),
-    ('rune.gul.shield', 'fr', 'à la résistance maximum au Poison'),
-    ('rune.vex.weapon', 'fr', 'Mana volé à chaque coup'),
-    ('rune.vex.armor', 'fr', 'à la résistance maximum au Feu'),
-    ('rune.vex.shield', 'fr', 'à la résistance maximum au Feu'),
-    ('rune.ohm.weapon', 'fr', '+50% Enhanced Damage'),
-    ('rune.ohm.armor', 'fr', 'à la résistance maximum au Froid'),
-    ('rune.ohm.shield', 'fr', 'à la résistance maximum au Froid'),
-    ('rune.lo.weapon', 'fr', 'Coup mortel'),
-    ('rune.lo.armor', 'fr', 'à la résistance maximum à la Foudre'),
-    ('rune.lo.shield', 'fr', 'à la résistance maximum à la Foudre'),
-    ('rune.sur.weapon', 'fr', 'Chaque coup aveugle l''''''''adversaire'),
-    ('rune.sur.armor', 'fr', 'Augmente le nombre maximum de points de Mana'),
-    ('rune.sur.shield', 'fr', 'pour le Mana'),
-    ('rune.ber.weapon', 'fr', 'Proba. de Coup Cinglant'),
-    ('rune.ber.armor', 'fr', 'Damage Reduced by 8%'),
-    ('rune.ber.shield', 'fr', 'Damage Reduced by 8%'),
-    ('rune.jah.weapon', 'fr', 'Ignore les défenses de l''''''''adversaire'),
-    ('rune.jah.armor', 'fr', 'Augmente le nombre maximum de points de Vie'),
-    ('rune.jah.shield', 'fr', 'pour la Vie'),
-    ('rune.cham.weapon', 'fr', 'Immobilise l''''''''adversaire'),
-    ('rune.cham.armor', 'fr', 'Ne peut être immobilisé'),
-    ('rune.cham.shield', 'fr', 'Ne peut être immobilisé'),
-    ('rune.zod.weapon', 'fr', 'Indestructible'),
-    ('rune.zod.armor', 'fr', 'Indestructible'),
-    ('rune.zod.shield', 'fr', 'Indestructible');
-
--- Cas de renommage : Hustle (weapon) -> Mania au patch 270
-INSERT INTO translations (name_key, lang, value, patch_min, patch_max) VALUES
-    ('runeword.mania', 'en', 'Mania',  270, NULL),
-    ('runeword.mania', 'en', 'Hustle', NULL, 260),
-    ('runeword.mania', 'fr', 'Manie',  270, NULL),
-    ('runeword.mania', 'fr', 'Hustle', NULL, 260);
-
--- Grief : Griserie (LoD) -> Grand Chagrin (D2R 2.4+)
-INSERT INTO translations (name_key, lang, value, patch_min, patch_max) VALUES
-    ('runeword.grief', 'fr', 'Grand Chagrin', 240, NULL),
-    ('runeword.grief', 'fr', 'Griserie',      NULL, 111);
-
--- Duress : Duel (LoD) -> Domination (D2R 2.4+)
-INSERT INTO translations (name_key, lang, value, patch_min, patch_max) VALUES
-    ('runeword.duress', 'fr', 'Domination', 240, NULL),
-    ('runeword.duress', 'fr', 'Duel',       NULL, 111);
-
--- Oath : Orme (LoD) -> Serment (D2R 2.4+)
-INSERT INTO translations (name_key, lang, value, patch_min, patch_max) VALUES
-    ('runeword.oath', 'fr', 'Serment', 240, NULL),
-    ('runeword.oath', 'fr', 'Orme',    NULL, 111);
-
--- Corrections effets per-level
-UPDATE runeword_effects SET effect_en='+1 to Strength (Based on Character Level)' WHERE name_key='runeword.enigma' AND effect_en='+0 to Strength (Based on Character Level)';
-UPDATE runeword_effects SET effect_en='1% Better Chance of Getting Magic Items (Based on Character Level)' WHERE name_key='runeword.enigma' AND effect_en='0% Better Chance of Getting Magic Items (Based on Character Level)';
+INSERT INTO "translations" VALUES(1,'runeword.ancients_pledge','fr','Pacte des Anciens',NULL,NULL);
+INSERT INTO "translations" VALUES(2,'runeword.authority','fr','Autorité',NULL,NULL);
+INSERT INTO "translations" VALUES(3,'runeword.beast','fr','Bête',NULL,NULL);
+INSERT INTO "translations" VALUES(4,'runeword.black','fr','Blanc',NULL,NULL);
+INSERT INTO "translations" VALUES(5,'runeword.bone','fr','Blessure',NULL,NULL);
+INSERT INTO "translations" VALUES(6,'runeword.bramble','fr','Barbelé',NULL,NULL);
+INSERT INTO "translations" VALUES(7,'runeword.brand','fr','Barbe',NULL,NULL);
+INSERT INTO "translations" VALUES(8,'runeword.breath_of_the_dying','fr','Bagne',NULL,NULL);
+INSERT INTO "translations" VALUES(9,'runeword.call_to_arms','fr','Cicatrice',NULL,NULL);
+INSERT INTO "translations" VALUES(10,'runeword.chains_of_honor','fr','Chaînes',NULL,NULL);
+INSERT INTO "translations" VALUES(11,'runeword.chaos','fr','Chaos',NULL,NULL);
+INSERT INTO "translations" VALUES(12,'runeword.crescent_moon','fr','Croissant de lune',NULL,NULL);
+INSERT INTO "translations" VALUES(13,'runeword.death','fr','Dévotion',NULL,NULL);
+INSERT INTO "translations" VALUES(14,'runeword.delirium','fr','Délire',NULL,NULL);
+INSERT INTO "translations" VALUES(15,'runeword.destruction','fr','Destruction',NULL,NULL);
+INSERT INTO "translations" VALUES(16,'runeword.doom','fr','Dévastation',NULL,NULL);
+INSERT INTO "translations" VALUES(17,'runeword.dragon','fr','Dragon',NULL,NULL);
+INSERT INTO "translations" VALUES(18,'runeword.dream','fr','Dyptique',NULL,NULL);
+INSERT INTO "translations" VALUES(19,'runeword.duress','fr','Duel',NULL,200);
+INSERT INTO "translations" VALUES(20,'runeword.duress','fr','Domination',240,NULL);
+INSERT INTO "translations" VALUES(21,'runeword.edge','fr','Evocation',NULL,NULL);
+INSERT INTO "translations" VALUES(22,'runeword.enigma','fr','Enigme',NULL,NULL);
+INSERT INTO "translations" VALUES(23,'runeword.enlightenment','fr','Eclaircissement',NULL,NULL);
+INSERT INTO "translations" VALUES(24,'runeword.eternity','fr','Eternité',NULL,NULL);
+INSERT INTO "translations" VALUES(25,'runeword.exile','fr','Exil',NULL,NULL);
+INSERT INTO "translations" VALUES(26,'runeword.faith','fr','Foi',NULL,NULL);
+INSERT INTO "translations" VALUES(27,'runeword.famine','fr','Famine',NULL,NULL);
+INSERT INTO "translations" VALUES(28,'runeword.flickering_flame','fr','Flamme',NULL,NULL);
+INSERT INTO "translations" VALUES(29,'runeword.fortitude','fr','Fortitude',NULL,NULL);
+INSERT INTO "translations" VALUES(30,'runeword.fury','fr','Furie',NULL,NULL);
+INSERT INTO "translations" VALUES(31,'runeword.gloom','fr','Guerre',NULL,NULL);
+INSERT INTO "translations" VALUES(32,'runeword.grief','fr','Griserie',NULL,200);
+INSERT INTO "translations" VALUES(33,'runeword.grief','fr','Grand Chagrin',240,NULL);
+INSERT INTO "translations" VALUES(34,'runeword.hand_of_justice','fr','Heaume',NULL,NULL);
+INSERT INTO "translations" VALUES(35,'runeword.harmony','fr','Harmonie',NULL,NULL);
+INSERT INTO "translations" VALUES(36,'runeword.heart_of_the_oak','fr','Hérétique',NULL,NULL);
+INSERT INTO "translations" VALUES(37,'runeword.holy_thunder','fr','Halo',NULL,NULL);
+INSERT INTO "translations" VALUES(38,'runeword.honor','fr','Honneur',NULL,NULL);
+INSERT INTO "translations" VALUES(39,'runeword.ice','fr','Ire',NULL,NULL);
+INSERT INTO "translations" VALUES(40,'runeword.infinity','fr','Infini',NULL,NULL);
+INSERT INTO "translations" VALUES(41,'runeword.insight','fr','Iris',NULL,NULL);
+INSERT INTO "translations" VALUES(42,'runeword.kings_grace','fr','Kana',NULL,NULL);
+INSERT INTO "translations" VALUES(43,'runeword.kingslayer','fr','Kaolin',NULL,NULL);
+INSERT INTO "translations" VALUES(44,'runeword.last_wish','fr','Lèpre',NULL,NULL);
+INSERT INTO "translations" VALUES(45,'runeword.lawbringer','fr','Longévité',NULL,NULL);
+INSERT INTO "translations" VALUES(46,'runeword.leaf','fr','Langueur',NULL,NULL);
+INSERT INTO "translations" VALUES(47,'runeword.lionheart','fr','Livre',NULL,NULL);
+INSERT INTO "translations" VALUES(48,'runeword.lore','fr','Lapsus',NULL,NULL);
+INSERT INTO "translations" VALUES(49,'runeword.malice','fr','Méchanceté',NULL,NULL);
+INSERT INTO "translations" VALUES(50,'runeword.melody','fr','Melodie',NULL,NULL);
+INSERT INTO "translations" VALUES(51,'runeword.memory','fr','Mémoire',NULL,NULL);
+INSERT INTO "translations" VALUES(52,'runeword.mist','fr','Marée',NULL,NULL);
+INSERT INTO "translations" VALUES(53,'runeword.myth','fr','Mythe',NULL,NULL);
+INSERT INTO "translations" VALUES(54,'runeword.nadir','fr','Nadir',NULL,NULL);
+INSERT INTO "translations" VALUES(55,'runeword.oath','fr','Orme',NULL,200);
+INSERT INTO "translations" VALUES(56,'runeword.oath','fr','Serment',240,NULL);
+INSERT INTO "translations" VALUES(57,'runeword.obedience','fr','Obéissance',NULL,NULL);
+INSERT INTO "translations" VALUES(58,'runeword.obsession','fr','Obsession',NULL,NULL);
+INSERT INTO "translations" VALUES(59,'runeword.passion','fr','Passion',NULL,NULL);
+INSERT INTO "translations" VALUES(60,'runeword.pattern','fr','Parchemin',NULL,NULL);
+INSERT INTO "translations" VALUES(61,'runeword.peace','fr','Paix',NULL,NULL);
+INSERT INTO "translations" VALUES(62,'runeword.phoenix','fr','Phénix',NULL,NULL);
+INSERT INTO "translations" VALUES(63,'runeword.plague','fr','Peste',NULL,NULL);
+INSERT INTO "translations" VALUES(64,'runeword.pride','fr','Pierre',NULL,NULL);
+INSERT INTO "translations" VALUES(65,'runeword.principle','fr','Principe',NULL,NULL);
+INSERT INTO "translations" VALUES(66,'runeword.prudence','fr','Prudence',NULL,NULL);
+INSERT INTO "translations" VALUES(67,'runeword.radiance','fr','Rayon',NULL,NULL);
+INSERT INTO "translations" VALUES(68,'runeword.rain','fr','Rage',NULL,NULL);
+INSERT INTO "translations" VALUES(69,'runeword.rhyme','fr','Rime',NULL,NULL);
+INSERT INTO "translations" VALUES(70,'runeword.rift','fr','Rigodon',NULL,NULL);
+INSERT INTO "translations" VALUES(71,'runeword.sanctuary','fr','Sanctuaire',NULL,NULL);
+INSERT INTO "translations" VALUES(72,'runeword.silence','fr','Silence',NULL,NULL);
+INSERT INTO "translations" VALUES(73,'runeword.smoke','fr','Soupe',NULL,NULL);
+INSERT INTO "translations" VALUES(74,'runeword.spirit','fr','Esprit',NULL,NULL);
+INSERT INTO "translations" VALUES(75,'runeword.splendor','fr','Splendeur',NULL,NULL);
+INSERT INTO "translations" VALUES(76,'runeword.stealth','fr','Sillon',NULL,NULL);
+INSERT INTO "translations" VALUES(77,'runeword.steel','fr','Style',NULL,NULL);
+INSERT INTO "translations" VALUES(78,'runeword.stone','fr','Sacrifice',NULL,NULL);
+INSERT INTO "translations" VALUES(79,'runeword.strength','fr','Safran',NULL,NULL);
+INSERT INTO "translations" VALUES(80,'runeword.treachery','fr','Traîtrise',NULL,NULL);
+INSERT INTO "translations" VALUES(81,'runeword.unbending_will','fr','Urne',NULL,NULL);
+INSERT INTO "translations" VALUES(82,'runeword.venom','fr','Venin',NULL,NULL);
+INSERT INTO "translations" VALUES(83,'runeword.voice_of_reason','fr','Vérité',NULL,NULL);
+INSERT INTO "translations" VALUES(84,'runeword.void','fr','Vide',NULL,NULL);
+INSERT INTO "translations" VALUES(85,'runeword.wealth','fr','Wisigothe',NULL,NULL);
+INSERT INTO "translations" VALUES(86,'runeword.white','fr','Wali',NULL,NULL);
+INSERT INTO "translations" VALUES(87,'runeword.wind','fr','Wallaby',NULL,NULL);
+INSERT INTO "translations" VALUES(88,'runeword.wisdom','fr','Wharf',NULL,NULL);
+INSERT INTO "translations" VALUES(89,'runeword.wrath','fr','Wendigo',NULL,NULL);
+INSERT INTO "translations" VALUES(90,'runeword.zephyr','fr','Zéphyr',NULL,NULL);
+INSERT INTO "translations" VALUES(91,'rune.el.weapon','fr','+1 pour la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(92,'rune.el.armor','fr','+1 pour la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(93,'rune.el.shield','fr','+1 pour la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(94,'rune.eld.weapon','fr','+50 pour la puissance d''attaque contre les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(95,'rune.eld.armor','fr','15% Ralentit perte d''endurance',NULL,NULL);
+INSERT INTO "translations" VALUES(96,'rune.eld.shield','fr','7% Chances de parade accrues',NULL,NULL);
+INSERT INTO "translations" VALUES(97,'rune.tir.weapon','fr','+2 de Mana après chaque mort',NULL,NULL);
+INSERT INTO "translations" VALUES(98,'rune.tir.armor','fr','+2 de Mana après chaque mort',NULL,NULL);
+INSERT INTO "translations" VALUES(99,'rune.tir.shield','fr','+2 de Mana après chaque mort',NULL,NULL);
+INSERT INTO "translations" VALUES(100,'rune.nef.weapon','fr','Riposter',NULL,NULL);
+INSERT INTO "translations" VALUES(101,'rune.nef.armor','fr','+30 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(102,'rune.nef.shield','fr','+30 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(103,'rune.eth.weapon','fr','Défense de la cible +25',NULL,NULL);
+INSERT INTO "translations" VALUES(104,'rune.eth.armor','fr','Régénérer le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(105,'rune.eth.shield','fr','Régénérer le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(106,'rune.ith.weapon','fr','+9 à la valeur maximum des dommages',NULL,NULL);
+INSERT INTO "translations" VALUES(107,'rune.ith.armor','fr','Les dommages sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(108,'rune.ith.shield','fr','Les dommages sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(109,'rune.tal.weapon','fr','à la valeur minimum des dégâts par le Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(110,'rune.tal.armor','fr','+30% Résistance au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(111,'rune.tal.shield','fr','+35% Résistance au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(112,'rune.ral.weapon','fr','à la valeur minimum des dégâts par le Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(113,'rune.ral.armor','fr','+30% Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(114,'rune.ral.shield','fr','+35% Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(115,'rune.ort.weapon','fr','à la valeur minimum des dégâts par la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(116,'rune.ort.armor','fr','+30% Résistance à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(117,'rune.ort.shield','fr','+35% Résistance à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(118,'rune.thul.weapon','fr','à la valeur minimum des dégâts par le Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(119,'rune.thul.armor','fr','+30% Résistance au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(120,'rune.thul.shield','fr','+35% Résistance au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(121,'rune.amn.weapon','fr','7% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(122,'rune.amn.armor','fr','L''adversaire subit des dommages de 14',NULL,NULL);
+INSERT INTO "translations" VALUES(123,'rune.amn.shield','fr','L''adversaire subit des dommages de 14',NULL,NULL);
+INSERT INTO "translations" VALUES(124,'rune.sol.weapon','fr','+9 à la valeur minimum des dommages',NULL,NULL);
+INSERT INTO "translations" VALUES(125,'rune.sol.armor','fr','Dommages réduits de 7',NULL,NULL);
+INSERT INTO "translations" VALUES(126,'rune.sol.shield','fr','Dommages réduits de 7',NULL,NULL);
+INSERT INTO "translations" VALUES(127,'rune.shael.weapon','fr','+20% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(128,'rune.shael.armor','fr','+20% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(129,'rune.shael.shield','fr','+20% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(130,'rune.dol.weapon','fr','Le monstre, touché, s''enfuit',NULL,NULL);
+INSERT INTO "translations" VALUES(131,'rune.dol.armor','fr','Refaire le plein de Vie +7',NULL,NULL);
+INSERT INTO "translations" VALUES(132,'rune.dol.shield','fr','Refaire le plein de Vie +7',NULL,NULL);
+INSERT INTO "translations" VALUES(133,'rune.hel.weapon','fr','Conditions requises',NULL,NULL);
+INSERT INTO "translations" VALUES(134,'rune.hel.armor','fr','Conditions requises',NULL,NULL);
+INSERT INTO "translations" VALUES(135,'rune.hel.shield','fr','Conditions requises',NULL,NULL);
+INSERT INTO "translations" VALUES(136,'rune.io.weapon','fr','+10 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(137,'rune.io.armor','fr','+10 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(138,'rune.io.shield','fr','+10 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(139,'rune.lum.weapon','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(140,'rune.lum.armor','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(141,'rune.lum.shield','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(142,'rune.ko.weapon','fr','+10 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(143,'rune.ko.armor','fr','+10 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(144,'rune.ko.shield','fr','+10 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(145,'rune.fal.weapon','fr','+10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(146,'rune.fal.armor','fr','+10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(147,'rune.fal.shield','fr','+10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(148,'rune.lem.weapon','fr','75% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(149,'rune.lem.armor','fr','50% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(150,'rune.lem.shield','fr','50% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(151,'rune.pul.weapon','fr','+100 pour la puissance d''attaque contre les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(152,'rune.pul.armor','fr','+30% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(153,'rune.pul.shield','fr','+30% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(154,'rune.um.weapon','fr','25% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(155,'rune.um.armor','fr','+15 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(156,'rune.um.shield','fr','+22 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(157,'rune.mal.weapon','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(158,'rune.mal.armor','fr','Dommages magiques réduits de 7',NULL,NULL);
+INSERT INTO "translations" VALUES(159,'rune.mal.shield','fr','Dommages magiques réduits de 7',NULL,NULL);
+INSERT INTO "translations" VALUES(160,'rune.ist.weapon','fr','+30% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(161,'rune.ist.armor','fr','+25% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(162,'rune.ist.shield','fr','+25% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(163,'rune.gul.weapon','fr','20% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(164,'rune.gul.armor','fr','+5% à la résistance maximum au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(165,'rune.gul.shield','fr','+5% à la résistance maximum au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(166,'rune.vex.weapon','fr','7% Mana volé à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(167,'rune.vex.armor','fr','+5% à la résistance maximum au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(168,'rune.vex.shield','fr','+5% à la résistance maximum au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(169,'rune.ohm.weapon','fr','+50% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(170,'rune.ohm.armor','fr','+5% à la résistance maximum au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(171,'rune.ohm.shield','fr','+5% à la résistance maximum au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(172,'rune.lo.weapon','fr','20% Coup mortel',NULL,NULL);
+INSERT INTO "translations" VALUES(173,'rune.lo.armor','fr','+5% à la résistance maximum à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(174,'rune.lo.shield','fr','+5% à la résistance maximum à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(175,'rune.sur.weapon','fr','Chaque coup aveugle l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(176,'rune.sur.armor','fr','Augmente le nombre maximum de points de Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(177,'rune.sur.shield','fr','+50 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(178,'rune.ber.weapon','fr','20% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(179,'rune.ber.armor','fr','Dommages réduits de 8%',NULL,NULL);
+INSERT INTO "translations" VALUES(180,'rune.ber.shield','fr','Dommages réduits de 8%',NULL,NULL);
+INSERT INTO "translations" VALUES(181,'rune.jah.weapon','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(182,'rune.jah.armor','fr','Augmente le nombre maximum de points de Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(183,'rune.jah.shield','fr','+50 pour la Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(184,'rune.cham.weapon','fr','Immobilise l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(185,'rune.cham.armor','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(186,'rune.cham.shield','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(187,'rune.zod.weapon','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(188,'rune.zod.armor','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(189,'rune.zod.shield','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(190,'runeword.ancients_pledge.effect','fr','+30% Résistance au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(191,'runeword.ancients_pledge.effect','fr','+13 à toutes les résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(192,'runeword.ancients_pledge.effect','fr','+50% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(193,'runeword.ancients_pledge.effect','fr','10% des dommages subis sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(194,'runeword.authority.effect','fr','+2 pour les niveaux d''aptitude de le Démoniste',NULL,NULL);
+INSERT INTO "translations" VALUES(195,'runeword.authority.effect','fr','10-15% chances de lancer niveau 10-15 Chaînes de Miasme en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(196,'runeword.authority.effect','fr','+2 pour les niveaux d''aptitude du Démoniste',NULL,NULL);
+INSERT INTO "translations" VALUES(197,'runeword.authority.effect','fr','+40-60% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(198,'runeword.beast.effect','fr','+40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(199,'runeword.beast.effect','fr','+25-40 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(200,'runeword.beast.effect','fr','Niveau 5 Invoquer un Grizzly (13/13 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(201,'runeword.beast.effect','fr','+3 à Métamorphose en Ours',NULL,NULL);
+INSERT INTO "translations" VALUES(202,'runeword.beast.effect','fr','+3 à Métamorphose',NULL,NULL);
+INSERT INTO "translations" VALUES(203,'runeword.black.effect','fr','40% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(204,'runeword.black.effect','fr','+15% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(205,'runeword.black.effect','fr','Dommages magiques réduits de 2',NULL,NULL);
+INSERT INTO "translations" VALUES(206,'runeword.black.effect','fr','pour la puissance offensive',NULL,NULL);
+INSERT INTO "translations" VALUES(207,'runeword.black.effect','fr','Level 4 Explosion Morbide (12 Charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(208,'runeword.bone.effect','fr','+2 pour les niveaux d''aptitude de le Nécromancien',NULL,NULL);
+INSERT INTO "translations" VALUES(209,'runeword.bone.effect','fr','+100-150 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(210,'runeword.bramble.effect','fr','+50% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(211,'runeword.bramble.effect','fr','Défense +300',NULL,NULL);
+INSERT INTO "translations" VALUES(212,'runeword.bramble.effect','fr','+13 Points de vie après chaque victime',NULL,NULL);
+INSERT INTO "translations" VALUES(213,'runeword.bramble.effect','fr','+25-50% aux dégâts de poison',NULL,NULL);
+INSERT INTO "translations" VALUES(214,'runeword.bramble.effect','fr','+100% Résistance au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(215,'runeword.bramble.effect','fr','Niveau 13 Esprit des Barbes (33/33 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(216,'runeword.brand.effect','fr','+280-330% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(217,'runeword.brand.effect','fr','Riposter',NULL,NULL);
+INSERT INTO "translations" VALUES(218,'runeword.brand.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(219,'runeword.brand.effect','fr','tire des flèches ou des carreaux explosifs',NULL,NULL);
+INSERT INTO "translations" VALUES(220,'runeword.breath_of_the_dying.effect','fr','+60% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(221,'runeword.breath_of_the_dying.effect','fr','+125% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(222,'runeword.breath_of_the_dying.effect','fr','12-15% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(223,'runeword.breath_of_the_dying.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(224,'runeword.breath_of_the_dying.effect','fr','+30 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(225,'runeword.breath_of_the_dying.effect','fr','+350-400% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(226,'runeword.breath_of_the_dying.effect','fr','+30 à tous les Attributs',NULL,NULL);
+INSERT INTO "translations" VALUES(227,'runeword.bulwark.effect','fr','Augmente le nombre maximum de points de Vie de 5%',NULL,NULL);
+INSERT INTO "translations" VALUES(228,'runeword.bulwark.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(229,'runeword.bulwark.effect','fr','Refaire le plein de Vie +30',NULL,NULL);
+INSERT INTO "translations" VALUES(230,'runeword.bulwark.effect','fr','4-6% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(231,'runeword.call_to_arms.effect','fr','+40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(232,'runeword.call_to_arms.effect','fr','+1 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(233,'runeword.call_to_arms.effect','fr','+2-6 à Cri de Guerre',NULL,NULL);
+INSERT INTO "translations" VALUES(234,'runeword.call_to_arms.effect','fr','+1-6 à Ordres de Combat',NULL,NULL);
+INSERT INTO "translations" VALUES(235,'runeword.call_to_arms.effect','fr','+1-4 à Cri de Bataille',NULL,NULL);
+INSERT INTO "translations" VALUES(236,'runeword.call_to_arms.effect','fr','Refaire le plein de Vie +12',NULL,NULL);
+INSERT INTO "translations" VALUES(237,'runeword.chains_of_honor.effect','fr','+50 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(238,'runeword.chains_of_honor.effect','fr','+70% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(239,'runeword.chains_of_honor.effect','fr','+200% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(240,'runeword.chains_of_honor.effect','fr','+100% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(241,'runeword.chains_of_honor.effect','fr','8% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(242,'runeword.chains_of_honor.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(243,'runeword.chains_of_honor.effect','fr','+20 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(244,'runeword.chaos.effect','fr','Vie après chaque mort de Démon',NULL,NULL);
+INSERT INTO "translations" VALUES(245,'runeword.chaos.effect','fr','+216-471 dommages magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(246,'runeword.chaos.effect','fr','+35% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(247,'runeword.chaos.effect','fr','+1 à Trombe',NULL,NULL);
+INSERT INTO "translations" VALUES(248,'runeword.chaos.effect','fr','+35% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(249,'runeword.chaos.effect','fr','9% chances de lancer niveau 11 Orbe Glaciale en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(250,'runeword.chaos.effect','fr','11% chances de lancer niveau 9 Éclair Chargé en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(251,'runeword.coven.effect','fr','+1 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(252,'runeword.coven.effect','fr','+20% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(253,'runeword.coven.effect','fr','+30-50% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(254,'runeword.coven.effect','fr','+1-15% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(255,'runeword.coven.effect','fr','+1-5 Points de vie après chaque victime',NULL,NULL);
+INSERT INTO "translations" VALUES(256,'runeword.crescent_moon.effect','fr','la résistance électrique de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(257,'runeword.crescent_moon.effect','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(258,'runeword.crescent_moon.effect','fr','Absorbe la Magie',NULL,NULL);
+INSERT INTO "translations" VALUES(259,'runeword.crescent_moon.effect','fr','Niveau 18 Invoquer un Loup Spectral (30/30 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(260,'runeword.crescent_moon.effect','fr','7% chances de lancer niveau 13 Champ Statique en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(261,'runeword.crescent_moon.effect','fr','10% chances de lancer niveau 17 Éclairs en Série en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(262,'runeword.cure.effect','fr','Augmente le nombre maximum de points de Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(263,'runeword.cure.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(264,'runeword.cure.effect','fr','+10-30% Résistance au Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(265,'runeword.cure.effect','fr','Effet du poison diminué de',NULL,NULL);
+INSERT INTO "translations" VALUES(266,'runeword.cure.effect','fr','Aura de Purification niveau 1 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(267,'runeword.death.effect','fr','Coup mortel',NULL,NULL);
+INSERT INTO "translations" VALUES(268,'runeword.death.effect','fr','50% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(269,'runeword.death.effect','fr','25% chances de lancer niveau 18 Pic Glacial en attaquant',NULL,NULL);
+INSERT INTO "translations" VALUES(270,'runeword.death.effect','fr','100% chances de lancer niveau 44 Éclairs en Série quand vous mourrez',NULL,NULL);
+INSERT INTO "translations" VALUES(271,'runeword.death.effect','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(272,'runeword.delirium.effect','fr','Défense +261',NULL,NULL);
+INSERT INTO "translations" VALUES(273,'runeword.delirium.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(274,'runeword.delirium.effect','fr','6% chances de lancer niveau 14 Explosion Mentale quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(275,'runeword.delirium.effect','fr','1% chances de lancer niveau 50 Transformation du Délire quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(276,'runeword.delirium.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(277,'runeword.destruction.effect','fr','+100-180 dommages magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(278,'runeword.destruction.effect','fr','5% chances de lancer niveau 23 Rocher en Fusion en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(279,'runeword.destruction.effect','fr','100% chances de lancer niveau 45 Météore quand vous mourrez',NULL,NULL);
+INSERT INTO "translations" VALUES(280,'runeword.destruction.effect','fr','15% chances de lancer niveau 22 Nova en attaquant',NULL,NULL);
+INSERT INTO "translations" VALUES(281,'runeword.destruction.effect','fr','23% chances de lancer niveau 12 Volcan en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(282,'runeword.destruction.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(283,'runeword.doom.effect','fr','+45% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(284,'runeword.doom.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(285,'runeword.doom.effect','fr','la résistance au froid de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(286,'runeword.doom.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(287,'runeword.doom.effect','fr','-40-60% à la résistance au Froid de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(288,'runeword.doom.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(289,'runeword.doom.effect','fr','5% chances de lancer niveau 18 Volcan en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(290,'runeword.dragon.effect','fr','Défense +360',NULL,NULL);
+INSERT INTO "translations" VALUES(291,'runeword.dragon.effect','fr','+230 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(292,'runeword.dragon.effect','fr','+3-5 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(293,'runeword.dragon.effect','fr','20% chances de lancer niveau 18 Venin quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(294,'runeword.dragon.effect','fr','Aura de Feu Sacré niveau 14 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(295,'runeword.dragon.effect','fr','+3-5 à tous les Attributs',NULL,NULL);
+INSERT INTO "translations" VALUES(296,'runeword.dream.effect','fr','Défense +150-220',NULL,NULL);
+INSERT INTO "translations" VALUES(297,'runeword.dream.effect','fr','10% chances de lancer niveau 15 Confusion quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(298,'runeword.dream.effect','fr','+5-20 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(299,'runeword.dream.effect','fr','+20-30% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(300,'runeword.dream.effect','fr','+12-25% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(301,'runeword.dream.effect','fr','Aura de Choc Sacré niveau 15 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(302,'runeword.duress.effect','fr','Ajoute 37-133 dégâts de Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(303,'runeword.duress.effect','fr','+150-200% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(304,'runeword.duress.effect','fr','+20% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(305,'runeword.duress.effect','fr','33% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(306,'runeword.duress.effect','fr','15% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(307,'runeword.duress.effect','fr','20% Ralentit perte d''endurance',NULL,NULL);
+INSERT INTO "translations" VALUES(308,'runeword.edge.effect','fr','+320-380% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(309,'runeword.edge.effect','fr','+280% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(310,'runeword.edge.effect','fr','+35% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(311,'runeword.edge.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(312,'runeword.edge.effect','fr','+5-10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(313,'runeword.edge.effect','fr','Réduit les prix des marchands de 15%',NULL,NULL);
+INSERT INTO "translations" VALUES(314,'runeword.enigma.effect','fr','Défense +750-775',NULL,NULL);
+INSERT INTO "translations" VALUES(315,'runeword.enigma.effect','fr','+14 Points de vie après chaque victime',NULL,NULL);
+INSERT INTO "translations" VALUES(316,'runeword.enigma.effect','fr','+45% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(317,'runeword.enigma.effect','fr','+x pour la Force (suivant niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(318,'runeword.enigma.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(319,'runeword.enigma.effect','fr','plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(320,'runeword.enigma.effect','fr','+1 à Téléport',NULL,NULL);
+INSERT INTO "translations" VALUES(321,'runeword.enlightenment.effect','fr','+2 pour les niveaux d''aptitude de la Sorcière',NULL,NULL);
+INSERT INTO "translations" VALUES(322,'runeword.enlightenment.effect','fr','5-15% chances de lancer niveau 5-15 Embrasement quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(323,'runeword.enlightenment.effect','fr','+1 à Chaleur',NULL,NULL);
+INSERT INTO "translations" VALUES(324,'runeword.eternity.effect','fr','Ralentit l''adversaire de 33%',NULL,NULL);
+INSERT INTO "translations" VALUES(325,'runeword.eternity.effect','fr','Refaire le plein de Vie +16',NULL,NULL);
+INSERT INTO "translations" VALUES(326,'runeword.eternity.effect','fr','Régénérer le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(327,'runeword.eternity.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(328,'runeword.eternity.effect','fr','Régénérer le Mana 16%',NULL,NULL);
+INSERT INTO "translations" VALUES(329,'runeword.exile.effect','fr','+30% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(330,'runeword.exile.effect','fr','Immobilise l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(331,'runeword.exile.effect','fr','+220-260% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(332,'runeword.exile.effect','fr','+2 aux Auras Offensives (Paladin uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(333,'runeword.exile.effect','fr','5% chances de lancer niveau 15 Balance de vie en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(334,'runeword.exile.effect','fr','Répare 1 durabilité par 4 secondes',NULL,NULL);
+INSERT INTO "translations" VALUES(335,'runeword.faith.effect','fr','300% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(336,'runeword.faith.effect','fr','Aura de Fanatisme niveau 12-15 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(337,'runeword.faith.effect','fr','+15 à toutes les résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(338,'runeword.faith.effect','fr','+1-2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(339,'runeword.faith.effect','fr','Reanimate As: [Returned]',NULL,NULL);
+INSERT INTO "translations" VALUES(341,'runeword.famine.effect','fr','12% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(342,'runeword.famine.effect','fr','+30% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(343,'runeword.famine.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(344,'runeword.famine.effect','fr','+180-200 dommages magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(345,'runeword.famine.effect','fr','Ajoute 180-200 dégâts Magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(346,'runeword.famine.effect','fr','Ajoute 50-200 dégâts de Feu/Foudre/Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(347,'runeword.famine.effect','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(348,'runeword.flickering_flame.effect','fr','+3 pour les aptitudes de Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(349,'runeword.flickering_flame.effect','fr','Aura de Résistance au Feu niveau 4-8 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(350,'runeword.flickering_flame.effect','fr','+50-75 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(351,'runeword.flickering_flame.effect','fr','Diminue de moitié la durée d''Immobilisation',NULL,NULL);
+INSERT INTO "translations" VALUES(352,'runeword.flickering_flame.effect','fr','Effet du poison diminué de 50%',NULL,NULL);
+INSERT INTO "translations" VALUES(353,'runeword.fortitude.effect','fr','+200% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(354,'runeword.fortitude.effect','fr','+25% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(355,'runeword.fortitude.effect','fr','Les dommages sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(356,'runeword.fortitude.effect','fr','+25-30 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(357,'runeword.fortitude.effect','fr','+1 à +1.2 pour la Vie (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(358,'runeword.fortitude.effect','fr','+25-30 Toutes Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(359,'runeword.fury.effect','fr','+40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(360,'runeword.fury.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(361,'runeword.fury.effect','fr','66% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(362,'runeword.fury.effect','fr','6% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(363,'runeword.fury.effect','fr','33% Coup mortel',NULL,NULL);
+INSERT INTO "translations" VALUES(364,'runeword.fury.effect','fr','+5 à Frénésie (Barbare uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(365,'runeword.fury.effect','fr','+209% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(366,'runeword.gloom.effect','fr','+170-230% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(367,'runeword.gloom.effect','fr','+30 à toutes les résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(368,'runeword.gloom.effect','fr','+10% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(369,'runeword.gloom.effect','fr','Les dommages sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(370,'runeword.gloom.effect','fr','+3 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(371,'runeword.gloom.effect','fr','Diminue de moitié la durée d''Immobilisation',NULL,NULL);
+INSERT INTO "translations" VALUES(372,'runeword.grief.effect','fr','x% Dommages sur les démons (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(373,'runeword.grief.effect','fr','+30-40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(374,'runeword.grief.effect','fr','-x% à la résistance au poison de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(375,'runeword.grief.effect','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(376,'runeword.grief.effect','fr','+10-15 Points de vie après chaque victime',NULL,NULL);
+INSERT INTO "translations" VALUES(377,'runeword.ground.effect','fr','Augmente le nombre maximum de points de Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(378,'runeword.ground.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(379,'runeword.ground.effect','fr','+10-30% Résistance à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(380,'runeword.ground.effect','fr','Absorbe la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(381,'runeword.hand_of_justice.effect','fr','+33% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(382,'runeword.hand_of_justice.effect','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(383,'runeword.hand_of_justice.effect','fr','la résistance au feu de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(384,'runeword.hand_of_justice.effect','fr','100% chances de lancer niveau 36 Embrasement quand vous montez de niveau',NULL,NULL);
+INSERT INTO "translations" VALUES(385,'runeword.hand_of_justice.effect','fr','100% chances de lancer niveau 48 Météore quand vous mourrez',NULL,NULL);
+INSERT INTO "translations" VALUES(386,'runeword.hand_of_justice.effect','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(387,'runeword.hand_of_justice.effect','fr','-20% à la résistance au Feu de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(388,'runeword.harmony.effect','fr','+200-275% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(389,'runeword.harmony.effect','fr','Ajoute 55-160 dégâts de Feu/Foudre/Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(390,'runeword.harmony.effect','fr','Niveau 20 Réanimation (25/25 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(391,'runeword.harmony.effect','fr','+2-6 à Valkyrie',NULL,NULL);
+INSERT INTO "translations" VALUES(392,'runeword.harmony.effect','fr','Régénérer le Mana 20%',NULL,NULL);
+INSERT INTO "translations" VALUES(393,'runeword.harmony.effect','fr','+2 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(394,'runeword.heart_of_the_oak.effect','fr','+40% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(395,'runeword.heart_of_the_oak.effect','fr','Augmente le nombre maximum de points de Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(396,'runeword.heart_of_the_oak.effect','fr','+3 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(397,'runeword.heart_of_the_oak.effect','fr','Refaire le plein de Vie +20',NULL,NULL);
+INSERT INTO "translations" VALUES(398,'runeword.heart_of_the_oak.effect','fr','+30-40 a toutes les resistances',NULL,NULL);
+INSERT INTO "translations" VALUES(399,'runeword.heart_of_the_oak.effect','fr','Toutes les résistances +30-40',NULL,NULL);
+INSERT INTO "translations" VALUES(400,'runeword.hearth.effect','fr','Augmente le nombre maximum de points de Vie de 5%',NULL,NULL);
+INSERT INTO "translations" VALUES(401,'runeword.hearth.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(402,'runeword.hearth.effect','fr','+10-30% Résistance au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(403,'runeword.hearth.effect','fr','Absorbe le Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(404,'runeword.hearth.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(405,'runeword.holy_thunder.effect','fr','+60% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(406,'runeword.holy_thunder.effect','fr','+60% Résistance à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(407,'runeword.holy_thunder.effect','fr','+5% à la résistance maximum à la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(408,'runeword.holy_thunder.effect','fr','+3 à Choc Sacré (Paladin uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(409,'runeword.holy_thunder.effect','fr','Niveau 7 Éclairs en Série (60/60 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(410,'runeword.honor.effect','fr','Refaire le plein de Vie +10',NULL,NULL);
+INSERT INTO "translations" VALUES(411,'runeword.honor.effect','fr','+1 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(412,'runeword.honor.effect','fr','pour la puissance offensive',NULL,NULL);
+INSERT INTO "translations" VALUES(413,'runeword.honor.effect','fr','25% Coup mortel',NULL,NULL);
+INSERT INTO "translations" VALUES(414,'runeword.honor.effect','fr','+10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(415,'runeword.hustle.effect','fr','+65% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(416,'runeword.hustle.effect','fr','35% Ralentit perte d''endurance',NULL,NULL);
+INSERT INTO "translations" VALUES(417,'runeword.hustle.effect','fr','+40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(418,'runeword.hustle.effect','fr','+10 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(419,'runeword.hustle.effect','fr','+6 à Parade',NULL,NULL);
+INSERT INTO "translations" VALUES(420,'runeword.mania.effect','fr','+10% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(421,'runeword.mania.effect','fr','+180-200% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(422,'runeword.mania.effect','fr','Aura de Fanatisme niveau 1 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(423,'runeword.ice.effect','fr','+140-210% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(424,'runeword.ice.effect','fr','Aura de Gel Sacré niveau 18 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(425,'runeword.ice.effect','fr','d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(426,'runeword.ice.effect','fr','25% chances de lancer niveau 22 Nova de Givre en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(427,'runeword.ice.effect','fr','100% chances de lancer niveau 40 Blizzard quand vous montez de niveau',NULL,NULL);
+INSERT INTO "translations" VALUES(428,'runeword.ice.effect','fr','-20% à la résistance au Froid de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(429,'runeword.ice.effect','fr','x% d''or récupéré sur les monstres (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(430,'runeword.infinity.effect','fr','+35% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(431,'runeword.infinity.effect','fr','+35% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(432,'runeword.infinity.effect','fr','50% chances de lancer niveau 20 Éclairs en Série quand vous tuez un ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(433,'runeword.infinity.effect','fr','-45-55% à la résistance à la Foudre de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(434,'runeword.infinity.effect','fr','Niveau 21 Armure Cyclone (30/30 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(435,'runeword.insight.effect','fr','180-250% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(436,'runeword.insight.effect','fr','+23% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(437,'runeword.insight.effect','fr','+35% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(438,'runeword.insight.effect','fr','+5 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(439,'runeword.insight.effect','fr','Aura de Méditation niveau 12-17 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(440,'runeword.insight.effect','fr','+5 à tous les Attributs',NULL,NULL);
+INSERT INTO "translations" VALUES(441,'runeword.kings_grace.effect','fr','+100% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(442,'runeword.kings_grace.effect','fr','+100% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(443,'runeword.kings_grace.effect','fr','+50% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(444,'runeword.kings_grace.effect','fr','+100 pour la puissance d''attaque contre les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(445,'runeword.kings_grace.effect','fr','+100 pour la puissance d''attaque contre les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(446,'runeword.kings_grace.effect','fr','+100 pour la puissance offensive contre les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(447,'runeword.kingslayer.effect','fr','+30% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(448,'runeword.kingslayer.effect','fr','Défense de la cible +25',NULL,NULL);
+INSERT INTO "translations" VALUES(449,'runeword.kingslayer.effect','fr','33% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(450,'runeword.kingslayer.effect','fr','25% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(451,'runeword.kingslayer.effect','fr','40% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(452,'runeword.kingslayer.effect','fr','+1 à Vengeance',NULL,NULL);
+INSERT INTO "translations" VALUES(453,'runeword.kingslayer.effect','fr','40% d''or récupéré sur les monstres',NULL,NULL);
+INSERT INTO "translations" VALUES(454,'runeword.last_wish.effect','fr','40-50% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(455,'runeword.last_wish.effect','fr','plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(456,'runeword.last_wish.effect','fr','10-18% chances de lancer niveau 10-18 Balance de vie en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(457,'runeword.last_wish.effect','fr','6-11% chances de lancer niveau 6-11 Disparition quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(458,'runeword.last_wish.effect','fr','40-50% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(459,'runeword.last_wish.effect','fr','x% meilleures chances d''obtenir des objets magiques (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(460,'runeword.last_wish.effect','fr','Aura de Puissance niveau 17 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(461,'runeword.lawbringer.effect','fr','Ajoute 130-180 dégâts de Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(462,'runeword.lawbringer.effect','fr','Ajoute 150-210 dégâts de Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(463,'runeword.lawbringer.effect','fr','+200-250 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(464,'runeword.lawbringer.effect','fr','Monstres pourfendus reposent en paix',NULL,NULL);
+INSERT INTO "translations" VALUES(465,'runeword.lawbringer.effect','fr','Défense de la cible +50',NULL,NULL);
+INSERT INTO "translations" VALUES(466,'runeword.lawbringer.effect','fr','Les monstres tués reposent en paix',NULL,NULL);
+INSERT INTO "translations" VALUES(467,'runeword.lawbringer.effect','fr','-50% Défense de la cible',NULL,NULL);
+INSERT INTO "translations" VALUES(468,'runeword.leaf.effect','fr','+3 pour les aptitudes de Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(469,'runeword.leaf.effect','fr','+x Défense (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(470,'runeword.leaf.effect','fr','+33% Résistance au Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(471,'runeword.leaf.effect','fr','+3 à Boule de Feu (Sorcière uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(472,'runeword.leaf.effect','fr','+3 à Chaleur (Sorcière uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(473,'runeword.leaf.effect','fr','+3 à Trait de Feu (Sorcière uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(474,'runeword.lionheart.effect','fr','+15 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(475,'runeword.lionheart.effect','fr','+20 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(476,'runeword.lionheart.effect','fr','+15 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(477,'runeword.lionheart.effect','fr','+50 pour la Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(478,'runeword.lionheart.effect','fr','+30 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(479,'runeword.lionheart.effect','fr','+30 Toutes Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(480,'runeword.lore.effect','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(481,'runeword.lore.effect','fr','+1 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(482,'runeword.lore.effect','fr','+2 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(483,'runeword.lore.effect','fr','+2 de Mana après chaque mort',NULL,NULL);
+INSERT INTO "translations" VALUES(484,'runeword.malice.effect','fr','100% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(485,'runeword.malice.effect','fr','-100 à la défense des monstres par coup',NULL,NULL);
+INSERT INTO "translations" VALUES(486,'runeword.malice.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(487,'runeword.malice.effect','fr','+33% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(489,'runeword.melody.effect','fr','+3 au javelot et à la lance',NULL,NULL);
+INSERT INTO "translations" VALUES(490,'runeword.melody.effect','fr','+3 à Coup Critique (Amazone uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(491,'runeword.melody.effect','fr','+3 à Esquive (Amazone uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(492,'runeword.melody.effect','fr','+3 à Ralentir les Projectiles (Amazone uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(493,'runeword.melody.effect','fr','+300% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(494,'runeword.memory.effect','fr','Augmente le nombre maximum de points de Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(495,'runeword.memory.effect','fr','Dommages magiques réduits de 7',NULL,NULL);
+INSERT INTO "translations" VALUES(496,'runeword.memory.effect','fr','+50% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(497,'runeword.memory.effect','fr','+33% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(498,'runeword.memory.effect','fr','+3 pour les niveaux d''aptitude de la Sorcière',NULL,NULL);
+INSERT INTO "translations" VALUES(499,'runeword.memory.effect','fr','+3 à Bouclier d''Énergie (Sorcière uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(500,'runeword.memory.effect','fr','+2 à Télékinésie (Sorcière uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(501,'runeword.metamorphosis.effect','fr','+50-80% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(502,'runeword.metamorphosis.effect','fr','+5 aux Aptitudes de Métamorphose (Druide uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(503,'runeword.metamorphosis.effect','fr','25% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(504,'runeword.metamorphosis.effect','fr','+10 Toutes Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(505,'runeword.mist.effect','fr','+3 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(506,'runeword.mist.effect','fr','Attaque perforante',NULL,NULL);
+INSERT INTO "translations" VALUES(507,'runeword.mist.effect','fr','+24 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(508,'runeword.mist.effect','fr','+40 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(509,'runeword.mist.effect','fr','+24 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(510,'runeword.mist.effect','fr','+40 Toutes Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(511,'runeword.mosaic.effect','fr','+2 aux Arts Martiaux (Assassin uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(512,'runeword.mosaic.effect','fr','+20% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(513,'runeword.mosaic.effect','fr','+? aux dégâts de feu',NULL,NULL);
+INSERT INTO "translations" VALUES(514,'runeword.mosaic.effect','fr','+? aux dégâts de froid',NULL,NULL);
+INSERT INTO "translations" VALUES(515,'runeword.mosaic.effect','fr','+? aux dégâts électriques',NULL,NULL);
+INSERT INTO "translations" VALUES(516,'runeword.mosaic.effect','fr','+8-15% aux Dommages des sorts de Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(517,'runeword.mosaic.effect','fr','+8-15% aux Dommages des sorts de Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(518,'runeword.myth.effect','fr','+2 pour les niveaux d''aptitude de le Barbare',NULL,NULL);
+INSERT INTO "translations" VALUES(519,'runeword.myth.effect','fr','Refaire le plein de Vie +10',NULL,NULL);
+INSERT INTO "translations" VALUES(520,'runeword.nadir.effect','fr','+50% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(521,'runeword.nadir.effect','fr','+10 Défense',NULL,NULL);
+INSERT INTO "translations" VALUES(522,'runeword.nadir.effect','fr','-3 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(523,'runeword.nadir.effect','fr','Niveau 9 Voile d''Ombre (13/13 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(524,'runeword.nadir.effect','fr','-33% d''or récupéré sur les monstres',NULL,NULL);
+INSERT INTO "translations" VALUES(525,'runeword.nadir.effect','fr','+5 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(526,'runeword.oath.effect','fr','+30% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(527,'runeword.oath.effect','fr','+30% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(528,'runeword.oath.effect','fr','Niveau 16 Cœur du Wolverine (20/20 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(529,'runeword.oath.effect','fr','Absorbe la Magie 10-15%',NULL,NULL);
+INSERT INTO "translations" VALUES(530,'runeword.oath.effect','fr','Indestructible',NULL,NULL);
+INSERT INTO "translations" VALUES(531,'runeword.obedience.effect','fr','40% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(532,'runeword.obedience.effect','fr','40% Proba. de coup écrasant',NULL,NULL);
+INSERT INTO "translations" VALUES(533,'runeword.obedience.effect','fr','Défense +200-300',NULL,NULL);
+INSERT INTO "translations" VALUES(534,'runeword.obedience.effect','fr','+40% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(535,'runeword.obedience.effect','fr','+200-300 Défense',NULL,NULL);
+INSERT INTO "translations" VALUES(536,'runeword.obedience.effect','fr','+20-30 Toutes Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(537,'runeword.obsession.effect','fr','+4 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(538,'runeword.obsession.effect','fr','+65% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(539,'runeword.obsession.effect','fr','+60% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(540,'runeword.obsession.effect','fr','+60-70 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(541,'runeword.obsession.effect','fr','Augmente le nombre maximum de points de Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(542,'runeword.obsession.effect','fr','Régénérer le Mana 15-30%',NULL,NULL);
+INSERT INTO "translations" VALUES(543,'runeword.passion.effect','fr','50-80% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(544,'runeword.passion.effect','fr','+25% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(545,'runeword.passion.effect','fr','Chaque coup aveugle l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(546,'runeword.passion.effect','fr','+25% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(547,'runeword.passion.effect','fr','Niveau 3 Cœur du Wolverine (12/12 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(548,'runeword.passion.effect','fr','Chaque coup aveugle l''adversaire +10',NULL,NULL);
+INSERT INTO "translations" VALUES(549,'runeword.pattern.effect','fr','10% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(550,'runeword.pattern.effect','fr','+40-80% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(551,'runeword.pattern.effect','fr','+15 a toutes les resistances',NULL,NULL);
+INSERT INTO "translations" VALUES(552,'runeword.pattern.effect','fr','+6 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(553,'runeword.pattern.effect','fr','+6 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(554,'runeword.pattern.effect','fr','+30% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(555,'runeword.peace.effect','fr','+2 pour les niveaux d''aptitude de l''Amazone',NULL,NULL);
+INSERT INTO "translations" VALUES(556,'runeword.peace.effect','fr','4% chances de lancer niveau 5 Ralentir les Projectiles quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(557,'runeword.peace.effect','fr','+2 à coup Critique',NULL,NULL);
+INSERT INTO "translations" VALUES(558,'runeword.phoenix.effect','fr','+350-400 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(559,'runeword.phoenix.effect','fr','la résistance au feu de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(560,'runeword.phoenix.effect','fr','Absorbe le Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(561,'runeword.phoenix.effect','fr','100% chances de lancer niveau 40 Embrasement quand vous montez de niveau',NULL,NULL);
+INSERT INTO "translations" VALUES(562,'runeword.phoenix.effect','fr','-28% à la résistance au Feu de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(563,'runeword.phoenix.effect','fr','Aura de Rédemption niveau 10-15 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(564,'runeword.phoenix.effect','fr','Absorbe le Feu 15-21%',NULL,NULL);
+INSERT INTO "translations" VALUES(565,'runeword.plague.effect','fr','+220-320% Dégâts augmentés',NULL,NULL);
+INSERT INTO "translations" VALUES(566,'runeword.plague.effect','fr','+1-2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(567,'runeword.plague.effect','fr','-23% à la résistance au Poison de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(568,'runeword.plague.effect','fr','x% Coup mortel (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(569,'runeword.plague.effect','fr','Aura de Purification niveau 13-17 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(570,'runeword.pride.effect','fr','x% Dommages sur les démons (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(571,'runeword.pride.effect','fr','Ajoute 50-280 dégâts de Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(572,'runeword.pride.effect','fr','260-300% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(573,'runeword.pride.effect','fr','Refaire le plein de Vie +8',NULL,NULL);
+INSERT INTO "translations" VALUES(574,'runeword.pride.effect','fr','d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(575,'runeword.pride.effect','fr','x% d''or récupéré sur les monstres (basé sur le niveau du personnage)',NULL,NULL);
+INSERT INTO "translations" VALUES(576,'runeword.principle.effect','fr','+2 pour les niveaux d''aptitude de le Paladin',NULL,NULL);
+INSERT INTO "translations" VALUES(577,'runeword.principle.effect','fr','+100-150 pour la Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(578,'runeword.principle.effect','fr','+50% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(579,'runeword.prudence.effect','fr','+140-170% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(580,'runeword.prudence.effect','fr','Dommages magiques réduits de 10',NULL,NULL);
+INSERT INTO "translations" VALUES(581,'runeword.prudence.effect','fr','Dommages réduits de 3',NULL,NULL);
+INSERT INTO "translations" VALUES(582,'runeword.prudence.effect','fr','+25-35 a toutes les Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(583,'runeword.prudence.effect','fr','+25% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(584,'runeword.prudence.effect','fr','Répare 1 durabilité par 4 secondes',NULL,NULL);
+INSERT INTO "translations" VALUES(585,'runeword.prudence.effect','fr','+1 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(586,'runeword.radiance.effect','fr','+5 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(587,'runeword.radiance.effect','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(588,'runeword.radiance.effect','fr','+10 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(589,'runeword.radiance.effect','fr','Dommages magiques réduits de 3',NULL,NULL);
+INSERT INTO "translations" VALUES(590,'runeword.radiance.effect','fr','+33 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(591,'runeword.radiance.effect','fr','+75% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(592,'runeword.rain.effect','fr','+2 pour les niveaux d''aptitude de le Druide',NULL,NULL);
+INSERT INTO "translations" VALUES(593,'runeword.rain.effect','fr','+100-150 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(594,'runeword.rhyme.effect','fr','+20% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(595,'runeword.rhyme.effect','fr','20% Chances de parade accrues',NULL,NULL);
+INSERT INTO "translations" VALUES(596,'runeword.rhyme.effect','fr','+25 a toutes les Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(597,'runeword.rhyme.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(598,'runeword.rhyme.effect','fr','50% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(599,'runeword.rhyme.effect','fr','+25% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(600,'runeword.rift.effect','fr','+160-250 dommages magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(601,'runeword.rift.effect','fr','Ajoute 60-180 dégâts de Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(602,'runeword.rift.effect','fr','Les dommages sont répercutés sur le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(603,'runeword.rift.effect','fr','+5-10 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(604,'runeword.rift.effect','fr','16% chances de lancer niveau 21 Orbe Glaciale en attaquant',NULL,NULL);
+INSERT INTO "translations" VALUES(605,'runeword.rift.effect','fr','+5-10 à tous les Attributs',NULL,NULL);
+INSERT INTO "translations" VALUES(606,'runeword.ritual.effect','fr','+20% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(607,'runeword.ritual.effect','fr','+150-250% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(608,'runeword.ritual.effect','fr','200-260% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(609,'runeword.ritual.effect','fr','+3-5 Points de vie après chaque victime',NULL,NULL);
+INSERT INTO "translations" VALUES(610,'runeword.ritual.effect','fr','Les monstres tués reposent en paix',NULL,NULL);
+INSERT INTO "translations" VALUES(611,'runeword.sanctuary.effect','fr','20% Chances de parade accrues',NULL,NULL);
+INSERT INTO "translations" VALUES(612,'runeword.sanctuary.effect','fr','+20% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(613,'runeword.sanctuary.effect','fr','+130-160% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(614,'runeword.sanctuary.effect','fr','+250 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(615,'runeword.sanctuary.effect','fr','+50-70 a toutes les Résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(616,'runeword.sanctuary.effect','fr','+20% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(617,'runeword.silence.effect','fr','4% Mana volé à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(618,'runeword.silence.effect','fr','Chaque coup aveugle l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(619,'runeword.silence.effect','fr','+20% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(620,'runeword.silence.effect','fr','+75 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(621,'runeword.silence.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(622,'runeword.silence.effect','fr','+20% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(623,'runeword.smoke.effect','fr','+250 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(624,'runeword.smoke.effect','fr','+75% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(625,'runeword.smoke.effect','fr','+50 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(626,'runeword.smoke.effect','fr','+20% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(627,'runeword.smoke.effect','fr','-1 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(628,'runeword.smoke.effect','fr','Niveau 6 Affaiblir (18/18 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(629,'runeword.spirit.effect','fr','+55% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(630,'runeword.spirit.effect','fr','+89-112 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(631,'runeword.spirit.effect','fr','+250 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(632,'runeword.spirit.effect','fr','+22 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(633,'runeword.spirit.effect','fr','+25-35% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(634,'runeword.spirit.effect','fr','Absorbe la Magie',NULL,NULL);
+INSERT INTO "translations" VALUES(635,'runeword.spirit.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(636,'runeword.splendor.effect','fr','+3 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(637,'runeword.splendor.effect','fr','50% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(638,'runeword.splendor.effect','fr','+20% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(639,'runeword.splendor.effect','fr','+60-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(640,'runeword.splendor.effect','fr','+20% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(641,'runeword.splendor.effect','fr','+10% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(642,'runeword.splendor.effect','fr','+1 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(643,'runeword.stealth.effect','fr','Dommages magiques réduits de 3',NULL,NULL);
+INSERT INTO "translations" VALUES(644,'runeword.stealth.effect','fr','+6 pour la Dextérité',NULL,NULL);
+INSERT INTO "translations" VALUES(645,'runeword.stealth.effect','fr','+15 Endurance maximale',NULL,NULL);
+INSERT INTO "translations" VALUES(646,'runeword.stealth.effect','fr','+25% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(647,'runeword.stealth.effect','fr','+25% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(648,'runeword.stealth.effect','fr','+25% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(649,'runeword.steel.effect','fr','+25% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(650,'runeword.steel.effect','fr','+3 à la valeur minimum des dommages',NULL,NULL);
+INSERT INTO "translations" VALUES(651,'runeword.steel.effect','fr','+3 à la valeur maximum des dommages',NULL,NULL);
+INSERT INTO "translations" VALUES(652,'runeword.steel.effect','fr','50% Proba. de blessures ouvertes',NULL,NULL);
+INSERT INTO "translations" VALUES(653,'runeword.steel.effect','fr','+20% Dommages Supplémentaires',NULL,NULL);
+INSERT INTO "translations" VALUES(654,'runeword.stone.effect','fr','+220-260% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(655,'runeword.stone.effect','fr','80 (16/16 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(656,'runeword.stone.effect','fr','+300 Défense contre Missile',NULL,NULL);
+INSERT INTO "translations" VALUES(657,'runeword.stone.effect','fr','+16 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(658,'runeword.stone.effect','fr','+16 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(659,'runeword.stone.effect','fr','+40% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(660,'runeword.strength.effect','fr','+20 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(661,'runeword.strength.effect','fr','+10 pour la Vitalité',NULL,NULL);
+INSERT INTO "translations" VALUES(662,'runeword.strength.effect','fr','25% Proba. de Coup Cinglant',NULL,NULL);
+INSERT INTO "translations" VALUES(663,'runeword.temper.effect','fr','Augmente le nombre maximum de points de Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(664,'runeword.temper.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(665,'runeword.temper.effect','fr','+10-30% Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(666,'runeword.temper.effect','fr','+10-15 Absorption du Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(667,'runeword.treachery.effect','fr','+2 pour les niveaux d''aptitude de l''Assassin',NULL,NULL);
+INSERT INTO "translations" VALUES(668,'runeword.treachery.effect','fr','+45% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(669,'runeword.treachery.effect','fr','5% chances de lancer niveau 15 Disparition quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(670,'runeword.treachery.effect','fr','25% chances de lancer niveau 15 Venin en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(671,'runeword.unbending_will.effect','fr','+3 aux Aptitudes de Combat (Barbare uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(672,'runeword.unbending_will.effect','fr','+20-30% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(673,'runeword.unbending_will.effect','fr','Dommages réduits de 8',NULL,NULL);
+INSERT INTO "translations" VALUES(674,'runeword.unbending_will.effect','fr','Empêche les monstres de guérir',NULL,NULL);
+INSERT INTO "translations" VALUES(675,'runeword.unbending_will.effect','fr','8-10% Vie volée à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(676,'runeword.venom.effect','fr','à la valeur minimum des dégâts par le Poison',NULL,NULL);
+INSERT INTO "translations" VALUES(677,'runeword.venom.effect','fr','Ignore les défenses de l''adversaire',NULL,NULL);
+INSERT INTO "translations" VALUES(678,'runeword.venom.effect','fr','Niveau 15 Explosion de Poison (27/27 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(679,'runeword.venom.effect','fr','7% Mana volé à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(680,'runeword.vigilance.effect','fr','+10% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(681,'runeword.vigilance.effect','fr','+30% Vitesse de Parade très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(682,'runeword.vigilance.effect','fr','+20-40 pour la Vie',NULL,NULL);
+INSERT INTO "translations" VALUES(683,'runeword.vigilance.effect','fr','+20-40 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(684,'runeword.vigilance.effect','fr','+25-35 Résistance au Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(685,'runeword.vigilance.effect','fr','+75-100% Défense augmentée',NULL,NULL);
+INSERT INTO "translations" VALUES(686,'runeword.voice_of_reason.effect','fr','+220-350% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(687,'runeword.voice_of_reason.effect','fr','+280-300% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(688,'runeword.voice_of_reason.effect','fr','à la valeur minimum des dégâts par le Froid',NULL,NULL);
+INSERT INTO "translations" VALUES(689,'runeword.voice_of_reason.effect','fr','la résistance au froid de l''ennemi',NULL,NULL);
+INSERT INTO "translations" VALUES(690,'runeword.voice_of_reason.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(691,'runeword.voice_of_reason.effect','fr','15% chances de lancer niveau 13 Orbe Glaciale en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(692,'runeword.voice_of_reason.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(693,'runeword.void.effect','fr','+2 pour toutes les aptitudes',NULL,NULL);
+INSERT INTO "translations" VALUES(694,'runeword.void.effect','fr','+40% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(695,'runeword.void.effect','fr','+8-12 pour la Force',NULL,NULL);
+INSERT INTO "translations" VALUES(696,'runeword.void.effect','fr','+8-12 à tous les Attributs',NULL,NULL);
+INSERT INTO "translations" VALUES(697,'runeword.void.effect','fr','Niveau 4 Décrépitude (35/35 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(698,'runeword.wealth.effect','fr','250% d''or récupéré sur le monstre',NULL,NULL);
+INSERT INTO "translations" VALUES(699,'runeword.wealth.effect','fr','+100% plus grandes chances d''obtenir un objet magique',NULL,NULL);
+INSERT INTO "translations" VALUES(700,'runeword.white.effect','fr','+3 en poison et os',NULL,NULL);
+INSERT INTO "translations" VALUES(701,'runeword.white.effect','fr','Dommages magiques réduits de 4',NULL,NULL);
+INSERT INTO "translations" VALUES(702,'runeword.white.effect','fr','+20% Vitesse de Sort très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(703,'runeword.white.effect','fr','+13 pour le Mana',NULL,NULL);
+INSERT INTO "translations" VALUES(704,'runeword.white.effect','fr','+3 à Lance d''Os (Nécromancien uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(705,'runeword.white.effect','fr','+2 à Armure d''Os (Nécromancien uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(706,'runeword.white.effect','fr','+4 à Esprit d''Os (Nécromancien uniquement)',NULL,NULL);
+INSERT INTO "translations" VALUES(707,'runeword.wind.effect','fr','+40% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(708,'runeword.wind.effect','fr','+20% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(709,'runeword.wind.effect','fr','Défense de la cible +50',NULL,NULL);
+INSERT INTO "translations" VALUES(710,'runeword.wind.effect','fr','+15% Récupération très rapide après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(711,'runeword.wind.effect','fr','10% chances de lancer niveau 9 Tornade en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(712,'runeword.wind.effect','fr','+15% Récupération après un coup',NULL,NULL);
+INSERT INTO "translations" VALUES(713,'runeword.wisdom.effect','fr','Attaque perforante',NULL,NULL);
+INSERT INTO "translations" VALUES(714,'runeword.wisdom.effect','fr','4-8% Mana volé à chaque coup',NULL,NULL);
+INSERT INTO "translations" VALUES(715,'runeword.wisdom.effect','fr','15-25% bonus du niveau d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(716,'runeword.wisdom.effect','fr','+5 de Mana après chaque mort',NULL,NULL);
+INSERT INTO "translations" VALUES(717,'runeword.wisdom.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(718,'runeword.wisdom.effect','fr','+10 pour l''Energie',NULL,NULL);
+INSERT INTO "translations" VALUES(719,'runeword.wrath.effect','fr','+300% Dommages sur les démons',NULL,NULL);
+INSERT INTO "translations" VALUES(720,'runeword.wrath.effect','fr','+250-300% Dommages sur les morts-vivants',NULL,NULL);
+INSERT INTO "translations" VALUES(721,'runeword.wrath.effect','fr','à la valeur minimum des dégâts par la Foudre',NULL,NULL);
+INSERT INTO "translations" VALUES(722,'runeword.wrath.effect','fr','+85-120 dommages magiques',NULL,NULL);
+INSERT INTO "translations" VALUES(723,'runeword.wrath.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(724,'runeword.wrath.effect','fr','30% chances de lancer niveau 1 Décrépitude en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(725,'runeword.wrath.effect','fr','Ne peut être immobilisé',NULL,NULL);
+INSERT INTO "translations" VALUES(726,'runeword.zephyr.effect','fr','+25% Marche/Course très rapide',NULL,NULL);
+INSERT INTO "translations" VALUES(727,'runeword.zephyr.effect','fr','+25% augmente la vitesse d''attaque',NULL,NULL);
+INSERT INTO "translations" VALUES(728,'runeword.zephyr.effect','fr','pour la puissance offensive',NULL,NULL);
+INSERT INTO "translations" VALUES(729,'runeword.zephyr.effect','fr','Défense +25',NULL,NULL);
+INSERT INTO "translations" VALUES(730,'runeword.zephyr.effect','fr','7% Chances de lancer niveau 1 Tornade quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(731,'runeword.zephyr.effect','fr','Défense +25',NULL,NULL);
+INSERT INTO "translations" VALUES(732,'runeword.grief.effect','fr','Dégâts +340-400',NULL,NULL);
+INSERT INTO "translations" VALUES(733,'runeword.grief.effect','fr','35% chances de lancer niveau 15 Venin en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(734,'runeword.faith.effect','fr','Ajoute 120-120 dégâts de Feu',NULL,NULL);
+INSERT INTO "translations" VALUES(735,'runeword.gloom.effect','fr','+30 à toutes les résistances',NULL,NULL);
+INSERT INTO "translations" VALUES(736,'runeword.gloom.effect','fr','15% chances de lancer niveau 3 Vision réduite quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(737,'runeword.malice.effect','fr','+1 à la portée lumineuse',NULL,NULL);
+INSERT INTO "translations" VALUES(738,'runeword.malice.effect','fr','Refaire le plein de Vie -5',NULL,NULL);
+INSERT INTO "translations" VALUES(739,'runeword.black.effect','fr','Niveau 4 Explosion Morbide (12/12 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(740,'runeword.bramble.effect','fr','Niveau 13 Esprit des Barbes (33/33 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(741,'runeword.crescent_moon.effect','fr','10% chances de lancer niveau 17 Éclairs en Série en touchant',NULL,NULL);
+INSERT INTO "translations" VALUES(742,'runeword.delirium.effect','fr','1% chances de lancer niveau 50 Transformation du Délire quand touché',NULL,NULL);
+INSERT INTO "translations" VALUES(743,'runeword.heart_of_the_oak.effect','fr','Niveau 14 Corbeau (60/60 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(744,'runeword.holy_thunder.effect','fr','Niveau 7 Éclairs en Série (60/60 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(745,'runeword.infinity.effect','fr','Niveau 21 Armure Cyclone (30/30 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(746,'runeword.mania.effect','fr','Aura de Fanatisme niveau 1 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(747,'runeword.plague.effect','fr','Aura de Purification niveau 13-17 quand équipé',NULL,NULL);
+INSERT INTO "translations" VALUES(748,'runeword.sanctuary.effect','fr','Niveau 12 Ralentir les Projectiles (60/60 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(749,'runeword.void.effect','fr','Niveau 4 Décrépitude (35/35 charges)',NULL,NULL);
+INSERT INTO "translations" VALUES(750,'runeword.rift.effect','fr','25% chances de lancer niveau 18 Pic Glacial en attaquant',NULL,NULL);
+INSERT INTO "translations" VALUES(751,'runeword.plague.effect','fr','15% chances de lancer niveau 22 Nova en attaquant',NULL,NULL);
+INSERT INTO "translations" VALUES(752,'runeword.plague.effect','fr','20% chances de lancer niveau 20 Éclair Chargé en attaquant',NULL,NULL);
+CREATE INDEX idx_translations ON translations (name_key, lang);
+COMMIT;
