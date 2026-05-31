@@ -45,7 +45,7 @@ def build_db():
 
     # Stats
     cur = con.cursor()
-    tables = ['runes', 'rune_effects', 'item_types', 'runewords', 'runeword_item_types', 'runeword_effects']
+    tables = ['runes', 'rune_effects', 'item_subtypes', 'runewords', 'runeword_item_types', 'runeword_effects']
     for table in tables:
         n = cur.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
         log(f'{table:<25} : {n} rows')

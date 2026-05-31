@@ -271,27 +271,12 @@
       padding: 1.5rem 2rem;
     }
 
-    .results-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1.2rem;
-      padding-bottom: 0.8rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .results-count {
+    .header-count {
       font-family: 'Cinzel', serif;
       font-size: 0.7rem;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.15em;
       color: var(--gold);
       text-transform: uppercase;
-    }
-
-    .results-hint {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      font-style: italic;
     }
 
     /* ── Runeword cards ── */
@@ -695,8 +680,15 @@
       Diablo II: Resurrected &mdash; v3.2 Reign of the Warlock
     </div>
     <div class="lang-toggle">
-      <button :class="{ active: lang === 'fr' }" @click="setLang('fr')">FR</button>
-      <button :class="{ active: lang === 'en' }" @click="setLang('en')">EN</button>
+      <template x-for="l in availableLangs" :key="l">
+        <button :class="{ active: lang === l }" @click="setLang(l)" x-text="l.toUpperCase()"></button>
+      </template>
+    </div>
+    <div class="header-count" x-show="dbReady">
+      <span x-text="filteredRW.length"></span> runewords
+      <template x-if="selectedRunes.size > 0">
+        <span> — <span x-text="filteredRW.filter(r=>r.complete).length"></span> craftable</span>
+      </template>
     </div>
     <a class="header-gh" href="https://github.com/MiGaNuTs/YARC" target="_blank" rel="noopener">
       ⎇ GitHub
@@ -758,18 +750,12 @@
       <div class="filter-section">
         <div class="filter-title">Version</div>
         <div class="check-group">
-          <label class="check-row">
-            <input type="checkbox" value="lod" x-model="selectedVersions">
-            <span>Lord of Destruction</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" value="d2r" x-model="selectedVersions">
-            <span>D2R (2.4 – 2.6)</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" value="rotw" x-model="selectedVersions">
-            <span>Reign of the Warlock</span>
-          </label>
+          <template x-for="v in versions" :key="v.patch">
+            <label class="check-row">
+              <input type="checkbox" :value="v.patch" x-model="selectedVersions">
+              <span x-text="v.label"></span>
+            </label>
+          </template>
         </div>
       </div>
 
@@ -799,13 +785,6 @@
 
       <template x-if="dbReady">
         <div>
-          <div class="results-header">
-            <span class="results-count" x-text="filteredRW.length + ' runewords'"></span>
-            <span class="results-hint" x-show="selectedRunes.size > 0">
-              — <span x-text="filteredRW.filter(r=>r.complete).length"></span> craftable with your runes
-            </span>
-          </div>
-
           <div x-show="filteredRW.length === 0" class="empty-state">
             <span class="glyph">ᚱ</span>
             No runewords match your filters.
@@ -876,7 +855,7 @@
       selectedRunes: new Set(),
       selectedItemTypes: [],
       selectedSockets: new Set(),
-      selectedVersions: [],
+      selectedVersions: [], // patch_min integers
       selectedModes: [],
 
       async init() {
@@ -889,12 +868,20 @@
         for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
         this.db = new SQL.Database(buf);
 
+        this.runes     = this._query('SELECT id, name_en, clvl FROM runes ORDER BY id');
+        this.itemTypes = this._query('SELECT id, code, name_en FROM item_subtypes ORDER BY name_en');
+        // Langues disponibles dans translations (+ EN toujours présent)
+        const langs = this._query("SELECT DISTINCT lang FROM translations ORDER BY lang").map(r => r.lang);
+        this.availableLangs = ['en', ...langs.filter(l => l !== 'en')];
         // Détecter la langue du browser
         const browserLang = (navigator.language || 'en').substring(0, 2).toLowerCase();
-        this.lang = browserLang === 'fr' ? 'fr' : 'en';
+        this.lang = this.availableLangs.includes(browserLang) ? browserLang : 'en';
 
-        this.runes     = this._query('SELECT id, name_en, clvl FROM runes ORDER BY id');
-        this.itemTypes = this._query('SELECT id, code, name_en FROM item_types ORDER BY name_en');
+        this.versions  = this._query('SELECT DISTINCT patch_min as patch FROM runewords ORDER BY patch_min')
+          .map(r => ({
+            patch: r.patch,
+            label: this._patchLabel(r.patch)
+          }));
         this._loadRW();
         this.dbReady = true;
       },
@@ -903,15 +890,29 @@
         this.lang = l;
       },
 
+      _patchLabel(patch) {
+        const map = {
+          109: '1.09 — Lord of Destruction',
+          110: '1.10 — Lord of Destruction',
+          111: '1.11 — Lord of Destruction',
+          240: '2.4 — D2R',
+          260: '2.6 — D2R',
+          300: '3.0 — Reign of the Warlock',
+        };
+        if (map[patch]) return map[patch];
+        // Fallback générique pour les patches futurs
+        const s = String(patch);
+        if (patch < 200) return s.replace(/(\d)(\d{2})$/, '$1.$2') + ' — LoD';
+        if (patch < 300) return s.replace(/(\d)(\d{1})$/, '$1.$2') + ' — D2R';
+        return s.replace(/(\d)(\d{1})$/, '$1.$2') + ' — RoTW';
+      },
+
       // Plage de patch selon les filtres de version actifs
       get patchRange() {
         const v = this.selectedVersions;
-        if (v.length === 0) return [0, 320];          // tout
-        let min = 999, max = 0;
-        if (v.includes('lod'))  { min = Math.min(min, 0);   max = Math.max(max, 111); }
-        if (v.includes('d2r'))  { min = Math.min(min, 200); max = Math.max(max, 260); }
-        if (v.includes('rotw')) { min = Math.min(min, 300); max = Math.max(max, 320); }
-        return [min, max];
+        if (v.length === 0) return [0, 320];
+        const patches = v.map(p => parseInt(p));
+        return [Math.min(...patches), Math.max(...patches)];
       },
 
       // Traduire un nom selon la plage de patch active
@@ -972,8 +973,8 @@
         // Item types par runeword
         const rwItemTypes = this._query(`
           SELECT rwit.runeword_id, it.name_en
-          FROM runeword_item_types rwit
-          JOIN item_types it ON it.id = rwit.item_type_id
+          FROM runeword_item_subtypes rwit
+          JOIN item_subtypes it ON it.id = rwit.item_type_id
         `);
         const itByRW = {};
         rwItemTypes.forEach(r => {
@@ -1028,20 +1029,16 @@
             // Filtre item types
             if (this.selectedItemTypes.length > 0) {
               const rwItIds = this._query(
-                'SELECT item_type_id FROM runeword_item_types WHERE runeword_id = ?',
+                'SELECT item_type_id FROM runeword_item_subtypes WHERE runeword_id = ?',
                 [rw.id]
               ).map(r => r.item_type_id);
               const match = this.selectedItemTypes.some(id => rwItIds.includes(parseInt(id)));
               if (!match) return false;
             }
 
-            // Filtre version
+            // Filtre version (cast en int car les valeurs de checkbox sont des strings)
             if (this.selectedVersions.length > 0) {
-              let vMatch = false;
-              if (this.selectedVersions.includes('lod')  && rw.patch_min < 200) vMatch = true;
-              if (this.selectedVersions.includes('d2r')  && rw.patch_min >= 200 && rw.patch_min < 300) vMatch = true;
-              if (this.selectedVersions.includes('rotw') && rw.patch_min >= 300) vMatch = true;
-              if (!vMatch) return false;
+              if (!this.selectedVersions.map(v => parseInt(v)).includes(rw.patch_min)) return false;
             }
 
             // Filtre mode ladder
